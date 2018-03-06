@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Flow Modification Form</title>
+
+	<link rel="stylesheet" type="text/css" href="control\css\form.css?v3">
+	<!--link rel="stylesheet" type="text/css" href="css\menu.css?v2"-->
+	<script src="control\js\jquery-3.3.1.min.js"></script>
+</head>
+<body>
+<h1>Flow Modification</h1>
+<div id="menu">
+	<div class="mainmenu">
+		<a href="index.html">Home</a>
+		<a href="monitor.html">Status</a>
+		<a href="control.html"  class="active" >Flow Form</a>
+		<a href="about.html">About</a>
+	</div>
+</div>
+<div id="main"></div>
+<table class="flowentry">
+	<tr>
+		<td>Match Fields</td>
+		<td>Priority</td>
+		<td>Counters</td>
+		<td>Instructions</td>
+		<td>Timeouts</td>
+		<td>Cookie</td>
+		<td>Flags</td>
+	</tr>
+</table>
+<form  id="flowmod" action="action" method="post">
+		<label for="dpid">Switch ID:</label><input type="number" id="dpid" min="1" value="1"><br>
+    <label for="table_id">Table ID:</label><input type="number" id="table_id" min="0" value="0"><br>
+
+		<fieldset>
+			<legend>Match Fields</legend>
+			<input type="checkbox" id="matchcheckbox">
+			<label for="matchcheckbox">Match Any</label>
+			<div id="matchdiv">
+				<table id="matchtable" class="extendable">
+						<tr>
+							<th>Match Field</th><th>Value</th><th></th>
+						</tr>
+						<tr>
+							<td><input list="matchlist" name="matchfield"></td>
+							<td><input type="text" name="matchvalue"></td>
+							<td><input type="button" name="bmatch" value="+"></td>
+						</tr>
+				</table>
+			</div>
+		</fieldset>
+
+    <label for="priority">Priority:</label>
+		<input type="number" id="priority" min="0" placeholder="entry priority"><br>
+    <label for="idle_timeout">Idle Timeout:</label>
+		<input type="number" id="idle_timeout" min="0" placeholder="seconds"><br>
+    <label for="hard_timeout">Hard Timeout:</label>
+		<input type="number" id="hard_timeout" min="0" placeholder="seconds"><br>
+    <label for="cookie">Cookie:</label>
+		<input type="number" id="cookie" min="0" placeholder="integer"><br>
+    <label for="cookie_mask" >Cookie Mask:</label>
+		<input type="number" id="cookie_mask" min="0" placeholder="integer"><br>
+
+    <fieldset>
+    <legend>Instructions:</legend>
+
+    <label for="meter_id">Goto Meter:</label>
+		<input type="number" id="meter_id" placeholder="meter-id or -1 for All"><br>
+
+
+    	<p>Apply Actions:</p>
+			<table id="applytable" class="extendable">
+					<tr>
+						<th>Action Type</th><th>Value</th><th></th>
+					</tr>
+					<tr>
+						<td><input list="actionlist" name="applyaction"></td>
+						<td><input type="text" name="applyvalue"></td>
+						<td><input type="button" name="bapply" value="+"></td>
+					</tr>
+			</table>
+
+		<input type="checkbox" id="clearactions">
+		<label for="clearactions">Clear Actions</label>
+
+			<p>Write Actions:</p>
+			<table id="writetable" class="extendable">
+					<tr>
+						<th>Action Type</th><th>Value</th><th></th>
+					</tr>
+					<tr>
+						<td><input list="actionlist" name="writeaction"></td>
+						<td><input type="text" name="writevalue"></td>
+						<td><input type="button" name="bwrite" value="+"></td>
+					</tr>
+			</table>
+
+    <label for="metadata">Write Metadata:</label>
+		<input type="number" id="metadata" placeholder="integer or string"><br>
+		<label for="metadata_mask">Metadata Mask:</label>
+		<input type="number" id="metadata_mask" placeholder="integer or string"><br>
+    <label for="goto">Goto Table:</label>
+		<input type="number" id="goto" placeholder="table_id" min="1"><br>
+
+			<p>Flags:</p>
+			<input type="checkbox" id="SEND_FLOW_REM"><label for="SEND_FLOW_REM" class="wide">Send flow removed msg</label>
+			<input type="checkbox" id="CHECK_OVERLAP"><label for="CHECK_OVERLAP" class="wide">Check of overlapping</label>
+			<input type="checkbox" id="RESET_COUNTS"><label for="RESET_COUNTS" class="wide">Reset counts</label>
+			<input type="checkbox" id="NO_PKT_COUNTS"><label for="NO_PKT_COUNTS" class="wide">Do not count packets</label>
+			<input type="checkbox" id="NO_BYT_COUNTS"><label for="NO_BYT_COUNTS" class="wide">Do not count bytes</label>
+			<label class="container">One
+			<input type="checkbox" id="dummy" checked="checked">
+			<span class="checkmark"></span>
+			</label>
+		</fieldset>
+
+    <br>
+    <input type="submit" value="Submit">
+    <input type="reset" value="Reset">
+    <br>
+
+</form>
+<div id="output"></div>
+</div> <!--Main-->
+<Copyright (c) 2017 Copyright Holder All Rights Reserved.>
+<script src="control\js\flowmodvalidate.js?v1"></script>
+<script src="control\js\flowmod.js?v1"></script>
+</body>
+</html>

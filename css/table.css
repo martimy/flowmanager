@@ -1,0 +1,90 @@
+/* http://anaturb.net/csstips/sheader.htm
+*/
+/*thead, tbody { display: block; }
+
+tbody {
+    height: 100px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}*/
+
+table {
+    border-collapse: collapse;
+}
+/*
+table, th, td {
+   border: 1px solid black;
+}
+td {
+	padding: 5px;
+}
+tr:hover {
+	background-color: #f5f5f5
+}
+thead {
+	background-color: #ccc;
+}
+*/
+
+a {
+	color: #c75f3e;
+}
+
+#mytable {
+	width: 700px;
+	height: 100px;
+	padding: 0;
+	margin: 0;
+}
+
+caption {
+	padding: 0 0 5px 0;
+	width: 700px;	 
+	font: italic 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	text-align: right;
+}
+
+th {
+	font: bold 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: white;
+	border: 1px solid white;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	text-align: left;
+	padding: 2px 6px;
+	background: #6C83B3;
+}
+
+th.nobg {
+	border-top: 0;
+	border-left: 0;
+	border-right: 1px solid #C1DAD7;
+	background: none;
+}
+
+td {
+	border: 1px solid #6C83B3;
+	background: #fff;
+	padding: 2px 6px;
+/*	color: #2D4372;*/
+}
+
+
+td:nth-child(2n) {
+	background: #F5FAFA;
+}
+
+th.spec {
+	border-left: 1px solid #C1DAD7;
+	border-top: 0;
+	background: #fff;
+	font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+}
+
+th.specalt {
+	border-left: 1px solid #C1DAD7;
+	border-top: 0;
+	background: #f5fafa;
+	font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
+	color: #797268;
+}

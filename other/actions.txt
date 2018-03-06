@@ -1,0 +1,16 @@
+OUTPUT	port	Output packet from "port"	{"type": "OUTPUT", "port": 3}
+COPY_TTL_OUT	None	Copy TTL outwards	{"type": "COPY_TTL_OUT"}
+COPY_TTL_IN	None	Copy TTL inwards	{"type": "COPY_TTL_IN"}
+SET_MPLS_TTL	mpls_ttl	Set MPLS TTL using "mpls_ttl"	{"type": "SET_MPLS_TTL", "mpls_ttl": 64}
+DEC_MPLS_TTL	None	Decrem1ent MPLS TTL	{"type": "DEC_MPLS_TTL"}
+PUSH_VLAN	ethertype	Push a new VLAN tag with "ethertype"	{"type": "PUSH_VLAN", "ethertype": 33024}
+POP_VLAN	None	Pop the outer VLAN tag	{"type": "POP_VLAN"}
+PUSH_MPLS	ethertype	Push a new MPLS tag with "ethertype"	{"type": "PUSH_MPLS", "ethertype": 34887}
+POP_MPLS	ethertype	Pop the outer MPLS tag with "ethertype"	{"type": "POP_MPLS", "ethertype": 2054}
+SET_QUEUE	queue_id	Set queue id using "queue_id" when outputting to a port	{"type": "SET_QUEUE", "queue_id": 7}
+GROUP	group_id	Apply group identified by "group_id"	{"type": "GROUP", "group_id": 5}
+SET_NW_TTL	nw_ttl	Set IP TTL using "nw_ttl"	{"type": "SET_NW_TTL", "nw_ttl": 64}
+DEC_NW_TTL	None	Decrement IP TTL	{"type": "DEC_NW_TTL"}
+SET_FIELD	value	Set a "field" using "value" (The set of keywords available for "field" is the same as match field)	See Example of set-field action
+PUSH_PBB	ethertype	Push a new PBB service tag with "ethertype" (Openflow1.3+)	{"type": "PUSH_PBB", "ethertype": 35047}
+POP_PBB	None	Pop the outer PBB service tag	{"type": "POP_PBB"}

@@ -1,0 +1,40 @@
+.mainmenu {
+    width: 100%; /* Set a width if you like */
+	font-size: 16px;
+
+}
+
+.mainmenu a {
+    background-color: #DDD; 
+    display: block; /* Make the links appear below each other */
+    padding: 12px; /* Add some padding */
+    text-decoration: none; /* Remove underline from links */
+	border-radius: 5px;
+	margin-top: 5px;
+	color: #2D4372;
+}
+
+.mainmenu a:hover {
+    background-color: #6C83B3; /* Dark grey background on mouse-over */
+}
+
+.mainmenu a.active {
+    background-color: #485F90; /* Add a green color to the "active/current" link */
+    color: white;
+}
+
+.logowrapper {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+	z-index: 1;
+}
+
+.logowrapper img {
+	margin: 0px 0px 10px 15px;
+}
+.logowrapper p {
+	margin: 0px 0px -10px 10px;
+	transform: rotate(90deg);
+	transform-origin: left top 0;
+}

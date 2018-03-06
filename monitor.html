@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Flow Monitor</title>
+
+	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\cards.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\table.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
+	<script src="js\main.js?v2"></script>
+	<script src="js\modules.js?v2"></script>
+	<script src="js\cards.js?v2"></script>
+</head>
+<body onload="generateCards.run(views, 'main');moduleManager.loadModules(views)">
+<script>console.log("started!");</script>
+<div id="header">
+	<h1>Flow Monitor</h1>
+</div>
+<div id="menu">
+	<div class="mainmenu">
+		<a href="index.html">Home</a>
+		<a href="monitor.html" class="active" >Status</a>
+		<a href="control.html">Flow Form</a>
+		<a href="about.html">About</a>
+	</div>
+	<div class="logowrapper">
+		<p>&copy 2017 Maen Artimy </p>
+		<img logo" src="img\Logo_dark_300x300.bmp" width="100px">
+	</div>
+</div>
+<div id="main"></div>
+</div>
+<script>console.log("finished!");</script>
+</body>
+</html>

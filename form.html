@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Flow Match Form</title>
+
+	<link rel="stylesheet" type="text/css" href="control\css\form.css?v1">
+	<script src="control\js\jquery-3.3.1.min.js"></script>
+	<script src="control\js\qform.js?v1"></script>
+</head>
+<body>
+<h1>Flow Match Form</h1>
+
+<form  id="matchform" action="action" method="post">
+	<div>
+		<input type="checkbox" id="matchcheckbox"><label for="matchcheckbox">Match Any</label>
+	</div>
+	<div id="matchdiv">
+		<table id="matchtable">
+				<tr>
+					<th>Field</th>
+					<th>Value</th>
+					<th></th>
+				</tr>
+				<tr>
+					<td><input list="matchlist" name="matchfield"></td>
+					<td><input type="text" name="matchvalue"></td>
+					<td><input type="button" name="bmatch" value="+"></td>
+				</tr>
+		</table>
+	</div>
+	<input type="submit" value="Submit">
+</form>
+<div id="output"></div>
+
+</body>
+</html>
