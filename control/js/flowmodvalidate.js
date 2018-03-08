@@ -14,12 +14,15 @@ function readForm($form) {
   var formData = {};
   var $all = $form.find(':input');
 
+  formData['dpid'] = parseInt($('#dpid').val())
+
   // Read number fields
   var $nums = $all.filter('[type=number]');
   $nums.each( function() {
     var n = parseInt(this.value);
     formData[this.id] = isNaN(n) ? 0 : n;
   })
+  // goto table must be > table_id
 
   // Read checkboxes
   var $ckb = $all.filter('[type=checkbox]');

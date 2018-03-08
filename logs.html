@@ -11,14 +11,14 @@
 </head>
 <body>
 <div id="header">
-	<h1>About</h1>
+	<h1>Logs</h1>
 </div>
 <div id="menu">
 	<div class="mainmenu">
-		<a href="index.html" class="active">Home</a>
+		<a href="index.html">Home</a>
 		<a href="monitor.html">Status</a>
 		<a href="control.html">Flow Form</a>
-		<a href="logs.html">Logs</a>
+		<a href="logs.html" class="active">Logs</a>
 		<a href="about.html">About</a>
 	</div>
 	<div class="logowrapper">
@@ -28,6 +28,17 @@
 </div>
 
 <div id="main">
+	<div id="logs"></div>
+	<script type="text/javascript">
+	var target = document.getElementById("logs");
+	var source = new EventSource("/logs");
+
+	source.onmessage = function(e) {
+		//console.log(e.data);
+		target.innerHTML = e.data;
+	};
+
+	</script>
 </div>
 
 </body>

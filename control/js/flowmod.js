@@ -66,8 +66,8 @@ $(function () {
     }
   });
 
-  // Clears the current value of the field input when is comes to focus.
-  $('input[list').on('focus', function(e) {
+  // Clears the current value of the list input when is comes to focus.
+  $('input[list]').on('focus', function(e) {
     $(this).attr('onfocus','this.value=""');
   });
 
@@ -85,7 +85,7 @@ $(function () {
     var $f = $('input');
     var $next = $f.eq($f.index(this) + 1);
     $next.val('');
-    $next.attr('placehoder','');
+    //$next.attr('placehoder','');
     $next.attr('placeholder', get_hint(matches, this.value));
   };
 
@@ -118,17 +118,17 @@ $(function () {
     var r = validate(formData, matches, actions);
     var msg = r.message;
 
-    console.log(formData);
+    //console.log(formData);
 
     // Send the data to the server
     $.post("/longform", JSON.stringify(formData))
       .done( function(response) {
         msg += response;
-        $('#output').text(msg);
+        displaySnackbar(msg);
       })
       .fail( function() {
-        msg += "No response from server";
-        $('#output').text(msg);
+        msg += "No response from controller.";
+        displaySnackbar(msg);
       })
   });
 
@@ -146,6 +146,14 @@ $(function () {
     }
     $form.append($datalist);
   };
+
+  // Display Snackbar
+  function displaySnackbar(msg) {
+      var $x = $("#snackbar");
+      $x.text(msg)
+      $x.toggleClass("show");
+      setTimeout(function(){ $x.toggleClass("show"); }, 3000);
+  }
 
   // Get data lists from the controller
   function read_dataLists() {
@@ -178,6 +186,19 @@ $(function () {
     })
     .fail( function() {
       $('#output').text("What happened 2!");
+    })
+
+    // Get switches list
+    $.get("/setup","list=switches").done( function(response) {
+      console.log(response);
+      var $dps = $('#dpid');
+      var dpath = response.split(',');
+      for (var i=0; i<dpath.length; i++) {
+        $dps.append('<option value="' + dpath[i] + '">SW_' + dpath[i] + '</option>')
+      }
+    })
+    .fail( function() {
+      $('#output').text("Cannot read switches!");
     })
   };
 

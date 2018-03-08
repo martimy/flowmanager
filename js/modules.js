@@ -2,6 +2,8 @@
  * Definition of modules.
  *
  **/
+
+// Makes a GET request to the controller
 function BaseModule(command) {
 	var cmd = command;
 	var go = myGlobalObject;
@@ -52,6 +54,7 @@ function hc(myString) {
 	return myString.replace("_"," ").replace(/\b\w/g, l => l.toUpperCase())
 }
 
+// Populates the Switch ID card
 var dpList = function (jsondata, element) {
 	var switches = JSON.parse(jsondata);
 	//var html = "";
@@ -86,10 +89,15 @@ var dpStruct = function (jsondata, element) {
 
 var dpTable = function (jsondata, element) {
 	var dispObj = function(obj) {
+		// JSON to string?
 		var str = "";
 		if(Array.isArray(obj)) {
 			for(var item in obj) {
-				str += obj[item].replace(":","=") + "<br>";
+				if(obj[item] instanceof Object) {
+
+				}	else {
+					str += obj[item].replace(":","=") + "<br>";
+				}
 			}
 			return str;
 		} else {
@@ -135,8 +143,8 @@ var dpTable = function (jsondata, element) {
 			var tabCell = tr.insertCell(-1);
 
 			if(typeof rows[i][col[j]] === 'object') {
-				tabCell.innerHTML = dispObj(rows[i][col[j]]);
-				//JSON.stringify(rows[i][col[j]]);
+				//tabCell.innerHTML = dispObj(rows[i][col[j]]);
+				tabCell.innerHTML = JSON.stringify(rows[i][col[j]]);
 			} else {
 				tabCell.innerHTML = rows[i][col[j]];
 			}
@@ -147,7 +155,7 @@ var dpTable = function (jsondata, element) {
 	element.appendChild(table);
 }
 
-
+// Populate the cards with data
 var moduleManager = (function () {
 	var time = 15000; //10 sec
 	var myViews = [];

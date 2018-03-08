@@ -11,10 +11,15 @@ from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
 from ryu.controller import dpset
 
-import six
+# thes are neede for the events
+from ryu.controller import ofp_event
+from ryu.controller.handler import MAIN_DISPATCHER
+from ryu.controller.handler import set_ev_cls
+
+#import six
 import sys
-sys.path.append('/home/maen/ofworkspace/simpleswitch2/ss2')
-from app import SS2App
+#sys.path.append('/home/maen/ofworkspace/simpleswitch2/ss2')
+#from app import SS2App
 
 webapi = "webapi"
 
@@ -43,6 +48,8 @@ class WebController(ControllerBase):
                 lst = self.api.get_data("actions")
             elif req.GET["list"] == "matches":
                 lst = self.api.get_data("matches")
+            elif req.GET["list"] == "switches":
+                lst = ','.join([str(k) for k, v in self.api.get_switches()])
 
             res = Response()
             res.body = lst
@@ -61,6 +68,24 @@ class WebController(ControllerBase):
             res.body = json.dumps(req.json["match"]) + " -- " + ','.join([str(k) for k, v in self.api.get_switches()])
             return res
         return Response(status=400)
+
+    @route('monitor', '/logs', methods=['GET'])
+    def get_log(self, req, **_kwargs):
+        # Support for SSE
+
+        def eventStream():
+            pm = 0
+            msgs = self.api.get_messages()
+            if len(msgs) > pm:
+                #print(msgs[pm:])
+                pm = len(msgs)
+                return "data: {}\n\n".format(msgs[:-1])
+
+            #return "data: {}\n\n".format("Hello from server")
+
+        res = Response(content_type="text/event-stream")
+        res.body = eventStream()
+        return res
 
     @route('monitor', '/home/{filename:.*}', methods=['GET'])
     def get_filename(self, req, filename, **_kwargs):
@@ -119,13 +144,13 @@ class WebRestApi(app_manager.RyuApp): #, SS2App):
         print(r.status_code)
 
     port_id = {
+        "IN_PORT": 0xfffffff8,
+        "TABLE": 0xfffffff9,
+        "NORMAL": 0xfffffffa,
+        "FLOOD": 0xfffffffb,
         "ALL": 0xfffffffc,
-        "Controller": 0xfffffffd,
-        "Table": 0xfffffffe,
-        "Ingress Port": 0xfffffff9,
-        "Local": 0xfffffff8,
-        "Normal": 0xfffffffa,
-        "Flood": 0xfffffffb,
+        "CONTROLLER": 0xfffffffd,
+        "LOCAL": 0xfffffffe,
         "ANY": 0xffffffff
     }
 
@@ -164,11 +189,11 @@ class WebRestApi(app_manager.RyuApp): #, SS2App):
                         kwargs = {aDict[key][1]: set[key]}
                         print(kwargs)
                         raise Exception("Action {} not supported!".format(key))
-                    #elif aDict[key][1] == 'port':
-                    #    print(set[key], self.port_id[set[key]])
-                    #    val = self.port_id.get(set[key], int(set[key]))
-                    #    print(val)
-                    #    kwargs = {aDict[key][1]: val}
+                    elif aDict[key][1] == 'port':
+                        x = set[key].upper()
+                        val = self.port_id[x] if x in self.port_id else int(x)
+                        print(val)
+                        kwargs = {aDict[key][1]: val}
                     else:
                         kwargs = {aDict[key][1]: int(set[key])}
                     actions.append(f(**kwargs))
@@ -247,7 +272,41 @@ class WebRestApi(app_manager.RyuApp): #, SS2App):
 
         except Exception as e:
             return e.__repr__()
-        msg = dp.ofproto_parser.OFPFlowMod(**msg_kwargs)
-        dp.send_msg(msg)
 
-        return "So far so good."
+        msg = parser.OFPFlowMod(**msg_kwargs)
+        try:
+            dp.send_msg(msg)    # ryu/ryu/app/ofctl/api.py
+        except Exception as e:
+            return e.__repr__()
+
+
+        return "Message sent successfully."
+
+    messages = []
+
+    @set_ev_cls([ofp_event.EventOFPStatsReply,
+                 ofp_event.EventOFPDescStatsReply,
+                 ofp_event.EventOFPFlowStatsReply,
+                 ofp_event.EventOFPAggregateStatsReply,
+                 ofp_event.EventOFPTableStatsReply,
+                 ofp_event.EventOFPTableFeaturesStatsReply,
+                 ofp_event.EventOFPPortStatsReply,
+                 ofp_event.EventOFPQueueStatsReply,
+                 ofp_event.EventOFPQueueDescStatsReply,
+                 ofp_event.EventOFPMeterStatsReply,
+                 ofp_event.EventOFPMeterFeaturesStatsReply,
+                 ofp_event.EventOFPMeterConfigStatsReply,
+                 ofp_event.EventOFPGroupStatsReply,
+                 ofp_event.EventOFPGroupFeaturesStatsReply,
+                 ofp_event.EventOFPGroupDescStatsReply,
+                 ofp_event.EventOFPPortDescStatsReply
+                 ], MAIN_DISPATCHER)
+    def stats_reply_handler(self, ev):
+        msg = ev.msg
+        dp = msg.datapath
+
+        self.messages.append(msg)
+        #print("Recieved message : ", msg)
+
+    def get_messages(self):
+        return self.messages

@@ -1,7 +1,7 @@
 var BAR_IDX = 1;
 var CONTAINER_IDX = 2;
 
-var cardControl = ( function() { 
+var cardControl = ( function() {
 	console.log("cardControl");
 	var expand = function(e) {
 		var size = e.parentElement.parentElement.parentElement.style.width;
@@ -9,7 +9,7 @@ var cardControl = ( function() {
 			e.parentElement.parentElement.parentElement.style.width = '45%';
 		} else {
 			e.parentElement.parentElement.parentElement.style.width = '90%';
-		}				
+		}
 		//e.classList.toggle("active");
 	};
 
@@ -22,13 +22,16 @@ var cardControl = ( function() {
 			c.style.display = "none";
 		}
 	};
-	
+
 	return {
 		expand: expand,
 		collapse: collapse
 	}
 })();
- 
+
+// Generate cards dynamicly based on the template given by local 'html' variable
+// and data from the 'views' list. Cards are added to the 'parent' element
+// passed as argument.
 var generateCards = ( function() {
 	console.log("generateCards");
 	var html = 	"<div class=\"header\"><h1>{Title}</h1> \
@@ -36,7 +39,7 @@ var generateCards = ( function() {
 			<a href=\"javascript:void(0)\" onclick=\"cardControl.expand(this)\">&#8596;</a> \
 			</div></div><div class=\"bar\"></div><div class=\"container\"><p>No data to display...</p> \
 			</div><div class=\"footing\"></div>";
-	
+
 	// <a href=\"#refresh\">&#8634;</a>
 
 	var run = function(views, parent) {
@@ -51,8 +54,8 @@ var generateCards = ( function() {
 			d.innerHTML = card;
 			doc.appendChild(d);
 		}
-	};	
-	
+	};
+
 	/*var loadModules = function(views) {
 		for (var idx in views) {
 			if(views[idx].call) {
@@ -65,7 +68,7 @@ var generateCards = ( function() {
 			}
 		}
 	};*/
-	
+
 	return {
 		run: run
 	}
@@ -85,5 +88,3 @@ var views = [
 {id:"mQueueDesc", cmd:"/stats/queuedesc/<dpid>", dsc:"Queue Desc", call:dpTable, ref:true},
 {id:"mMeters", cmd:"/stats/meter/<dpid>", dsc:"Meters stats"}*/
 ];
-
-
