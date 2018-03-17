@@ -1,4 +1,4 @@
-// Read form data
+// Callesd by readForm to get key,value pairs
 function readKeyValue(str1, str2, out) {
   $('tr').has(str1).each(function() {
     var $key = $(this).find(str1).val().trim();
@@ -9,13 +9,18 @@ function readKeyValue(str1, str2, out) {
   });
 }
 
-
+// Read form data
 function readForm($form) {
   var formData = {};
   var $all = $form.find(':input');
 
+  // Read switch ID
   formData['dpid'] = parseInt($('#dpid').val())
 
+  // Read Operation type
+  var op = $('[name="operation"]:checked').val();
+  formData['operation'] = op;
+  console.log(op)
   // Read number fields
   var $nums = $all.filter('[type=number]');
   $nums.each( function() {
@@ -73,6 +78,7 @@ function toInt(fields, info, msg, flag) {
   flag = true;
 }
 
+// validates form input
 function validate(formData, matchflds, actionflds) {
   var r = {"valid":{}, "message":"" };
 

@@ -1,3 +1,8 @@
+/*
+Linked to control.html to read user input for flow table modification.
+Copyright (c) Maen Artimy, 2018
+*/
+
 $(function () {
   //var url = "http://" + location.hostname + ":8080";
 
@@ -10,10 +15,10 @@ $(function () {
   var actions = {};
   var matches = {};
 
-  var xhr = new XMLHttpRequest();
+  //var xhr = new XMLHttpRequest();
   var $form = $('#flowmod');
 
-  // When Enter is pressed go to the next input instead of sumbitting
+  // When Enter is pressed, go to the next input instead of sumbitting
   // the form.
   $form.on('keypress', ':input', function (e) {
     if(e.which == 13) {
@@ -80,6 +85,17 @@ $(function () {
     return dict[label][HINT];
   };
 
+  // Action taken when a Oparation input is changed
+  function on_operation_change (e) {
+    if (e.target.value.indexOf("del") > -1) {
+      if ($('input[name="operation"]:checked').val()) {
+        $('#out_fields>input').prop("disabled", false);
+      }
+    } else {
+      $('#out_fields>input').prop("disabled", true);
+    }
+  };
+
   // Action taken when a Match input is changed
   function on_match_change (e) {
     var $f = $('input');
@@ -105,6 +121,7 @@ $(function () {
   };
 
   // Bind Change events
+  $('[name="operation"]').on('change', on_operation_change);
   $('[name="matchfield"]').on('change', on_match_change);
   $('[name="applyaction"]').on('change', on_action_change);
   $('[name="writeaction"]').on('change', on_action_change);
@@ -121,7 +138,7 @@ $(function () {
     //console.log(formData);
 
     // Send the data to the server
-    $.post("/longform", JSON.stringify(formData))
+    $.post("/flowform", JSON.stringify(formData))
       .done( function(response) {
         msg += response;
         displaySnackbar(msg);
@@ -158,7 +175,7 @@ $(function () {
   // Get data lists from the controller
   function read_dataLists() {
     // Get accepatble action types
-    $.get("/setup","list=actions").done( function(response) {
+    $.get("/flowform","list=actions").done( function(response) {
       var data_all = response.split('|');
       for (var i=0; i<data_all.length; i++) {
         var label = data_all[i++];
@@ -174,7 +191,7 @@ $(function () {
     })
 
     // Get accepatble match fields
-    $.get("/setup","list=matches").done( function(response) {
+    $.get("/flowform","list=matches").done( function(response) {
       var data_all = response.split('|');
       for (var i=0; i<data_all.length; i++) {
         var label = data_all[i++];
@@ -189,7 +206,7 @@ $(function () {
     })
 
     // Get switches list
-    $.get("/setup","list=switches").done( function(response) {
+    $.get("/flowform","list=switches").done( function(response) {
       console.log(response);
       var $dps = $('#dpid');
       var dpath = response.split(',');

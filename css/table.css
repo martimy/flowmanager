@@ -37,9 +37,14 @@ a {
 	margin: 0;
 }
 
+.flowtable {
+  table-layout: auto;
+  width: 100%
+}
+
 caption {
 	padding: 0 0 5px 0;
-	width: 700px;	 
+	width: 700px;
 	font: italic 11px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
 	text-align: right;
 }
@@ -51,7 +56,7 @@ th {
 	letter-spacing: 2px;
 	text-transform: uppercase;
 	text-align: left;
-	padding: 2px 6px;
+	padding: 2px 5px;
 	background: #6C83B3;
 }
 
@@ -62,17 +67,10 @@ th.nobg {
 	background: none;
 }
 
-td {
-	border: 1px solid #6C83B3;
-	background: #fff;
-	padding: 2px 6px;
-/*	color: #2D4372;*/
-}
 
-
-td:nth-child(2n) {
+/*td:nth-child(2n) {
 	background: #F5FAFA;
-}
+}*/
 
 th.spec {
 	border-left: 1px solid #C1DAD7;
@@ -88,3 +86,47 @@ th.specalt {
 	font: bold 10px "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
 	color: #797268;
 }
+
+td {
+	border: 1px solid #6C83B3;
+	/*background: #fff;*/
+	padding: 2px 6px;
+  max-height: 10px;
+  overflow-y: auto;
+}
+
+tr:nth-child(even) {
+  background: #F5FAFA;
+}
+
+
+table.sortable th:hover {
+	cursor: pointer;}
+th.ascending, th.descending, table.sortable th:hover {
+	background-color: #00cccc;
+	color: #fff;}
+
+/* Arrows for table sorting */
+th.ascending:after {
+	font-size: 90%;
+    content: '\25B2';
+    float: left;
+}
+th.descending:after {
+	font-size: 90%;
+    content: '\25BC';
+    float: left;
+}
+
+.tooltip {outline:none; }
+.tooltip strong {line-height:30px;}
+.tooltip:hover {text-decoration:none;}
+.tooltip span {
+    z-index:10;display:none; padding:14px 20px;
+    margin-top:-30px; margin-left:28px;
+    width:300px; line-height:16px;
+}
+.tooltip:hover span{
+    display:inline; position:absolute; color:#111;
+    border:1px solid #DCA; background:#fffAF0;}
+.callout {z-index:20;position:absolute;top:30px;border:0;left:-12px;}

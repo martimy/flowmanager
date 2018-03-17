@@ -1,25 +1,30 @@
+@import "colors.css"
+
+
 .mainmenu {
   width: 100%; /* Set a width if you like */
-  font-size: 16px;
 }
 
 .mainmenu a {
-  background-color: #DDD;
+  background-color: var(--tcolor-1);
   display: block; /* Make the links appear below each other */
   padding: 12px; /* Add some padding */
   text-decoration: none; /* Remove underline from links */
   border-radius: 5px;
   margin-top: 5px;
-  color: #2D4372;
+  color: var(--tcolor-3);
+
+  font-size: 16px;
 }
 
 .mainmenu a:hover {
-  background-color: #6C83B3; /* Dark grey background on mouse-over */
+  background-color: var(--tcolor-4);
+  color: var(--white);
 }
 
 .mainmenu a.active {
-  background-color: #485F90; /* Add a green color to the "active/current" link */
-  color: white;
+  background-color: var(--tcolor-3);
+  color: var(--white);
 }
 
 .logowrapper {

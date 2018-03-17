@@ -2,33 +2,43 @@
 <meta charset="utf-8">
 <html>
 <head>
-	<title>Flow Modification Form</title>
+	<title>Flow Control</title>
 	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
 	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
-	<link rel="stylesheet" type="text/css" href="control\css\form.css?v3">
+	<link rel="stylesheet" type="text/css" href="css\form.css?v3">
 	<!--link rel="stylesheet" type="text/css" href="css\menu.css?v2"-->
-	<script src="control\js\jquery-3.3.1.min.js"></script>
+	<script src="js\jquery-3.3.1.min.js"></script>
 </head>
 <body>
 <div id="header">
-	<h1>Flow Modification</h1>
+	<h1>Flow Control</h1>
 </div>
 <div id="menu">
-	<div class="mainmenu">
-		<a href="index.html">Home</a>
-		<a href="monitor.html">Status</a>
-		<a href="control.html"  class="active" >Flow Form</a>
-		<a href="about.html">About</a>
-	</div>
-	<div class="logowrapper">
-		<p>&copy 2018 Maen Artimy </p>
-		<img src="img\Logo_dark_300x300.bmp" width="100px">
-	</div>
 </div>
 
 <div id="main">
 
 <form  id="flowmod" action="action" method="post">
+		<div class="formcontrol">
+	    <input type="submit" value="Submit">
+	    <input type="reset" value="Clear"><br>
+		</div>
+
+		<div class="form">
+		<label for="operation">Flow Operation:</label>
+		<ul class="operation">
+		<li><input type="radio" id="op1" name="operation" value="add" checked="checked">
+				<label for="op1">Add</labeL></li>
+		<li><input type="radio" id="op2" name="operation" value="mod">
+				<label for="op2">Modify</labeL></li>
+		<li><input type="radio" id="op3" name="operation" value="modst">
+				<label for="op3">Modify Strict</labeL></li>
+		<li><input type="radio" id="op4" name="operation" value="del">
+				<label for="op4">Delete</labeL></li>
+		<li><input type="radio" id="op5" name="operation" value="delst">
+				<label for="op5">Delete Strict</labeL></li>
+	</ul><br>
+
 		<label for="dpid">Switch ID:</label><select type="number" id="dpid"></select><br>
     <label for="table_id">Table ID:</label><input type="number" id="table_id" min="0" value="0"><br>
 
@@ -50,6 +60,7 @@
 			</div>
 		</fieldset>
 
+		<p>
     <label for="priority">Priority:</label>
 		<input type="number" id="priority" min="0" placeholder="entry priority"><br>
     <label for="idle_timeout">Idle Timeout:</label>
@@ -60,16 +71,25 @@
 		<input type="number" id="cookie" min="0" placeholder="integer"><br>
     <label for="cookie_mask" >Cookie Mask:</label>
 		<input type="number" id="cookie_mask" min="0" placeholder="integer"><br>
-
+		<span id="out_fields">
+		<label for="out_port">Output Port:</label>
+		<input type="number" id="out_port" min="-1" placeholder="port number or -1 for ANY" disabled="true"><br>
+		<label for="out_group">Output Group:</label>
+		<input type="number" id="out_group" min="-1" placeholder="group id or -1 for ANY" disabled="true"><br>
+		</span>
+		</p>
+	</div>
+	<div class="form">
     <fieldset>
     <legend>Instructions:</legend>
 
+		<p>
     <label for="meter_id">Goto Meter:</label>
 		<input type="number" id="meter_id" placeholder="meter-id or -1 for All"><br>
+	</p>
 
-
-    	<p>Apply Actions:</p>
 			<table id="applytable" class="extendable">
+				<caption>Apply Actions:</caption>
 					<tr>
 						<th>Action Type</th><th>Value</th><th></th>
 					</tr>
@@ -80,11 +100,13 @@
 					</tr>
 			</table>
 
+	  <p>
 		<input type="checkbox" id="clearactions">
 		<label for="clearactions">Clear Actions</label>
+	  </p>
 
-			<p>Write Actions:</p>
 			<table id="writetable" class="extendable">
+					<caption>Write Actions:</caption>
 					<tr>
 						<th>Action Type</th><th>Value</th><th></th>
 					</tr>
@@ -95,37 +117,34 @@
 					</tr>
 			</table>
 
+		<p>
     <label for="metadata">Write Metadata:</label>
 		<input type="number" id="metadata" placeholder="integer or string"><br>
 		<label for="metadata_mask">Metadata Mask:</label>
 		<input type="number" id="metadata_mask" placeholder="integer or string"><br>
     <label for="goto">Goto Table:</label>
 		<input type="number" id="goto" placeholder="table_id" min="1"><br>
+		</p>
+
 		</fieldset>
 
 		<fieldset>
 		<legend>Flags:</legend>
-		<input type="checkbox" id="SEND_FLOW_REM"><label for="SEND_FLOW_REM" class="wide">Send flow removed msg</label>
-		<input type="checkbox" id="CHECK_OVERLAP"><label for="CHECK_OVERLAP" class="wide">Check of overlapping</label>
-		<input type="checkbox" id="RESET_COUNTS"><label for="RESET_COUNTS" class="wide">Reset counts</label>
-		<input type="checkbox" id="NO_PKT_COUNTS"><label for="NO_PKT_COUNTS" class="wide">Do not count packets</label>
-		<input type="checkbox" id="NO_BYT_COUNTS"><label for="NO_BYT_COUNTS" class="wide">Do not count bytes</label>
-		<label class="container">One
-		<input type="checkbox" id="dummy" checked="checked">
-		<span class="checkmark"></span>
-		</label>
+		<input type="checkbox" id="SEND_FLOW_REM"><label for="SEND_FLOW_REM">Send flow removed msg</label>
+		<input type="checkbox" id="CHECK_OVERLAP"><label for="CHECK_OVERLAP">Check of overlapping</label>
+		<input type="checkbox" id="RESET_COUNTS"><label for="RESET_COUNTS">Reset counts</label>
+		<input type="checkbox" id="NO_PKT_COUNTS"><label for="NO_PKT_COUNTS">Do not count packets</label>
+		<input type="checkbox" id="NO_BYT_COUNTS"><label for="NO_BYT_COUNTS">Do not count bytes</label>
 		</fieldset>
 
-    <input type="submit" value="Submit">
-    <input type="reset" value="Reset">
-    <br>
 
+</div>
 </form>
 <div id="output"></div>
 <div id="snackbar"></div>
 </div>
-
-<script src="control\js\flowmodvalidate.js?v2"></script>
-<script src="control\js\flowmod.js?v2"></script>
+<script src="js\mainmenu.js"></script>
+<script src="js\flowmodvalidate.js?v2"></script>
+<script src="js\flowmod.js?v2"></script>
 </body>
 </html>

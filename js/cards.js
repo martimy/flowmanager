@@ -77,7 +77,7 @@ var generateCards = ( function() {
 var views = [
 {id:"mSwitch", cmd:"/stats/switches", dsc:"Switch ID(s)", call:dpList, ref:true},
 {id:"mSwitchDesc", cmd:"/stats/desc/<dpid>", dsc:"Switch Desc", call:dpStruct},
-{id:"mFlowsFilter", post:true, cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
+//temp{id:"mFlowsFilter", post:true, cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
 {id:"mPortDesc", cmd:"/stats/portdesc/<dpid>", dsc:"Port Desc", call:dpTable, ref:true},
 //{id:"mFlows", cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
 {id:"mAggFlows", cmd:"/stats/aggregateflow/<dpid>", dsc:"Flow Summary", call:dpTable, ref:true},

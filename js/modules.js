@@ -22,6 +22,7 @@ function BaseModule(command) {
 	}
 }
 
+// Makes a POST request to the controller
 function BasePostModule(command) {
 	var cmd = command;
 	var go = myGlobalObject;

@@ -6,8 +6,9 @@
 .card .container {
     padding: 8px 16px;
 	transition: 1s;
-	overflow: auto;
-	max-height: 200px;
+	/*overflow: auto;*/
+	overflow-x: auto;
+	height: 150px;
 }
 
 .card .bar {
@@ -29,6 +30,14 @@
 	font-size: 14px;
 }
 
+.card.wide {
+	float: none;
+	width: auto;
+}
+
+.card.wide .container{
+	height: auto;
+}
 
 /*.card:first-of-type {
 	float:none;
