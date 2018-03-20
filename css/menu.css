@@ -1,11 +1,10 @@
 @import "colors.css"
 
-
-.mainmenu {
+.menuitem {
   width: 100%; /* Set a width if you like */
 }
 
-.mainmenu a {
+.menuitem a {
   background-color: var(--tcolor-1);
   display: block; /* Make the links appear below each other */
   padding: 12px; /* Add some padding */
@@ -17,12 +16,12 @@
   font-size: 16px;
 }
 
-.mainmenu a:hover {
+.menuitem a:hover {
   background-color: var(--tcolor-4);
   color: var(--white);
 }
 
-.mainmenu a.active {
+.menuitem a.active {
   background-color: var(--tcolor-3);
   color: var(--white);
 }

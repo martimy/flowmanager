@@ -1,14 +1,34 @@
+/*
+    Copyright (c) Maen Artimy, 2018
+*/
+
+.card {
+	background-color: white;
+	float: left;
+    /*box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);*/
+    transition: 0.3s;
+    width: 530px;
+    font-size: 14px;
+    margin: 10px;
+}
+
+.card:nth-of-type(odd) {
+    clear: left;
+ }
+
 .card .header {
-	background-color: #485F90;
-	border-radius: 5px 5px 0 0;
+    border-style: solid;
+    border-color: var(--scolor-3);
+    border-width: 2px 0 2px 0;
 	padding: 0px 16px;
 }
+
 .card .container {
-    padding: 8px 16px;
 	transition: 1s;
 	/*overflow: auto;*/
 	overflow-x: auto;
 	height: 150px;
+    padding: 8px 16px;
 }
 
 .card .bar {
@@ -19,39 +39,23 @@
 	margin: 2px 8px;
 }
 
-.card {
-	background-color: white;
-	float: left;
-	margin: 5px;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-    transition: 0.3s;
-    width: 45%;
-	border-radius: 5px;
-	font-size: 14px;
-}
-
 .card.wide {
 	float: none;
-	width: auto;
+    width: 1080px; /*needs to be fixed*/
 }
 
 .card.wide .container{
-	height: auto;
+    height: auto;
+    padding: 8px 16px;
 }
 
-/*.card:first-of-type {
-	float:none;
-}
-.card:nth-of-type(n+1) {
-   clear: both;
-}*/
 .card:hover {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 
 .card .header button {
     background-color: transparent;
-    color: white;
+    color: black;
     cursor: pointer;
     padding: 18px;
     width: 100%;
@@ -62,13 +66,9 @@
     transition: 0.4s;
 }
 
-.card .header button.active, .card.button:hover {
-    /*background-color: #ddd;*/
-}
-
 .card .header button::after {
     content: '\002B';
-    color: white;
+    color: black;
     font-weight: bold;
     float: right;
     margin-left: 5px;
@@ -79,10 +79,15 @@
 }
 
 .card .header h1 {
-	color: white;
+	color: var(--scolor-4);
 	float: left;
 	font-size: 16px;
 	display: block;
+}
+
+/*temp*/
+.card.wide .header h1 {
+	float: none;
 }
 
 .card ul {
@@ -106,7 +111,11 @@
     background-color: #EEE;
 }
 
-/********************/
+/*
+Card top navigation
+probably not all are used.
+*/
+
 /* Add a black background color to the top navigation */
 .topnav {
     /*background-color: #333;*/
@@ -117,21 +126,16 @@
 /* Style the links inside the navigation bar */
 .topnav a {
     float: right;
-    display: block;
-    color: white;
+    /*display: inline-block;*/
+    color: var(--scolor-3);
     text-align: center;
     padding: 12px 8px;
     text-decoration: none;
 	font-size: 16px;
 }
 
-/* Change the color of links on hover */
-.topnav a:hover {
-    /*background-color: red; #ddd;*/
-}
-
 /* Add a color to the active/current link */
 .topnav a.active {
     background-color: #4CAF50;
-    color: white;
+    color: var(--scolor-3);
 }

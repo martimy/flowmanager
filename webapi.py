@@ -13,10 +13,11 @@ from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
 
-#sys.path.append('/home/maen/ofworkspace/simpleswitch2/ss2')
+# sys.path.append('/home/maen/ofworkspace/simpleswitch2/ss2')
 #from app import SS2App
 
-#ref: https://tools.itef.org/doc/python-routes/html
+# ref: https://tools.itef.org/doc/python-routes/html
+
 
 class WebApi(ControllerBase):
     def __init__(self, req, link, data, **config):
@@ -45,7 +46,7 @@ class WebApi(ControllerBase):
     def get_status(self, req, **_kwargs):
         if req.GET['status'] and req.GET['dpid']:
             res = Response(content_type="application/json")
-            reply = self.api.get_flow_stats(req,req.GET['dpid'])
+            reply = self.api.get_flow_stats(req, req.GET['dpid'])
             res.json = reply
             return res
         return Response(status=404)
@@ -67,7 +68,7 @@ class WebApi(ControllerBase):
     #         return res
     #     return Response(status=404)
 
-    @route('monitor', '/flowform', methods=['GET','POST'])
+    @route('monitor', '/flowform', methods=['GET', 'POST'])
     def get_flow_form(self, req, **_kwargs):
         if req.POST:
             res = Response()
@@ -85,27 +86,33 @@ class WebApi(ControllerBase):
             res = Response()
             res.body = lst
             return res
-        # else:
-        #     res = Response()
-        #     res.body = json.dumps(req.json["match"]) + " -- " + ','.join([str(k) for k, v in self.api.get_switches()])
-        #     return res
-        return Response(status=400) # bad request
+        return Response(status=400)  # bad request
 
     @route('monitor', '/logs', methods=['GET'])
-    def get_log(self, req, **_kwargs):
-        # Support for SSE
+    def get_logs(self, req, **_kwargs):
+        if req.GET:
+            logs = self.api.read_logs()
+            res = Response(content_type="application/json")
+            res.json = logs
+            return res
+        return Response(status=400)  # bad request
 
-        def eventStream():
-            while True:
-                msgs = self.api.get_messages()
-                yield "retry: 10000\ndata: {}:{}\n\n".format(dt.datetime.now(), msgs)
-                msgs = []
 
-            #return "data: {}\n\n".format("Hello from server")
+    # def get_log_SSE(self, req, **_kwargs):
+    #     # Support for SSE
+    #     # https://streamdata.io/blog/server-sent-events/
 
-        res = Response(content_type="text/event-stream")
-        res.body = eventStream().next()
-        return res
+    #     def eventStream():
+    #         while True:
+    #             msgs = self.api.get_messages()
+    #             body = ['data: {}'.format(l) for l in msgs]
+
+    #             self.api.clear_messages()
+    #             yield '\n'.join(body) + '\n\n'
+
+    #     res = Response(content_type="text/event-stream")
+    #     res.body = eventStream().next()
+    #     return res
 
     @route('monitor', '/home/{filename:.*}', methods=['GET'])
     def get_filename(self, req, filename, **_kwargs):

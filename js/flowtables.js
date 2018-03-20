@@ -1,10 +1,8 @@
 $(function () {
   // Table template
-  var tableTemplate = 	"<div class=\"header\"><h1>{Title}</h1> \
-      <div class=\"topnav\"><a href=\"javascript:void(0)\" onclick=\"cardControl.collapse(this)\">&#8722;</a> \
-      <a href=\"javascript:void(0)\" onclick=\"cardControl.expand(this)\">&#8596;</a> \
-      </div></div><div class=\"bar\"></div><div class=\"container\">{content} \
-      </div><div class=\"footing\"></div>";
+  var tableTemplate = "<div class=\"header\"><h1>{Title}</h1></div> \
+      <div class=\"container\">{content}</div> \
+      <div class=\"footing\"></div>";
 
   var dps = null;
 

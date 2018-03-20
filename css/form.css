@@ -3,6 +3,7 @@ form {
 }
 
 .formcontrol {
+  
   padding-bottom: 10px;
 }
 
@@ -10,11 +11,7 @@ form {
   display: none;
 }
 
-.blue {
-  background: blue;
-}
-
-input, select {
+input {
   width: 175px;
 }
 
@@ -53,7 +50,7 @@ label {
   width: 120px;
   height: 25px;
   display: inline-block;
-  vertical-align: top;
+  vertical-align: baseline;
 }
 
 input[type="radio"]+label {
@@ -67,12 +64,19 @@ input[type="checkbox"]+label {
   display: inline-block;
 }
 
-fieldset {
+.fieldset {
   width: 420px;
-  margin-bottom: 10px;
-  border-radius: 5px;
-  /*border-color: darkblue;*/
+  padding: 0 0 0 10px;
+  margin-bottom: 15px;
+  border-color: var(--scolor-3);
+  border-width: 0 0 0 3px;
+  border-style: solid;
+  border-radius: 6px;
+}
 
+h1 {
+  color: var(--scolor-4);
+  font-size: 16px;
 }
 
 .flowentry td {
@@ -81,7 +85,7 @@ fieldset {
   text-align: center;
 }
 
-div.form {
+.form {
   display: block;
   float: left;
   min-width: 500px;
@@ -90,6 +94,53 @@ div.form {
 caption {
   display: table-caption;
   text-align: left;
+}
+
+/****************************************************************************/
+/*                           Buttons                                        */
+/****************************************************************************/
+
+input[type=submit], input[type=reset] {
+  background-color: var(--scolor-3);
+  border: none;
+  color: var(--white);
+  padding: 8px;
+  text-decoration: none;
+  margin: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+select {
+  background-color: var(--white);
+  cursor: pointer;
+  width: 179px;
+  height: 24px;
+}
+
+input[type=submit]:hover, input[type=reset]:hover {
+  background-color: var(--scolor-0);
+}
+
+input[type=button] {
+  background-color: var(--scolor-3);
+  color: var(--white); 
+  border: solid 2px var(--scolor-3);
+  cursor: pointer;
+}
+
+input[type=button]:hover {
+  background-color: var(--scolor-0);
+
+}
+
+select option {
+  color: var(--white);  
+}
+
+select option:hover {
+  background-color: var(--scolor-0);
 }
 
 /****************************************************************************/

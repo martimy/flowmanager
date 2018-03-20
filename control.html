@@ -10,40 +10,43 @@
 	<script src="js\jquery-3.3.1.min.js"></script>
 </head>
 <body>
-<div id="header">
+<div class="container_16 clearfix">
+<div id="header" class="grid_16">
 	<h1>Flow Control</h1>
 </div>
-<div id="menu">
-</div>
-
-<div id="main">
+<div id="menu" class="grid_2"></div>
+<div id="main" class="grid_14">
 
 <form  id="flowmod" action="action" method="post">
 		<div class="formcontrol">
 	    <input type="submit" value="Submit">
-	    <input type="reset" value="Clear"><br>
+	    <input type="reset" value="Clear">
 		</div>
 
 		<div class="form">
-		<label for="operation">Flow Operation:</label>
-		<ul class="operation">
-		<li><input type="radio" id="op1" name="operation" value="add" checked="checked">
-				<label for="op1">Add</labeL></li>
-		<li><input type="radio" id="op2" name="operation" value="mod">
-				<label for="op2">Modify</labeL></li>
-		<li><input type="radio" id="op3" name="operation" value="modst">
-				<label for="op3">Modify Strict</labeL></li>
-		<li><input type="radio" id="op4" name="operation" value="del">
-				<label for="op4">Delete</labeL></li>
-		<li><input type="radio" id="op5" name="operation" value="delst">
-				<label for="op5">Delete Strict</labeL></li>
-	</ul><br>
+		<div class="fieldset">
+			<h1>Target:</h1>
+			<label for="dpid">Switch ID:</label><select type="number" id="dpid"></select><br>
+			<label for="table_id">Table ID:</label><input type="number" id="table_id" min="0" value="0">
+		</div>
+		<div class="fieldset">
+			<h1>Flow Operation:</h1>
+			<ul class="operation">
+			<li><input type="radio" id="op1" name="operation" value="add" checked="checked">
+					<label for="op1">Add</labeL></li>
+			<li><input type="radio" id="op2" name="operation" value="mod">
+					<label for="op2">Modify</labeL></li>
+			<li><input type="radio" id="op3" name="operation" value="modst">
+					<label for="op3">Modify Strict</labeL></li>
+			<li><input type="radio" id="op4" name="operation" value="del">
+					<label for="op4">Delete</labeL></li>
+			<li><input type="radio" id="op5" name="operation" value="delst">
+					<label for="op5">Delete Strict</labeL></li>
+			</ul>
+		</div>
 
-		<label for="dpid">Switch ID:</label><select type="number" id="dpid"></select><br>
-    <label for="table_id">Table ID:</label><input type="number" id="table_id" min="0" value="0"><br>
-
-		<fieldset>
-			<legend>Match Fields:</legend>
+		<div class="fieldset">
+			<h1>Match Fields:</h1>
 			<input type="checkbox" id="matchcheckbox">
 			<label for="matchcheckbox">Match Any</label>
 			<div id="matchdiv">
@@ -58,52 +61,51 @@
 						</tr>
 				</table>
 			</div>
-		</fieldset>
+		</div>
 
-		<p>
-    <label for="priority">Priority:</label>
-		<input type="number" id="priority" min="0" placeholder="entry priority"><br>
-    <label for="idle_timeout">Idle Timeout:</label>
-		<input type="number" id="idle_timeout" min="0" placeholder="seconds"><br>
-    <label for="hard_timeout">Hard Timeout:</label>
-		<input type="number" id="hard_timeout" min="0" placeholder="seconds"><br>
-    <label for="cookie">Cookie:</label>
-		<input type="number" id="cookie" min="0" placeholder="integer"><br>
-    <label for="cookie_mask" >Cookie Mask:</label>
-		<input type="number" id="cookie_mask" min="0" placeholder="integer"><br>
-		<span id="out_fields">
-		<label for="out_port">Output Port:</label>
-		<input type="number" id="out_port" min="-1" placeholder="port number or -1 for ANY" disabled="true"><br>
-		<label for="out_group">Output Group:</label>
-		<input type="number" id="out_group" min="-1" placeholder="group id or -1 for ANY" disabled="true"><br>
-		</span>
-		</p>
+		<div class="fieldset">
+			<label for="priority">Priority:</label>
+			<input type="number" id="priority" min="0" placeholder="entry priority"><br>
+			<label for="idle_timeout">Idle Timeout:</label>
+			<input type="number" id="idle_timeout" min="0" placeholder="seconds"><br>
+			<label for="hard_timeout">Hard Timeout:</label>
+			<input type="number" id="hard_timeout" min="0" placeholder="seconds"><br>
+			<label for="cookie">Cookie:</label>
+			<input type="number" id="cookie" min="0" placeholder="integer"><br>
+			<label for="cookie_mask" >Cookie Mask:</label>
+			<input type="number" id="cookie_mask" min="0" placeholder="integer"><br>
+			<span id="out_fields">
+				<label for="out_port">Output Port:</label>
+				<input type="number" id="out_port" min="-1" placeholder="port number or -1 for ANY" disabled="true"><br>
+				<label for="out_group">Output Group:</label>
+				<input type="number" id="out_group" min="-1" placeholder="group id or -1 for ANY" disabled="true"><br>
+			</span>
+		</div>
 	</div>
 	<div class="form">
-    <fieldset>
-    <legend>Instructions:</legend>
+    <div class="fieldset">
+			<h1>Instructions:</h1>
+			<p>
+			<label for="meter_id">Goto Meter:</label>
+			<input type="number" id="meter_id" placeholder="meter-id or -1 for All"><br>
+			</p>
 
-		<p>
-    <label for="meter_id">Goto Meter:</label>
-		<input type="number" id="meter_id" placeholder="meter-id or -1 for All"><br>
-	</p>
+				<table id="applytable" class="extendable">
+					<caption>Apply Actions:</caption>
+						<tr>
+							<th>Action Type</th><th>Value</th><th></th>
+						</tr>
+						<tr>
+							<td><input list="actionlist" name="applyaction"></td>
+							<td><input type="text" name="applyvalue"></td>
+							<td><input type="button" name="bapply" value="+"></td>
+						</tr>
+				</table>
 
-			<table id="applytable" class="extendable">
-				<caption>Apply Actions:</caption>
-					<tr>
-						<th>Action Type</th><th>Value</th><th></th>
-					</tr>
-					<tr>
-						<td><input list="actionlist" name="applyaction"></td>
-						<td><input type="text" name="applyvalue"></td>
-						<td><input type="button" name="bapply" value="+"></td>
-					</tr>
-			</table>
-
-	  <p>
-		<input type="checkbox" id="clearactions">
-		<label for="clearactions">Clear Actions</label>
-	  </p>
+			<p>
+			<input type="checkbox" id="clearactions">
+			<label for="clearactions">Clear Actions</label>
+			</p>
 
 			<table id="writetable" class="extendable">
 					<caption>Write Actions:</caption>
@@ -116,32 +118,29 @@
 						<td><input type="button" name="bwrite" value="+"></td>
 					</tr>
 			</table>
+			<br>
+			<label for="metadata">Write Metadata:</label>
+			<input type="number" id="metadata" placeholder="integer or string"><br>
+			<label for="metadata_mask">Metadata Mask:</label>
+			<input type="number" id="metadata_mask" placeholder="integer or string"><br>
+			<label for="goto">Goto Table:</label>
+			<input type="number" id="goto" placeholder="table_id" min="1"><br>
+  	</div>
 
-		<p>
-    <label for="metadata">Write Metadata:</label>
-		<input type="number" id="metadata" placeholder="integer or string"><br>
-		<label for="metadata_mask">Metadata Mask:</label>
-		<input type="number" id="metadata_mask" placeholder="integer or string"><br>
-    <label for="goto">Goto Table:</label>
-		<input type="number" id="goto" placeholder="table_id" min="1"><br>
-		</p>
-
-		</fieldset>
-
-		<fieldset>
-		<legend>Flags:</legend>
-		<input type="checkbox" id="SEND_FLOW_REM"><label for="SEND_FLOW_REM">Send flow removed msg</label>
-		<input type="checkbox" id="CHECK_OVERLAP"><label for="CHECK_OVERLAP">Check of overlapping</label>
-		<input type="checkbox" id="RESET_COUNTS"><label for="RESET_COUNTS">Reset counts</label>
-		<input type="checkbox" id="NO_PKT_COUNTS"><label for="NO_PKT_COUNTS">Do not count packets</label>
-		<input type="checkbox" id="NO_BYT_COUNTS"><label for="NO_BYT_COUNTS">Do not count bytes</label>
-		</fieldset>
-
+		<div class="fieldset">
+			<h1>Flags:</h1>
+			<input type="checkbox" id="SEND_FLOW_REM"><label for="SEND_FLOW_REM">Send flow-removed msg</label>
+			<input type="checkbox" id="CHECK_OVERLAP"><label for="CHECK_OVERLAP">Check overlapping</label>
+			<input type="checkbox" id="RESET_COUNTS"><label for="RESET_COUNTS">Reset counts</label>
+			<input type="checkbox" id="NO_PKT_COUNTS"><label for="NO_PKT_COUNTS">Do not count packets</label>
+			<input type="checkbox" id="NO_BYT_COUNTS"><label for="NO_BYT_COUNTS">Do not count bytes</label>
+		</div>
 
 </div>
 </form>
 <div id="output"></div>
 <div id="snackbar"></div>
+</div>
 </div>
 <script src="js\mainmenu.js"></script>
 <script src="js\flowmodvalidate.js?v2"></script>

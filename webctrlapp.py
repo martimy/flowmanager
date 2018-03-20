@@ -5,15 +5,21 @@ from ryu.app.wsgi import WSGIApplication
 from ryu.controller import dpset
 # these are needed for the events
 from ryu.controller import ofp_event
+from ryu.controller.handler import HANDSHAKE_DISPATCHER
+from ryu.controller.handler import CONFIG_DISPATCHER
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
+from ryu import utils
 
 from webapi import WebApi
+import logging
+from logging.handlers import WatchedFileHandler
 
-class WebCtrlApp(app_manager.RyuApp): #, SS2App):
+
+class WebCtrlApp(app_manager.RyuApp):  # , SS2App):
     #OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     _CONTEXTS = {'wsgi': WSGIApplication,
@@ -30,28 +36,61 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
         "ANY": 0xffffffff
     }
 
+    logname = 'webctrlapp'
+    logfile = 'webctrlapp.log'
+
     def __init__(self, *args, **kwargs):
         super(WebCtrlApp, self).__init__(*args, **kwargs)
         wsgi = kwargs['wsgi']
         self.dpset = kwargs['dpset']
 
         self.lists = {}
-        self.lists['actions'] = self.read_files('actions', '/home/maen/monitor/other/actions.txt')
-        self.lists['matches'] = self.read_files('matches', '/home/maen/monitor/other/matches.txt')
+        self.lists['actions'] = self.read_files(
+            'actions', '/home/maen/monitor/data/actions.txt')
+        self.lists['matches'] = self.read_files(
+            'matches', '/home/maen/monitor/data/matches.txt')
         self.waiters = {}
 
-        self.ofctl = ofctl_v1_3;
+        self.ofctl = ofctl_v1_3
 
         # Data exchanged with WebApi
         wsgi.register(WebApi,
-            {"webctl": self,
-             "dpset": self.dpset,
-             "lists": self.lists,
-             "waiters": self.waiters})
+                      {"webctl": self,
+                       "dpset": self.dpset,
+                       "lists": self.lists,
+                       "waiters": self.waiters})
+
+        # Setup logging
+        self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
+
+    def get_logger(self, logname, logfile, loglevel, propagate):
+        """Create and return a logger object."""
+        # TODO: simplify
+        logger = logging.getLogger(logname)
+        logger_handler = WatchedFileHandler(logfile)
+        log_fmt = '%(asctime)s %(name)-6s %(levelname)-8s %(message)s'
+        logger_handler.setFormatter(
+            logging.Formatter(log_fmt, '%b %d %H:%M:%S'))
+        logger.addHandler(logger_handler)
+        logger.propagate = propagate
+        logger.setLevel(loglevel)
+        return logger
 
     def get_switches(self):
         print("Switches: ", self.dpset.get_all())
         return self.dpset.get_all()
+
+    def read_logs(self):
+        items = []
+        with open(self.logfile, 'r') as my_file:
+            while True:
+                line = my_file.readline()
+                if not line:
+                    break
+                #lst = line.split('\t')
+                # items.append(lst)
+                items.append(line)
+        return items
 
     def read_files(self, key, filename):
         """Reads text files that contain data about match fields and actions.
@@ -68,33 +107,29 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
                 items.append(lst)
         return items
 
-    def send_message_rest(self, msg):
-        r = requests.post("http://localhost/stats/flowentry/add", json=msg)
-        print(r.status_code)
-
     def get_actions(self, parser, set):
         actions = []
         aDict = {
-        'SET_FIELD': (parser.OFPActionSetField,'field'),
-        'COPY_TTL_OUT': (parser.OFPActionCopyTtlOut,None),
-        'COPY_TTL_IN': (parser.OFPActionCopyTtlIn,None),
-        'POP_PBB': (parser.OFPActionPopPbb,None),
-        'PUSH_PBB': (parser.OFPActionPushPbb,'ethertype'),
-        'POP_MPLS': (parser.OFPActionPopMpls,'ethertype'),
-        'PUSH_MPLS': (parser.OFPActionPushMpls,'ethertype'),
-        'POP_VLAN': (parser.OFPActionPopVlan,None),
-        'PUSH_VLAN': (parser.OFPActionPushVlan,'ethertype'),
-        'DEC_MPLS_TTL': (parser.OFPActionDecMplsTtl,None),
-        'SET_MPLS_TTL': (parser.OFPActionSetMplsTtl,'mpls_ttl'),
-        'DEC_NW_TTL': (parser.OFPActionDecNwTtl,None),
-        'SET_NW_TTL': (parser.OFPActionSetNwTtl,'nw_ttl'),
-        'SET_QUEUE': (parser.OFPActionSetQueue,'queue_id'),
-        'GROUP': (parser.OFPActionGroup,'group_id'),
-        'OUTPUT': (parser.OFPActionOutput,'port'),
+            'SET_FIELD': (parser.OFPActionSetField, 'field'),
+            'COPY_TTL_OUT': (parser.OFPActionCopyTtlOut, None),
+            'COPY_TTL_IN': (parser.OFPActionCopyTtlIn, None),
+            'POP_PBB': (parser.OFPActionPopPbb, None),
+            'PUSH_PBB': (parser.OFPActionPushPbb, 'ethertype'),
+            'POP_MPLS': (parser.OFPActionPopMpls, 'ethertype'),
+            'PUSH_MPLS': (parser.OFPActionPushMpls, 'ethertype'),
+            'POP_VLAN': (parser.OFPActionPopVlan, None),
+            'PUSH_VLAN': (parser.OFPActionPushVlan, 'ethertype'),
+            'DEC_MPLS_TTL': (parser.OFPActionDecMplsTtl, None),
+            'SET_MPLS_TTL': (parser.OFPActionSetMplsTtl, 'mpls_ttl'),
+            'DEC_NW_TTL': (parser.OFPActionDecNwTtl, None),
+            'SET_NW_TTL': (parser.OFPActionSetNwTtl, 'nw_ttl'),
+            'SET_QUEUE': (parser.OFPActionSetQueue, 'queue_id'),
+            'GROUP': (parser.OFPActionGroup, 'group_id'),
+            'OUTPUT': (parser.OFPActionOutput, 'port'),
         }
 
         for key in set:
-            if key in aDict :
+            if key in aDict:
                 f = aDict[key][0]       # the action
                 if aDict[key][1]:       # check if the action has a value
                     kwargs = {}
@@ -102,7 +137,7 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
                         #x = set[key].split('=')
                         # x has same values as OFPMatch
                         #field = {'field':x[0], 'value':x[1]}
-                        #print(aDict[key][1])
+                        # print(aDict[key][1])
 
                         kwargs = {aDict[key][1]: set[key]}
                         print(kwargs)
@@ -133,17 +168,18 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
         parser = dp.ofproto_parser
 
         command = {
-        'add': ofproto.OFPFC_ADD,
-        'mod': ofproto.OFPFC_MODIFY,
-        'modst': ofproto.OFPFC_MODIFY_STRICT,
-        'del': ofproto.OFPFC_DELETE,
-        'delst': ofproto.OFPFC_DELETE_STRICT,
+            'add': ofproto.OFPFC_ADD,
+            'mod': ofproto.OFPFC_MODIFY,
+            'modst': ofproto.OFPFC_MODIFY_STRICT,
+            'del': ofproto.OFPFC_DELETE,
+            'delst': ofproto.OFPFC_DELETE_STRICT,
         }
 
         # Initialize arguments for the flow mod message
         msg_kwargs = {
             'datapath': dp,
-            'command': command.get(d["operation"], ofproto.OFPFC_ADD)
+            'command': command.get(d["operation"], ofproto.OFPFC_ADD),
+            'buffer_id': ofproto.OFP_NO_BUFFER,
         }
 
         try:
@@ -152,17 +188,22 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
             # Match fields
             mf = d["match"]
             match = parser.OFPMatch(**mf)
-            #print(match.to_jsondict())
+            # print(match.to_jsondict())
 
             msg_kwargs['match'] = match
-            msg_kwargs['hard_timeout'] = d['hard_timeout'] #if d['hard_timeout'] else 0
-            msg_kwargs['idle_timeout'] = d['idle_timeout'] #if d['idle_timeout'] else 0
-            msg_kwargs['priority'] = d['priority'] #if d['priority'] else 0
-            msg_kwargs['cookie'] = d['cookie'] #if d['cookie'] else 0
-            msg_kwargs['cookie_mask'] = d['cookie_mask'] #if d['cookie_mask'] else 0
+            # if d['hard_timeout'] else 0
+            msg_kwargs['hard_timeout'] = d['hard_timeout']
+            # if d['idle_timeout'] else 0
+            msg_kwargs['idle_timeout'] = d['idle_timeout']
+            msg_kwargs['priority'] = d['priority']  # if d['priority'] else 0
+            msg_kwargs['cookie'] = d['cookie']  # if d['cookie'] else 0
+            # if d['cookie_mask'] else 0
+            msg_kwargs['cookie_mask'] = d['cookie_mask']
 
-            msg_kwargs['out_port'] = d['out_port'] if d['out_port'] >=0 else ofproto.OFPP_ANY #d['out_port']  # for the delete command
-            msg_kwargs['out_group'] = d['out_group'] if d['out_group'] >=0 else ofproto.OFPG_ANY #d['out_group'] # for the delete command
+            # d['out_port']  # for the delete command
+            msg_kwargs['out_port'] = d['out_port'] if d['out_port'] >= 0 else ofproto.OFPP_ANY
+            # d['out_group'] # for the delete command
+            msg_kwargs['out_group'] = d['out_group'] if d['out_group'] >= 0 else ofproto.OFPG_ANY
 
             # instructions
             inst = []
@@ -173,17 +214,21 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
             # Apply Actions
             if d["apply"]:
                 applyActions = self.get_actions(parser, d["apply"])
-                inst += [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
+                inst += [parser.OFPInstructionActions(
+                    ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
             # Clear Actions
             if d["clearactions"]:
-                inst += [parser.OFPInstructionActions(ofproto.OFPIT_CLEAR_ACTIONS, [])]
+                inst += [parser.OFPInstructionActions(
+                    ofproto.OFPIT_CLEAR_ACTIONS, [])]
             # Write Actions
             if d["write"]:
                 writeActions = self.get_actions(parser, d["write"])
-                inst += [parser.OFPInstructionActions(ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
+                inst += [parser.OFPInstructionActions(
+                    ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
             # Write Metadata
             if d["metadata"]:
-                inst += [parser.OFPInstructionWriteMetadata(d["metadata"], d["metadata_mask"])]
+                inst += [parser.OFPInstructionWriteMetadata(
+                    d["metadata"], d["metadata_mask"])]
             # Goto Table Metadata
             if d["goto"]:
                 inst += [parser.OFPInstructionGotoTable(table_id=d["goto"])]
@@ -204,7 +249,8 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
         except Exception as e:
             return "Value for '{}' is not found!".format(e.message)
 
-        msg = parser.OFPFlowMod(**msg_kwargs)   # ryu/ryu/ofproto/ofproto_v1_3_parser.py
+        # ryu/ryu/ofproto/ofproto_v1_3_parser.py
+        msg = parser.OFPFlowMod(**msg_kwargs)
         try:
             dp.send_msg(msg)    # ryu/ryu/controller/controller.py
         except KeyError as e:
@@ -212,30 +258,36 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
         except Exception as e:
             return e.__repr__()
 
-
         return "Message sent successfully."
 
-    messages = []
+    def get_flow_stats(self, req, dpid):
+        flow = {}  # no filters
+        dp = self.dpset.get(int(str(dpid), 0))
+        return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
-    @set_ev_cls([ofp_event.EventOFPStatsReply,
-                 #ofp_event.EventOFPDescStatsReply,
-                 ofp_event.EventOFPFlowStatsReply,
-                 #ofp_event.EventOFPAggregateStatsReply,
-                 #ofp_event.EventOFPTableStatsReply,
-                 #ofp_event.EventOFPTableFeaturesStatsReply,
-                 #ofp_event.EventOFPPortStatsReply,
-                 #ofp_event.EventOFPQueueStatsReply,
-                 #ofp_event.EventOFPQueueDescStatsReply,
-                 #ofp_event.EventOFPMeterStatsReply,
-                 #ofp_event.EventOFPMeterFeaturesStatsReply,
-                 #ofp_event.EventOFPMeterConfigStatsReply,
-                 #ofp_event.EventOFPGroupStatsReply,
-                 #ofp_event.EventOFPGroupFeaturesStatsReply,
-                 #ofp_event.EventOFPGroupDescStatsReply,
-                 #ofp_event.EventOFPPortDescStatsReply
-                 ], MAIN_DISPATCHER)
+    ##### Event Handlers #######################################
+
+    @set_ev_cls([  # ofp_event.EventOFPStatsReply,
+        # ofp_event.EventOFPDescStatsReply,
+        ofp_event.EventOFPFlowStatsReply,
+        # ofp_event.EventOFPAggregateStatsReply,
+        # ofp_event.EventOFPTableStatsReply,
+        # ofp_event.EventOFPTableFeaturesStatsReply,
+        # ofp_event.EventOFPPortStatsReply,
+        # ofp_event.EventOFPQueueStatsReply,
+        # ofp_event.EventOFPQueueDescStatsReply,
+        # ofp_event.EventOFPMeterStatsReply,
+        # ofp_event.EventOFPMeterFeaturesStatsReply,
+        # ofp_event.EventOFPMeterConfigStatsReply,
+        # ofp_event.EventOFPGroupStatsReply,
+        # ofp_event.EventOFPGroupFeaturesStatsReply,
+        # ofp_event.EventOFPGroupDescStatsReply,
+        # ofp_event.EventOFPPortDescStatsReply,
+        # ofp_event.EventOFPPacketIn,
+    ], MAIN_DISPATCHER)
     def stats_reply_handler(self, ev):
         """This method is taken from ryu.app.ofctl_rest
+        It is used to fill flow tables
         """
 
         msg = ev.msg
@@ -253,14 +305,62 @@ class WebCtrlApp(app_manager.RyuApp): #, SS2App):
         if msg.flags & flags:
             return
         del self.waiters[dp.id][msg.xid]
-        print(lock)
         lock.set()
 
+        # self.messages.append(msg)
 
-    def get_messages(self):
-        return self.messages
+    @set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
+    def flow_removed_handler(self, ev):
+        msg = ev.msg
+        dp = msg.datapath
+        ofp = dp.ofproto
+        if msg.reason == ofp.OFPRR_IDLE_TIMEOUT:
+            reason = 'IDLE TIMEOUT'
+        elif msg.reason == ofp.OFPRR_HARD_TIMEOUT:
+            reason = 'HARD TIMEOUT'
+        elif msg.reason == ofp.OFPRR_DELETE:
+            reason = 'DELETE'
+        elif msg.reason == ofp.OFPRR_GROUP_DELETE:
+            reason = 'GROUP DELETE'
+        else:
+            reason = 'unknown'
 
-    def get_flow_stats(self, req, dpid):
-        flow = {} # no filters
-        dp = self.dpset.get(int(str(dpid), 0))
-        return self.ofctl.get_flow_stats(dp, self.waiters, flow)
+        self.logger.info('OFPFlowRemoved received: '
+                         'cookie=%d priority=%d reason=%s table_id=%d '
+                         'duration_sec=%d duration_nsec=%d '
+                         'idle_timeout=%d hard_timeout=%d '
+                         'packet_count=%d byte_count=%d match.fields=%s',
+                         msg.cookie, msg.priority, reason, msg.table_id,
+                         msg.duration_sec, msg.duration_nsec,
+                         msg.idle_timeout, msg.hard_timeout,
+                         msg.packet_count, msg.byte_count, msg.match)
+
+    @set_ev_cls(ofp_event.EventOFPErrorMsg,
+                [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
+    def error_msg_handler(self, ev):
+        msg = ev.msg
+
+        self.logger.debug('OFPErrorMsg received: type=0x%02x code=0x%02x '
+                          'message=%s',
+                          msg.type, msg.code, utils.hex_array(msg.data))
+
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+    def packet_in_handler(self, ev):
+        msg = ev.msg
+        dp = msg.datapath
+        ofp = dp.ofproto
+        if msg.reason == ofp.OFPR_NO_MATCH:
+            reason = 'NO MATCH'
+        elif msg.reason == ofp.OFPR_ACTION:
+            reason = 'ACTION'
+        elif msg.reason == ofp.OFPR_INVALID_TTL:
+            reason = 'INVALID TTL'
+        else:
+            reason = 'unknown'
+
+        self.logger.info('OFPPacketIn received: '
+                         'buffer_id=%x total_len=%d reason=%s '
+                         'table_id=%d cookie=%d match=%s data=%s',
+                         msg.buffer_id, msg.total_len, reason,
+                         msg.table_id, msg.cookie, msg.match,
+                         utils.hex_array(msg.data))

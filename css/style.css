@@ -1,24 +1,35 @@
+/*
+    Copyright (c) Maen Artimy, 2018
+*/
+
+/*
+    The window is divided into 3 (4) sections:
+        - The header has the logo, the view name, and (sometimes) a refresh control.
+        - The menu
+        - The main view
+        - The footer
+*/
+
 /* General Styles */
+@import "grid.css";
 @import "colors.css";
 
-body {
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    font-size: 100%;
-	color: var(--text-color);
-	background: var(--white);
+* {
+	font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+	font-size: 14px;
+	color: var(--pcolor-3);
 }
 
 #header {
 	background-color: var(--pcolor-0);
 	height: 60px;
 	border-radius: 5px;
-	/*position: relative;*/
 }
 
 #header h1 {
 	background: transparent url("../img/Logo_white_300x300.png") no-repeat left center;
 	background-size: 65px 65px;
-	color: white;
+	color: var(--white);
 	font-size: 24px;
 	display: inline-block;
 	margin: 0 24px;
@@ -26,189 +37,6 @@ body {
 }
 
 #header .refresh {
-	display: inline-block;
 	float: right;
 	margin: 20px 20px 0 0;
-}
-
-#footer {
-	background-color: #6C83B3;
-	height: 50px;
-	position: relative;
-	border-radius: 5px;
-}
-#footer h1 {
-	font-size: 12px;
-	display: block;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-}
-
-#menu {
-	float: left;
-	height: 400px;
-	width: 140px;
-}
-#main {
-	margin: 0 0 0 150px;
-}
-#main::after {
-	content: "";
-	clear: both;
-	display: table;
-}
-
-.header, .footer {
-    background-color: grey;
-    color: white;
-    padding: 10px;
-}
-.header h1 {
-	display: none;
-}
-.column {
-    float: left;
-    padding: 10px;
-	min-height: 500px;
-}
-.clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
-}
-/* ********** Accordion Menu ********* */
-button.accordion {
-    background-color: #eee;
-    color: #444;
-    cursor: pointer;
-    padding: 18px;
-    width: 100%;
-    border: none;
-    text-align: left;
-    outline: none;
-    font-size: 15px;
-    transition: 0.4s;
-}
-
-button.accordion.active, button.accordion:hover {
-    background-color: #ddd;
-}
-
-button.accordion:after {
-    content: '\002B';
-    color: #777;
-    font-weight: bold;
-    float: right;
-    margin-left: 5px;
-}
-
-button.accordion.active:after {
-    content: "\2212";
-}
-
-div.panel {
-    padding: 0 18px;
-    background-color: white;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.2s ease-out;
-}
-
-/**************** Menu *************/
-.menu {
-    width: 15%;
-}
-.content {
-    width: 85%;
-}
-.menu ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-.menu li {
-    padding: 8px;
-    margin-bottom: 8px;
-    background-color: #33b5e5;
-    color: #ffffff;
-}
-.menu li:hover {
-    background-color: #0099cc;
-}
-/********** Table *********************/
-.table_wrapper {
-	border-radius: 5px;
-	margin: 5px;
-	background-color: #c0c0c0;
-	padding: 10px;
-	padding-left: 20px;
-	width: 40%;
-	float: left;
-}
-.table_scroll {
-  height:150px;
-  overflow:auto;
-}
-
-
-/**************** Dropdown Button **************/
-.dropbtn {
-	width: 100%;
-    background-color: #33b5e5;
-    color: white;
-    padding: 8px;
-	margin-bottom: 8px;
-    border: none;
-    cursor: pointer;
-}
-
-/* Dropdown button on hover & focus */
-.dropbtn:hover, .dropbtn:focus {
-    background-color: #0099cc;
-}
-
-/* The container <div> - needed to position the dropdown content */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-/* Dropdown Content (Hidden by Default) */
-.dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-    z-index: 1;
-	max-height: 150px;
-	overflow: auto;
-}
-
-/* Links inside the dropdown */
-.dropdown-content a {
-    color: black;
-    padding: 4px 16px;
-    text-decoration: none;
-    display: block;
-}
-
-.dropdown-content a:first-of-type {
-    padding-top: 8px
-}
-
-.dropdown-content a:last-of-type {
-    padding-bottom: 8px
-}
-
-/* Change color of dropdown links on hover */
-.dropdown-content a:hover {
-	background-color: #f1f1f1
-}
-
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-.show {
-	display:block;
 }

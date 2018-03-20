@@ -2,12 +2,12 @@ $(function () {
   var path = window.location.pathname;
   var url  = window.location.href;
 
-  var menu = '<div class="mainmenu"> \
+  var menu = '<div class="menuitem"> \
     <a href="index.html">Home</a> \
     <a href="monitor.html">Status Monitor</a> \
     <a href="flows.html">Flow Monitor</a> \
     <a href="control.html">Flow Control</a> \
-    <a href="logs.html">Notifications</a> \
+    <a href="messages.html">Messages</a> \
     <a href="about.html">About</a> \
   </div>'
 
