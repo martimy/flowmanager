@@ -11,6 +11,31 @@ $(function () {
   	return myString.replace("_"," ").replace(/\b\w/g, l => l.toUpperCase())
   }
 
+  function buildTabs(dps) {
+    var tabs = '<div class="tab">';
+    for(var d=0; d<dps.length; d++) {
+      tabs += '<button class="tablinks">Switch_'+dps[d]+'</button>';
+    }
+    tabs += '</div>';
+    $('#main').append(tabs);
+
+    for(var d=0; d<dps.length; d++) {
+      $('#main').append('<div id="Switch_'+dps[d]+'" class="tabcontent"></div>');
+    }
+
+    for(var d=0; d<dps.length; d++) {
+      getFlows(parseInt(dps[d]));
+    } 
+
+    $('.tablinks').on('click', function(e) {
+      $('.tabcontent').hide();      
+      $('.tablinks').removeClass("active");
+      $(this).addClass("active");
+      var id = $(this).text(); //.replace('Switch ','');
+      $('#'+id).show() //.css('display','inline-block');
+    })
+  }
+
   function buildTables(response) {
     // extract the flows
     dpid = parseInt(Object.keys(response)[0]);
@@ -68,27 +93,30 @@ $(function () {
       body += "</tbody>"
       var content = '<table class="sortable">' + header + body + '</table>'
       var card = tableTemplate.replace("{Title}", "Switch "+dpid + ", Table "+t).replace("{content}", content)
-      $('#main').append('<div class="card wide">'+card+'</div>');
+      //$('#main').append('<div id="Switch_'+dpid+'" class="card wide tabcontent">'+card+'</div>');
+      $('#Switch_'+dpid).append(card);
     }
 
   }
 
+  // Get flow entries from server and build tables
   function getFlows(id) {
-    //$.get("/stats/flow/"+id)
+    var flows = null;
     $.get("/status", {status:"flows", dpid:id})
     .done( function(response) {
-      buildTables(response);
+      buildTables(response); 
     });
   };
 
-  // Get switches list
+  // Get the switches list deom server and build the flow tables
   function getSwitches(f) {
     $.get("/flowform","list=switches")
     .done( function(response) {
       dps = response.split(',');
       if(dps) {
+        buildTabs(dps);
         for(var d=0; d<dps.length; d++) {
-          getFlows(parseInt(dps[d]));
+          //getFlows(parseInt(dps[d]));
         }
       }
     })
@@ -97,11 +125,13 @@ $(function () {
     })
   };
 
-  getSwitches();
 
+  // When the refresh button is clicked, clear the page and start over
   $('.refresh').on('click', function() {
     $('#main').html("");
     getSwitches();
   })
 
+
+  getSwitches();
 });

@@ -14,12 +14,17 @@ from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
 from ryu import utils
 
+# for packet content
+from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet
+from ryu.lib.packet import ether_types
+
 from webapi import WebApi
 import logging
 from logging.handlers import WatchedFileHandler
 
 
-class WebCtrlApp(app_manager.RyuApp):  # , SS2App):
+class FlowManager(app_manager.RyuApp):  # , SS2App):
     #OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     _CONTEXTS = {'wsgi': WSGIApplication,
@@ -36,11 +41,11 @@ class WebCtrlApp(app_manager.RyuApp):  # , SS2App):
         "ANY": 0xffffffff
     }
 
-    logname = 'webctrlapp'
-    logfile = 'webctrlapp.log'
+    logname = 'flwmgr'
+    logfile = 'flwmgr.log'
 
     def __init__(self, *args, **kwargs):
-        super(WebCtrlApp, self).__init__(*args, **kwargs)
+        super(FlowManager, self).__init__(*args, **kwargs)
         wsgi = kwargs['wsgi']
         self.dpset = kwargs['dpset']
 
@@ -265,6 +270,16 @@ class WebCtrlApp(app_manager.RyuApp):  # , SS2App):
         dp = self.dpset.get(int(str(dpid), 0))
         return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
+
+    def get_packet_summary(self, content):
+        pkt = packet.Packet(content)
+        eth = pkt.get_protocols(ethernet.ethernet)[0]
+        ethtype = eth.ethertype
+        dst = eth.dst
+        src = eth.src
+
+        return '(src={}, dst={}, type=0x{:04x})'.format(src, dst, ethtype)
+
     ##### Event Handlers #######################################
 
     @set_ev_cls([  # ofp_event.EventOFPStatsReply,
@@ -360,7 +375,8 @@ class WebCtrlApp(app_manager.RyuApp):  # , SS2App):
 
         self.logger.info('OFPPacketIn received: '
                          'buffer_id=%x total_len=%d reason=%s '
-                         'table_id=%d cookie=%d match=%s data=%s',
+                         'table_id=%d cookie=%d match=%s packet=%s',
                          msg.buffer_id, msg.total_len, reason,
                          msg.table_id, msg.cookie, msg.match,
-                         utils.hex_array(msg.data))
+                         #utils.hex_array(msg.data))
+                         self.get_packet_summary(msg.data))

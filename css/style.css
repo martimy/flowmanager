@@ -40,3 +40,10 @@
 	float: right;
 	margin: 20px 20px 0 0;
 }
+
+#main .home {
+	font-size: 36px;
+	display: block;
+	margin-left: 100px;
+	margin-top: 100px;	
+}
