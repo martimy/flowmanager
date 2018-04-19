@@ -11,7 +11,6 @@
 */
 
 /* General Styles */
-@import "grid.css";
 @import "colors.css";
 
 * {
@@ -46,4 +45,29 @@
 	display: block;
 	margin-left: 100px;
 	margin-top: 100px;	
+}
+
+/******* Grid managment **************/
+.container_16 {
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+	width: 1280px;
+	clear: both;
+  }
+
+.grid_2 {
+	float: left;
+	margin-left: 0px;
+	margin-right: 10px;
+	padding-top: 10px;
+	width: 140px;
+  }
+
+.grid_14 {
+	float: left;
+	margin-left: 0px;
+	margin-right: 0px;
+	padding-top: 10px;
+	width: 1130px;
 }

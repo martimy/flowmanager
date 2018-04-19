@@ -152,7 +152,7 @@ $(function () {
   // Setup the form
 
   // Initialize datalists used by the Match and Action input
-  // the lists come form the controller (SDN app actually)
+  // the lists come form the Ryu app
   function init_dataList(thelist, listID) {
     var $datalist = $('<datalist>');
     $datalist.attr('id',listID)
@@ -176,42 +176,27 @@ $(function () {
   function read_dataLists() {
     // Get accepatble action types
     $.get("/flowform","list=actions").done( function(response) {
-      var data_all = response.split('|');
-      for (var i=0; i<data_all.length; i++) {
-        var label = data_all[i++];
-        var hint = data_all[i++];
-        var desc = data_all[i++];
-        var example = data_all[i];
-        actions[label] = [label, hint, example, desc];
-      }
+      actions = response; // assign to global var
       init_dataList(actions, "actionlist");
     })
     .fail( function() {
-      $('#output').text("What happened 1!");
+      $('#output').text("Could not get actions list!");
     })
 
     // Get accepatble match fields
     $.get("/flowform","list=matches").done( function(response) {
-      var data_all = response.split('|');
-      for (var i=0; i<data_all.length; i++) {
-        var label = data_all[i++];
-        var hint = data_all[i++];
-        var example = data_all[i];
-        matches[label] = [label, hint, example];
-      }
+      matches = response; // assign to global var
       init_dataList(matches, "matchlist");
     })
     .fail( function() {
-      $('#output').text("What happened 2!");
+      $('#output').text("Could not get match fields list!");
     })
 
     // Get switches list
     $.get("/flowform","list=switches").done( function(response) {
-      console.log(response);
       var $dps = $('#dpid');
-      var dpath = response.split(',');
-      for (var i=0; i<dpath.length; i++) {
-        $dps.append('<option value="' + dpath[i] + '">SW_' + dpath[i] + '</option>')
+      for (var i in response) {
+        $dps.append('<option value="' + response[i] + '">SW_' + response[i] + '</option>')
       }
     })
     .fail( function() {

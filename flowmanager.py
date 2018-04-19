@@ -24,7 +24,7 @@ import logging
 from logging.handlers import WatchedFileHandler
 
 
-class FlowManager(app_manager.RyuApp):  # , SS2App):
+class FlowManager(app_manager.RyuApp):
     #OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     _CONTEXTS = {'wsgi': WSGIApplication,
@@ -73,7 +73,7 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
         # TODO: simplify
         logger = logging.getLogger(logname)
         logger_handler = WatchedFileHandler(logfile)
-        log_fmt = '%(asctime)s %(name)-6s %(levelname)-8s %(message)s'
+        log_fmt = '%(asctime)s\t%(name)-6s\t%(levelname)-8s\t%(message)s'
         logger_handler.setFormatter(
             logging.Formatter(log_fmt, '%b %d %H:%M:%S'))
         logger.addHandler(logger_handler)
@@ -82,7 +82,8 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
         return logger
 
     def get_switches(self):
-        print("Switches: ", self.dpset.get_all())
+        """Return switches."""
+        #print("Switches: ", self.dpset.get_all())
         return self.dpset.get_all()
 
     def read_logs(self):
@@ -92,24 +93,24 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
                 line = my_file.readline()
                 if not line:
                     break
-                #lst = line.split('\t')
-                # items.append(lst)
-                items.append(line)
+                lst = line.split('\t')
+                items.append(lst)
+                #items.append(line)
         return items
 
     def read_files(self, key, filename):
-        """Reads text files that contain data about match fields and actions.
-        The files are tab-seperated.
+        """Reads tab-seperated text files.
+        Used to read files that contain data about match fields and actions.
         """
 
-        items = []
+        items = {}
         with open(filename, 'r') as my_file:
             while True:
                 line = my_file.readline()
                 if not line:
                     break
                 lst = line.split('\t')
-                items.append(lst)
+                items[lst[0]] = lst
         return items
 
     def get_actions(self, parser, set):
@@ -145,12 +146,12 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
                         # print(aDict[key][1])
 
                         kwargs = {aDict[key][1]: set[key]}
-                        print(kwargs)
+                        #print(kwargs)
                         raise Exception("Action {} not supported!".format(key))
                     elif aDict[key][1] == 'port':
                         x = set[key].upper()
                         val = self.port_id[x] if x in self.port_id else int(x)
-                        print(val)
+                        #print(val)
                         kwargs = {aDict[key][1]: val}
                     else:
                         kwargs = {aDict[key][1]: int(set[key])}
@@ -340,7 +341,7 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
         else:
             reason = 'unknown'
 
-        self.logger.info('OFPFlowRemoved received: '
+        self.logger.info('OFPFlowRemoved: '
                          'cookie=%d priority=%d reason=%s table_id=%d '
                          'duration_sec=%d duration_nsec=%d '
                          'idle_timeout=%d hard_timeout=%d '
@@ -355,7 +356,7 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
     def error_msg_handler(self, ev):
         msg = ev.msg
 
-        self.logger.debug('OFPErrorMsg received: type=0x%02x code=0x%02x '
+        self.logger.debug('OFPErrorMsg: type=0x%02x code=0x%02x '
                           'message=%s',
                           msg.type, msg.code, utils.hex_array(msg.data))
 
@@ -373,7 +374,7 @@ class FlowManager(app_manager.RyuApp):  # , SS2App):
         else:
             reason = 'unknown'
 
-        self.logger.info('OFPPacketIn received: '
+        self.logger.info('OFPPacketIn: '
                          'buffer_id=%x total_len=%d reason=%s '
                          'table_id=%d cookie=%d match=%s packet=%s',
                          msg.buffer_id, msg.total_len, reason,

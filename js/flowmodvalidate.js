@@ -1,4 +1,4 @@
-// Callesd by readForm to get key,value pairs
+// Called by readForm to get key,value pairs
 function readKeyValue(str1, str2, out) {
   $('tr').has(str1).each(function() {
     var $key = $(this).find(str1).val().trim();
@@ -17,11 +17,11 @@ function readForm($form) {
   // Read switch ID
   formData['dpid'] = parseInt($('#dpid').val())
 
-  // Read Operation type
+  // Read Flow Operation type
   var op = $('[name="operation"]:checked').val();
   formData['operation'] = op;
-  console.log(op)
-  // Read number fields
+  
+  // Read all fields of type=number
   var $nums = $all.filter('[type=number]');
   $nums.each( function() {
     var n = parseInt(this.value);

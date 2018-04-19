@@ -6,7 +6,7 @@ $(function () {
     <a href="index.html">Home</a> \
     <a href="monitor.html">Status Monitor</a> \
     <a href="flows.html">Flow Monitor</a> \
-    <a href="control.html">Flow Control</a> \
+    <a href="flowform.html">Flow Control</a> \
     <a href="messages.html">Messages</a> \
     <a href="about.html">About</a> \
   </div>'

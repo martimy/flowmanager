@@ -11,32 +11,51 @@ $(function () {
   	return myString.replace("_"," ").replace(/\b\w/g, l => l.toUpperCase())
   }
 
+  // Create the tab structure
   function buildTabs(dps) {
+    // Add tab buttons
     var tabs = '<div class="tab">';
-    for(var d=0; d<dps.length; d++) {
+    for(var d in dps) {
       tabs += '<button class="tablinks">Switch_'+dps[d]+'</button>';
     }
     tabs += '</div>';
     $('#main').append(tabs);
 
-    for(var d=0; d<dps.length; d++) {
+    // Add empty containers for contents
+    for(var d in dps) {
       $('#main').append('<div id="Switch_'+dps[d]+'" class="tabcontent"></div>');
     }
 
-    for(var d=0; d<dps.length; d++) {
-      getFlows(parseInt(dps[d]));
+    // Fill the containers with flow tables
+    for(var d in dps) {
+      getFlows(dps[d]);
     } 
 
+    // When a tab is clicked:
+    // 1) Hide all contents,
+    // 2) Make the clicked tab active, and
+    // 3) Show the content of the active tab
+    // 4) Save the new active tab in local storage
     $('.tablinks').on('click', function(e) {
       $('.tabcontent').hide();      
       $('.tablinks').removeClass("active");
       $(this).addClass("active");
-      var id = $(this).text(); //.replace('Switch ','');
-      $('#'+id).show() //.css('display','inline-block');
+      var id = $(this).text();
+      $('#'+id).show();
+      localStorage.setItem('activeTab', id);
     })
+
+    var activeTab = localStorage.getItem('activeTab');
+    if(activeTab !== null) {
+      //setActiveTab(activeTab);
+      $('button:contains('+ activeTab +')').addClass("active");
+      $('#'+activeTab).show();
+      //console.log(activeTab);
+    } 
   }
 
-  function buildTables(response) {
+  // Create Flow Tables
+  function buildFlowTables(response) {
     // extract the flows
     dpid = parseInt(Object.keys(response)[0]);
     var rows = Object.values(response)['0'];
@@ -46,6 +65,8 @@ $(function () {
     for (var c in rows[0]) {
       col.push(c);
     }
+    // TODO: make column order custom
+    // Sort the column names
     col.sort()
     col.reverse();
 
@@ -104,20 +125,16 @@ $(function () {
     var flows = null;
     $.get("/status", {status:"flows", dpid:id})
     .done( function(response) {
-      buildTables(response); 
+      buildFlowTables(response); 
     });
   };
 
-  // Get the switches list deom server and build the flow tables
+  // Get the switches list from server and build the flow tables
   function getSwitches(f) {
     $.get("/flowform","list=switches")
     .done( function(response) {
-      dps = response.split(',');
-      if(dps) {
-        buildTabs(dps);
-        for(var d=0; d<dps.length; d++) {
-          //getFlows(parseInt(dps[d]));
-        }
+      if(response) {
+        buildTabs(response);
       }
     })
     .fail( function() {
@@ -125,6 +142,16 @@ $(function () {
     })
   };
 
+  // Get the last active tab
+  function getActive() {
+    var name;
+    if(localStorage.getItem('activeTab') === null) {
+        localStorage.setItem('name', name);
+    } else {
+        name = localStorage.getItem('name');
+    }
+
+  }
 
   // When the refresh button is clicked, clear the page and start over
   $('.refresh').on('click', function() {

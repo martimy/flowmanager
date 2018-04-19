@@ -14,7 +14,6 @@ from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
 
 # sys.path.append('/home/maen/ofworkspace/simpleswitch2/ss2')
-#from app import SS2App
 
 # ref: https://tools.itef.org/doc/python-routes/html
 
@@ -34,14 +33,6 @@ class WebApi(ControllerBase):
         res.body = open(filename, 'rb').read()
         return res
 
-    def twoD2String(self, data, sep):
-        """converts a 2D array to a string.
-        """
-        my_list = ''
-        for line in data:
-            my_list += sep.join([x.strip() for x in line]) + sep
-        return my_list
-
     @route('monitor', '/status', methods=['GET'])
     def get_status(self, req, **_kwargs):
         if req.GET['status'] and req.GET['dpid']:
@@ -51,23 +42,6 @@ class WebApi(ControllerBase):
             return res
         return Response(status=404)
 
-    # @route('monitor', '/setup', methods=['GET'])
-    # def get_setup(self, req, **_kwargs):
-    #     #print(req.body)
-    #     if req.GET and "list" in req.GET:
-    #         lst = ""
-    #         if req.GET["list"] == "actions":
-    #             lst = self.twoD2String(self.lists["actions"], '|')
-    #         elif req.GET["list"] == "matches":
-    #             lst = self.twoD2String(self.lists["matches"], '|')
-    #         elif req.GET["list"] == "switches":
-    #             lst = ','.join([str(k) for k, v in self.api.get_switches()])
-    #
-    #         res = Response()
-    #         res.body = lst
-    #         return res
-    #     return Response(status=404)
-
     @route('monitor', '/flowform', methods=['GET', 'POST'])
     def get_flow_form(self, req, **_kwargs):
         if req.POST:
@@ -75,16 +49,17 @@ class WebApi(ControllerBase):
             res.body = self.api.process_flow_message(req.json)
             return res
         elif req.GET and "list" in req.GET:
-            lst = ""
+            lst = {}
             if req.GET["list"] == "actions":
-                lst = self.twoD2String(self.lists["actions"], '|')
+                lst = self.lists["actions"]
             elif req.GET["list"] == "matches":
-                lst = self.twoD2String(self.lists["matches"], '|')
+                lst = self.lists["matches"]
             elif req.GET["list"] == "switches":
-                lst = ','.join([str(k) for k, v in self.api.get_switches()])
+                lst = {t[0]:str(t[0]) for t in self.api.get_switches()}
+                print(lst)
 
-            res = Response()
-            res.body = lst
+            res = Response(content_type="application/json")
+            res.json = lst
             return res
         return Response(status=400)  # bad request
 
@@ -97,6 +72,15 @@ class WebApi(ControllerBase):
             return res
         return Response(status=400)  # bad request
 
+    @route('monitor', '/home/{filename:.*}', methods=['GET'])
+    def get_filename(self, req, filename, **_kwargs):
+        if (filename == "" or filename == None):
+            filename = "index.html"
+        try:
+            filename = os.path.join(self.rootdir, filename)
+            return self.make_response(filename)
+        except IOError:
+            return Response(status=400)
 
     # def get_log_SSE(self, req, **_kwargs):
     #     # Support for SSE
@@ -113,13 +97,3 @@ class WebApi(ControllerBase):
     #     res = Response(content_type="text/event-stream")
     #     res.body = eventStream().next()
     #     return res
-
-    @route('monitor', '/home/{filename:.*}', methods=['GET'])
-    def get_filename(self, req, filename, **_kwargs):
-        if (filename == "" or filename == None):
-            filename = "index.html"
-        try:
-            filename = os.path.join(self.rootdir, filename)
-            return self.make_response(filename)
-        except IOError:
-            return Response(status=400)
