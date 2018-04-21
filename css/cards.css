@@ -9,11 +9,11 @@
     transition: 0.3s;
     width: 530px;
     font-size: 14px;
-    margin: 10px;
+    margin: 0px 10px 20px 10px;
 }
 
-.card:nth-of-type(odd) {
-    clear: left;
+.card:nth-of-type(even) {
+    clear: right;
  }
 
 .card .header {
@@ -23,10 +23,14 @@
 	padding: 0px 16px;
 }
 
+.container {
+    overflow-x: auto;
+}
+
 .card .container {
 	transition: 1s;
 	/*overflow: auto;*/
-	overflow-x: auto;
+
 	height: 150px;
     padding: 8px 16px;
 }

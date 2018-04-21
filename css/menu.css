@@ -2,16 +2,17 @@
 
 .menuitem {
   width: 100%; /* Set a width if you like */
+ 
 }
 
 .menuitem a {
-  background-color: var(--tcolor-1);
+  background-color: var(--tcolor-2);
   display: block; /* Make the links appear below each other */
   padding: 12px; /* Add some padding */
   text-decoration: none; /* Remove underline from links */
   border-radius: 5px;
-  margin-top: 5px;
-  color: var(--tcolor-3);
+  margin-top: 2px;
+  color: var(--tcolor-4);
 
   font-size: 16px;
 }
@@ -21,7 +22,7 @@
 }
 
 .menuitem a:hover {
-  background-color: var(--tcolor-4);
+  background-color: var(--tcolor-0);
   color: var(--white);
 }
 
@@ -30,20 +31,33 @@
   color: var(--white);
 }
 
-.logowrapper {
+/*.logowrapper {
   font: normal 11px Verdana, Arial, Helvetica, sans-serif;
   position: fixed;
   bottom: 0;
-  /*width: 100%;*/
 	z-index: 1;
 }
 
 .logowrapper img {
 	margin: 0px 0px 10px 15px;
-}
+}*/
 
-.logowrapper p {
+/* copyright notice */
+/*.logowrapper p {
 	margin: 0px 0px -10px 10px;
 	transform: rotate(90deg);
 	transform-origin: left top 0;
+}*/
+
+.logowrapper {
+  position: fixed;
+  bottom: 0;
+	z-index: 1;
+  background: transparent url("../img/Logo_300x300.png") no-repeat left top;
+  background-size: 115px 115px;
+  width: 115px;
+  height: 115px;
+  margin: -60px 0px 5px 10px;
+  border-radius: 5px;
+  border: var(--pcolor-0) solid 2px;*/
 }

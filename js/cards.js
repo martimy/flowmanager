@@ -5,10 +5,10 @@ var cardControl = ( function() {
 	console.log("cardControl");
 	var expand = function(e) {
 		var size = e.parentElement.parentElement.parentElement.style.width;
-		if(size==='90%') { // first value of size is ""
+		if(size==='96%') { // first value of size is ""
 			e.parentElement.parentElement.parentElement.style.width = '45%';
 		} else {
-			e.parentElement.parentElement.parentElement.style.width = '90%';
+			e.parentElement.parentElement.parentElement.style.width = '96%';
 		}
 		//e.classList.toggle("active");
 	};

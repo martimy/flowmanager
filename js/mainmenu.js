@@ -11,14 +11,11 @@ $(function () {
     <a href="about.html">About</a> \
   </div>'
 
-  var logo = '<div class="logowrapper"> \
-    <p>&copy 2018 Maen Artimy </p> \
-    <img src="img/Logo_trans_300x300.png" width="100px"> \
-  </div>';
+  var logo = '<div class="logowrapper"></div>';
 
   var filename = url.substring(url.lastIndexOf('/')+1);
 
-  $('#menu').html(menu);
+  $('#menu').html(menu+logo);
   var $link = $('a[href="' + filename + '"]');
   $link.addClass("active");
 

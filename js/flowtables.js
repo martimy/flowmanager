@@ -98,7 +98,7 @@ $(function () {
       rows = tables[t];
       var body = "<tbody>";
       for (var i = 0; i < rows.length; i++) {
-        body += "<tr class=\"tooltip\">"
+        body += "<tr>"
         for (var j = 0; j < col.length; j++) {
           if(j!=tid) {
             var cell = rows[i][col[j]]

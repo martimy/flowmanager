@@ -1,9 +1,8 @@
 $(function() {
     var header = '<thead><tr data-sort="number"> \
-    <th data-sort="number">Time</th> \
-    <th data-sort="number">Source</th> \
-    <th data-sort="number">Level</th> \
-    <th data-sort="number">Message</th></tr></thead>';
+    <th data-sort="date">Time</th> \
+    <th data-sort="name">Level</th> \
+    <th data-sort="name">Message</th></tr></thead>';
 
     // Get logs
     function getLogs() {
@@ -13,13 +12,14 @@ $(function() {
                 var body = "<tbody>";
                 for(var i=0; i<response.length; i++) {
                     var row = response[i];
-                    body += "<tr class=\"tooltip\">"
-                    for(var j=0; j<row.length; j++) {  
-                        body += "<td>" + row[j] + "</td>";
-                    }
+                    body += "<tr>"
+                    body += "<td>" + row[0] + "</td>";
+                    body += "<td>" + row[1] + "</td>";
+                    body += "<td class=\"tooltip\"><span>" + row[2] + "</span>" + row[2] + "</td>";
+                    body += "</tr>";
                 }
                 body += "</tbody>";
-                var content = '<table class="sortable">' + header + body + '</table>'   
+                var content = '<table class="logtable sortable">' + header + body + '</table>'   
                 $m = $('#main');
                 $m.html(content);
             }

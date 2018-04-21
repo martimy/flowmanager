@@ -23,51 +23,119 @@
 	background-color: var(--pcolor-0);
 	height: 60px;
 	border-radius: 5px;
+	overflow-y: visible;
 }
 
 #header h1 {
-	background: transparent url("../img/Logo_white_300x300.png") no-repeat left center;
-	background-size: 65px 65px;
 	color: var(--white);
 	font-size: 24px;
 	display: inline-block;
 	margin: 0 24px;
-	padding: 18px 85px;
+	padding: 18px 20px;
 }
 
 #header .refresh {
 	float: right;
-	margin: 20px 20px 0 0;
+	margin: 18px 24px 0 0;
+	padding: 5px 15px;
+
+	background-color: var(--tcolor-2);
+	border: none;
+	color: var(--white);
+	cursor: pointer;
+	border-radius: 4px;
+	font-weight: bold;
+  }
+
+#header .refresh:hover {
+	background-color: var(--tcolor-0);
 }
 
-#main .home {
-	font-size: 36px;
+
+.frontleft,.frontright {
 	display: block;
-	margin-left: 100px;
-	margin-top: 100px;	
+	float: left;
+	width: 40%;
+	height: 400px;
+	margin: 0px 10px;
+	padding: 20px;
+/*	border: solid black 2px;
+	border-radius: 5px;*/
+
+}
+
+.frontleft {
+	background-color: var(--scolor-2);
+	border-radius: 10px;
+}
+
+.frontleft h2 {
+	font-size: 20px;
+	font-style: normal;
+}
+
+.frontleft * {
+	font-size: 18px;
+	color: var(--white);
+	font-style: italic;
+	text-align: justify;
+}
+
+
+.frontright {
+	background: transparent url("../img/Logo_300x300.png") no-repeat;
+	background-size: 300px 300px;
+	background-position: left top;
+	position: relative;
+	border: solid 2px var(--pcolor-0);
+	border-radius: 10px;
+}
+
+.frontright div {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+.frontright p {
+	font-size: 20px;
+	font-style: normal;
+}
+
+#footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+	height: 30px;
+	background-color: var(--pcolor-0);
+    color: white;
+	text-align: center;
+	width: 100%;
+
 }
 
 /******* Grid managment **************/
 .container_16 {
-	display: block;
+
 	margin-left: auto;
 	margin-right: auto;
 	width: 1280px;
-	clear: both;
+
+	/*overflow: auto;*/
   }
 
-.grid_2 {
+.grid_2 { /*menu*/
 	float: left;
 	margin-left: 0px;
 	margin-right: 10px;
 	padding-top: 10px;
 	width: 140px;
-  }
+}
 
-.grid_14 {
-	float: left;
-	margin-left: 0px;
+.grid_14 { /*main*/
+	margin-left: 150px;
 	margin-right: 0px;
 	padding-top: 10px;
 	width: 1130px;
 }
+

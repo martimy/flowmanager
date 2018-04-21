@@ -19,6 +19,10 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
+# for topology discovery
+from ryu.topology import event, switches
+from ryu.topology.api import get_all_switch, get_all_link, get_all_host
+
 from webapi import WebApi
 import logging
 from logging.handlers import WatchedFileHandler
@@ -73,7 +77,8 @@ class FlowManager(app_manager.RyuApp):
         # TODO: simplify
         logger = logging.getLogger(logname)
         logger_handler = WatchedFileHandler(logfile)
-        log_fmt = '%(asctime)s\t%(name)-6s\t%(levelname)-8s\t%(message)s'
+        # removed \t%(name)-6s
+        log_fmt = '%(asctime)s\t%(levelname)-8s\t%(message)s'
         logger_handler.setFormatter(
             logging.Formatter(log_fmt, '%b %d %H:%M:%S'))
         logger.addHandler(logger_handler)
@@ -83,7 +88,6 @@ class FlowManager(app_manager.RyuApp):
 
     def get_switches(self):
         """Return switches."""
-        #print("Switches: ", self.dpset.get_all())
         return self.dpset.get_all()
 
     def read_logs(self):
@@ -356,7 +360,7 @@ class FlowManager(app_manager.RyuApp):
     def error_msg_handler(self, ev):
         msg = ev.msg
 
-        self.logger.debug('OFPErrorMsg: type=0x%02x code=0x%02x '
+        self.logger.info('OFPErrorMsg: type=0x%02x code=0x%02x '
                           'message=%s',
                           msg.type, msg.code, utils.hex_array(msg.data))
 
@@ -372,12 +376,29 @@ class FlowManager(app_manager.RyuApp):
         elif msg.reason == ofp.OFPR_INVALID_TTL:
             reason = 'INVALID TTL'
         else:
-            reason = 'unknown'
+            reason = 'UNKNOWN'
 
         self.logger.info('OFPPacketIn: '
                          'buffer_id=%x total_len=%d reason=%s '
-                         'table_id=%d cookie=%d match=%s packet=%s',
+                         'table_id=%d cookie=%d match=%s summary=%s',
                          msg.buffer_id, msg.total_len, reason,
                          msg.table_id, msg.cookie, msg.match,
                          #utils.hex_array(msg.data))
                          self.get_packet_summary(msg.data))
+
+    @set_ev_cls(event.EventSwitchEnter)
+    def get_topology_data(self, ev):
+        """Get Topology Data
+        """
+        switch_list = get_all_switch(self)
+        switches = [switch.dp.id for switch in switch_list]
+        links_list = get_all_link(self)
+        links = [(link.src.dpid, link.dst.dpid,{'port':link.src.port_no})
+                for link in links_list]
+        links2 = [link.to_dict()  for link in links_list]
+        host_list = get_all_host(self)
+        hosts = [h.to_dict() for h in host_list]
+
+        print(switches)
+        print(links)
+        print(hosts)
