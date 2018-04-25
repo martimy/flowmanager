@@ -32,12 +32,12 @@ The following is a typical deplyment scenario for FlowManager:
 
 ## Built With
 
-* []() - Python
-* []() - JQuery
+* [jQuery](https://jquery.com/) - A JavaScript library for event handling, animation
+* [D3.js](https://d3js.org/) - A JavaScript library for data visulization. 
 
 ## Authors
 
-* **Maen Artimy** - [Profile](https://github.com/martimy)
+* **Maen Artimy** - [Profile](http://adhocnode.com)
 
 ## License
 

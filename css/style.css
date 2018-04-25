@@ -20,17 +20,19 @@
 }
 
 #header {
+	background: transparent url("../img/switch.svg") no-repeat;
+	background-size: 40px 40px;
+	background-position: 10px 10px;
 	background-color: var(--pcolor-0);
 	height: 60px;
 	border-radius: 5px;
-	overflow-y: visible;
 }
 
 #header h1 {
 	color: var(--white);
 	font-size: 24px;
 	display: inline-block;
-	margin: 0 24px;
+	margin: 0 50px;
 	padding: 18px 20px;
 }
 
@@ -55,9 +57,8 @@
 .frontleft,.frontright {
 	display: block;
 	float: left;
-	width: 40%;
-	height: 400px;
-	margin: 0px 10px;
+
+	margin-left: 10px;
 	padding: 20px;
 /*	border: solid black 2px;
 	border-radius: 5px;*/

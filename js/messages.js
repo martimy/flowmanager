@@ -10,7 +10,8 @@ $(function() {
         .done( function(response) {
             if(response !== []) {
                 var body = "<tbody>";
-                for(var i=0; i<response.length; i++) {
+                var start = Math.max(0, response.length-25);
+                for(var i=start; i<response.length; i++) {
                     var row = response[i];
                     body += "<tr>"
                     body += "<td>" + row[0] + "</td>";

@@ -386,19 +386,27 @@ class FlowManager(app_manager.RyuApp):
                          #utils.hex_array(msg.data))
                          self.get_packet_summary(msg.data))
 
-    @set_ev_cls(event.EventSwitchEnter)
-    def get_topology_data(self, ev):
+    #@set_ev_cls(event.EventSwitchEnter)
+    def topology_handler(self, ev):
         """Get Topology Data
         """
         switch_list = get_all_switch(self)
-        switches = [switch.dp.id for switch in switch_list]
+        switches = [switch.to_dict() for switch in switch_list]
         links_list = get_all_link(self)
-        links = [(link.src.dpid, link.dst.dpid,{'port':link.src.port_no})
-                for link in links_list]
-        links2 = [link.to_dict()  for link in links_list]
+        links = [link.to_dict() for link in links_list]
         host_list = get_all_host(self)
         hosts = [h.to_dict() for h in host_list]
 
-        print(switches)
-        print(links)
-        print(hosts)
+        self.topology = {"switches": switches, "links":links, "hosts": hosts}
+
+    def get_topology_data(self):
+        """Get Topology Data
+        """
+        switch_list = get_all_switch(self)
+        switches = [switch.to_dict() for switch in switch_list]
+        links_list = get_all_link(self)
+        links = [link.to_dict() for link in links_list]
+        host_list = get_all_host(self)
+        hosts = [h.to_dict() for h in host_list]
+
+        return {"switches": switches, "links":links, "hosts": hosts}

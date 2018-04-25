@@ -7,6 +7,7 @@ $(function () {
     <a href="monitor.html">Status Monitor</a> \
     <a href="flows.html">Flow Monitor</a> \
     <a href="flowform.html">Flow Control</a> \
+    <a href="topology.html">Topology</a> \
     <a href="messages.html">Messages</a> \
     <a href="about.html">About</a> \
   </div>'
@@ -15,7 +16,7 @@ $(function () {
 
   var filename = url.substring(url.lastIndexOf('/')+1);
 
-  $('#menu').html(menu+logo);
+  $('#menu').html(menu);
   var $link = $('a[href="' + filename + '"]');
   $link.addClass("active");
 

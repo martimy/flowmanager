@@ -34,16 +34,31 @@ class WebApi(ControllerBase):
         return res
 
     @route('monitor', '/status', methods=['GET'])
-    def get_status(self, req, **_kwargs):
+    def get_flow_stats(self, req, **_kwargs):
+        """Get flows
+        """
         if req.GET['status'] and req.GET['dpid']:
             res = Response(content_type="application/json")
             reply = self.api.get_flow_stats(req, req.GET['dpid'])
             res.json = reply
             return res
-        return Response(status=404)
+        return Response(status=404) # Resource does not exist
+
+    @route('monitor', '/topology', methods=['GET'])
+    def get_topology(self, req, **_kwargs):
+        """Get topology info
+        """
+        if req.GET:
+            res = Response(content_type="application/json")
+            reply = self.api.get_topology_data()
+            res.json = reply
+            return res
+        return Response(status=400)
 
     @route('monitor', '/flowform', methods=['GET', 'POST'])
     def get_flow_form(self, req, **_kwargs):
+        """Connect with flow form
+        """ 
         if req.POST:
             res = Response()
             res.body = self.api.process_flow_message(req.json)
@@ -65,6 +80,8 @@ class WebApi(ControllerBase):
 
     @route('monitor', '/logs', methods=['GET'])
     def get_logs(self, req, **_kwargs):
+        """Get log mesages
+        """
         if req.GET:
             logs = self.api.read_logs()
             res = Response(content_type="application/json")
@@ -74,6 +91,8 @@ class WebApi(ControllerBase):
 
     @route('monitor', '/home/{filename:.*}', methods=['GET'])
     def get_filename(self, req, filename, **_kwargs):
+        """Get monitoring information from ofctl_rest app
+        """
         if (filename == "" or filename == None):
             filename = "index.html"
         try:

@@ -1,0 +1,36 @@
+/*
+    Copyright (c) Maen Artimy, 2018
+*/
+
+@import "colors.css";
+
+/*svg {
+background-color: var(--scolor-2);
+}*/
+
+.node image {
+  width: 60px;
+  height: 60px;
+}
+
+text.label {
+  fill: var(--scolor-4);
+  text-anchor: start;
+}
+
+.links line {
+  stroke: var(--scolor-3);
+  stroke-opacity: 0.6;
+}
+
+circle {
+  stroke: var(--scolor-3);
+  fill: white;
+}
+
+text.start, text.end {
+  fill: var(--scolor-3);
+  text-anchor: middle;
+  alignment-baseline: middle;
+  font-size: 0.75em;
+}
