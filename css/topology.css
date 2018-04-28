@@ -4,9 +4,13 @@
 
 @import "colors.css";
 
-/*svg {
-background-color: var(--scolor-2);
-}*/
+svg {
+  /*background-color: var(--scolor-2);*/
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--scolor-2);
+  border-radius: 5px;
+}
 
 .node image {
   width: 60px;

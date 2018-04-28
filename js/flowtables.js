@@ -1,8 +1,9 @@
 $(function () {
   // Table template
-  var tableTemplate = "<div class=\"header\"><h1>{Title}</h1></div> \
+  var tableTemplate = " <div class=\"card wide\"> \
+      <div class=\"header\"><h1>{Title}</h1></div> \
       <div class=\"container\">{content}</div> \
-      <div class=\"footing\"></div>";
+      <div class=\"footing\"></div></div>";
 
   var dps = null;
 

@@ -35,17 +35,17 @@
     padding: 8px 16px;
 }
 
-.card .bar {
+.card.bar {
     padding: 0px 16px;
 }
 
-.card .bar button {
+.card.bar button {
 	margin: 2px 8px;
 }
 
 .card.wide {
 	float: none;
-    width: 1080px; /*needs to be fixed*/
+    width: 1100px; /*needs to be fixed*/
 }
 
 .card.wide .container{

@@ -1,5 +1,6 @@
 $(function() {
     var size = 60;
+    var radius = 8;
 
     // var topDesc = {
     //     "nodes": [
@@ -55,7 +56,7 @@ $(function() {
         return {"nodes": nodes, "links": links};
     }
 
-    function plot(graph) {
+    function plotGraph(graph) {
         var svg = d3.select("svg");
         var width = +svg.attr("width");
         var height = +svg.attr("height");
@@ -65,6 +66,17 @@ $(function() {
             .force("charge_force", d3.forceManyBody().strength(-size*10))
             .force("center_force", d3.forceCenter(width / 2, height / 2))
             .force("links", d3.forceLink(graph.links).id(function(d) { return d.id; }).distance(size*2))
+            .force("box_force", box_force)
+
+        //custom force to put stuff in a box 
+        function box_force() {
+            var curr_node;
+            for (var i = 0, n = graph.nodes.length; i < n; ++i) {
+                curr_node = graph.nodes[i];
+                curr_node.x = Math.max(radius, Math.min(width - radius, curr_node.x));
+                curr_node.y = Math.max(radius, Math.min(height - radius, curr_node.y));
+            }
+        }
 
         // Create nodes with image and text
         var node = svg.append("g")
@@ -79,7 +91,7 @@ $(function() {
                 if(d.type === "switch") {
                     return "/home/img/switch.svg"
                 } else {
-                    return "/home/img/host.svg"
+                    return "/home/img/pc.svg"
                 } 
             })
             .on("mouseover", handleMouseOver)
@@ -103,11 +115,11 @@ $(function() {
 
         link.append("circle")
             .attr("class", "start")
-            .attr("r","8")
+            .attr("r", radius)
         
         link.append("circle")
             .attr("class", "end")
-            .attr("r","8")
+            .attr("r", radius)
         
         link.append("text")
             .attr("class", "start")
@@ -191,31 +203,18 @@ $(function() {
         simulation.on("tick", tickActions );
     }
 
-    // Get Topology
-    function getTopology() {
-        $.get("/topology", {request:"topology"})
-        .done( function(response) {
-            if(response !== []) {
-                // create an svg to draw in
-                // var svg = d3.select("main")
-                // .append("svg")
-                // .attr("width", 1130)
-                // .attr("height", 600)
-                // .append('g')
-                // //.attr('transform', 'translate(' + margin.top + ',' + margin.left + ')');
+    function listTopology(network) {
+        data = "<h1>Switches</h1>" + JSON.stringify(network.switches) + "<br>";
+        data += "<h1>Links</h1>" + JSON.stringify(network.links) + "<br>";
+        data += "<h1>Hosts</h1>" + JSON.stringify(network.hosts) + "<br>";
+        $('#data').html(data);
+    }
 
-                data = "<h1>Switches</h1>" + JSON.stringify(response.switches) + "<br>";
-                data += "<h1>Links</h1>" + JSON.stringify(response.links) + "<br>";
-                data += "<h1>Hosts</h1>" + JSON.stringify(response.hosts) + "<br>";
-                $('#data').html(data);
-                var topDesc = toGraph(response);
-                console.log(topDesc);
-                plot(topDesc);
-            }
-        })
-        .fail( function() {
-            console.log("Cannot read topology!");
-        });
+    function getTopology() {
+        d3.json("/topology").then(function(data) {
+            listTopology(data)
+            plotGraph(toGraph(data));
+        }); 
     }
 
     // When the refresh button is clicked, clear the page and start over
@@ -225,4 +224,5 @@ $(function() {
     });
 
     getTopology();
+
 });

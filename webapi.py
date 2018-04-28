@@ -48,12 +48,10 @@ class WebApi(ControllerBase):
     def get_topology(self, req, **_kwargs):
         """Get topology info
         """
-        if req.GET:
-            res = Response(content_type="application/json")
-            reply = self.api.get_topology_data()
-            res.json = reply
-            return res
-        return Response(status=400)
+        res = Response(content_type="application/json")
+        reply = self.api.get_topology_data()
+        res.json = reply
+        return res       
 
     @route('monitor', '/flowform', methods=['GET', 'POST'])
     def get_flow_form(self, req, **_kwargs):
