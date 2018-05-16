@@ -3,11 +3,22 @@
 */
 
 table {
-    border-collapse: collapse;
+	border-collapse: collapse;
 }
 
 .logtable {
 	margin-left: 10px;
+}
+
+.fixed {
+	/*table-layout: auto;*/
+	width: 100%;
+}
+
+.oneliner {
+	margin: auto;
+	border-top: 2px solid var(--scolor-3);
+	/*padding-bottom: 5px;*/
 }
 
 /*

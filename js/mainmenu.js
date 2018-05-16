@@ -5,8 +5,10 @@ $(function () {
   var menu = '<div class="menuitem"> \
     <a href="index.html">Home</a> \
     <a href="monitor.html">Status Monitor</a> \
-    <a href="flows.html">Flow Monitor</a> \
+    <a href="flows.html">Flow Tables</a> \
+    <a href="groups.html">Group Tables</a> \
     <a href="flowform.html">Flow Control</a> \
+    <a href="groupform.html">Group Control</a> \
     <a href="topology.html">Topology</a> \
     <a href="messages.html">Messages</a> \
     <a href="about.html">About</a> \

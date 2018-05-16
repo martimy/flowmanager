@@ -1,11 +1,8 @@
 /*
-Linked to control.html to read user input for flow table modification.
 Copyright (c) Maen Artimy, 2018
 */
 
 $(function () {
-  //var url = "http://" + location.hostname + ":8080";
-
   // constants
   var LABEL = 0;
   var HINT = 1;
@@ -13,10 +10,9 @@ $(function () {
   var DESC = 3;
 
   var actions = {};
-  var matches = {};
 
   //var xhr = new XMLHttpRequest();
-  var $form = $('#flowmod');
+  var $form = $('#groupmod');
 
   // When Enter is pressed, go to the next input instead of sumbitting
   // the form.
@@ -33,23 +29,27 @@ $(function () {
     }
   });
 
-  // Handle 'change' events
-  $('#matchcheckbox').on('change', function (e) {
-    if(this.checked) {
-      $('#matchdiv').slideUp(100); //addClass('hidden'); //fadeOut(250);
-    } else {
-      $('#matchdiv').slideDown(100); //removeClass('hidden'); //fadeIn(250);
+  // Initialize datalists used by the Match and Action input
+  // the lists come form the Ryu app
+  function init_dataList(thelist, listID) {
+    var $datalist = $('<datalist>');
+    $datalist.attr('id',listID)
+    for(var key in thelist) {
+      var $option = $('<option>');
+      $option.text(key);
+      $datalist.append($option);
     }
-  });
+    $form.append($datalist);
+  };
 
   // Handle table 'click' events
   /* When the '+' button is clicked, a row is added to the fields table
-     based on a clone of the last row. The field input needs to be bound
+     based on a clone of the last row. The field input needs to be bond
      to a listener and the value input field needs to be cleaned of existing
      'placehoder'. Finally the '+' is changed to '-'
      When is '-' button is clicked, the current row is deleted
   */
-  $('.extendable').on('click',function(e) {
+ $('.extendable').on('click',function(e) {
     var target = e.target;
     if (target.value =='+') {
       var $row = $(this).find('tr:last');
@@ -64,7 +64,9 @@ $(function () {
           $field.on('change', on_action_change );
       } else if ($field.attr('name') === 'writeaction') {
           $field.on('change', on_action_change );
-      }
+      } else if ($field.attr('name').includes('bucketaction')) {
+          $field.on('change', on_action_change );
+      }      
       target.value = '-';
     } else if (e.target.value == '-') {
       $(target).parent().parent().remove();
@@ -90,47 +92,30 @@ $(function () {
     if (e.target.value.indexOf("del") > -1) {
       if ($('input[name="operation"]:checked').val()) {
         $('#out_fields>input').prop("disabled", false);
-        // change the default value to -1
-        $('#out_port').val(-1);
-        $('#out_group').val(-1);
       }
     } else {
       $('#out_fields>input').prop("disabled", true);
-        // reset the value
-        $('#out_port').val('');
-        $('#out_group').val('');
     }
   };
 
-  // Action taken when a Match input is changed
-  function on_match_change (e) {
-    var $f = $('input');
-    var $next = $f.eq($f.index(this) + 1);
-    $next.val('');
-    //$next.attr('placehoder','');
-    $next.attr('placeholder', get_hint(matches, this.value));
-  };
-
-  // Action taken when an Action input is changed
-  function on_action_change (e) {
-    var $f = $('input')
-    var $next = $f.eq($f.index(this) + 1);
-    $next.val('');
-    var hint = get_hint(actions, this.value);
-    if (hint === "None") {
-      $next.attr('placeholder', '');
-      $next.prop('disabled', true);
-    } else {
-      $next.prop('disabled', false);
-      $next.attr('placeholder', hint);
-    }
-  };
+    // Action taken when an Action input is changed
+    function on_action_change (e) {
+        var $f = $('input')
+        var $next = $f.eq($f.index(this) + 1);
+        $next.val('');
+        var hint = get_hint(actions, this.value);
+        if (hint === "None") {
+            $next.attr('placeholder', '');
+            $next.prop('disabled', true);
+        } else {
+            $next.prop('disabled', false);
+            $next.attr('placeholder', hint);
+        }
+        };
 
   // Bind Change events
   $('[name="operation"]').on('change', on_operation_change);
-  $('[name="matchfield"]').on('change', on_match_change);
   $('[name="applyaction"]').on('change', on_action_change);
-  $('[name="writeaction"]').on('change', on_action_change);
 
   // Handle form 'submit' events
   $form.on('submit', function(e) {
@@ -138,13 +123,13 @@ $(function () {
 
     // Read the form input
     var formData = readForm($form);
-    var r = validate(formData, matches, actions);
+    var r = validate(formData, [], actions);
     var msg = r.message;
 
     //console.log(formData);
 
     // Send the data to the server
-    $.post("/flowform", JSON.stringify(formData))
+    $.post("/groupform", JSON.stringify(formData))
       .done( function(response) {
         msg += response;
         displaySnackbar(msg);
@@ -155,31 +140,17 @@ $(function () {
       })
   });
 
-  // Setup the form
-
-  // Initialize datalists used by the Match and Action input
-  // the lists come form the Ryu app
-  function init_dataList(thelist, listID) {
-    var $datalist = $('<datalist>');
-    $datalist.attr('id',listID)
-    for(var key in thelist) {
-      var $option = $('<option>');
-      $option.text(key);
-      $datalist.append($option);
-    }
-    $form.append($datalist);
-  };
-
   // Display Snackbar
   function displaySnackbar(msg) {
-      var $x = $("#snackbar");
-      $x.text(msg)
-      $x.toggleClass("show");
-      setTimeout(function(){ $x.toggleClass("show"); }, 3000);
+    var $x = $("#snackbar");
+    $x.text(msg)
+    $x.toggleClass("show");
+    setTimeout(function(){ $x.toggleClass("show"); }, 3000);
   }
 
+  // Initialize the form
   // Get data lists from the controller
-  function read_dataLists() {
+  function init_form() {
     // Get accepatble action types
     $.get("/flowform","list=actions").done( function(response) {
       actions = response; // assign to global var
@@ -187,15 +158,6 @@ $(function () {
     })
     .fail( function() {
       $('#output').text("Could not get actions list!");
-    })
-
-    // Get accepatble match fields
-    $.get("/flowform","list=matches").done( function(response) {
-      matches = response; // assign to global var
-      init_dataList(matches, "matchlist");
-    })
-    .fail( function() {
-      $('#output').text("Could not get match fields list!");
     })
 
     // Get switches list
@@ -210,6 +172,5 @@ $(function () {
     })
   };
 
-  read_dataLists();
-
+  init_form();    
 });

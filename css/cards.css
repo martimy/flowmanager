@@ -115,6 +115,10 @@
     background-color: #EEE;
 }
 
+.card .footing {
+    padding-bottom: 5px;
+    color: red;
+}
 /*
 Card top navigation
 probably not all are used.

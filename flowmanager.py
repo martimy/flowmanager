@@ -24,7 +24,7 @@ from ryu.topology import event, switches
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
-import logging
+import os, logging
 from logging.handlers import WatchedFileHandler
 
 
@@ -53,11 +53,14 @@ class FlowManager(app_manager.RyuApp):
         wsgi = kwargs['wsgi']
         self.dpset = kwargs['dpset']
 
+        # get this file's path
+        dirname = os.path.dirname(__file__)
+
         self.lists = {}
         self.lists['actions'] = self.read_files(
-            'actions', '/home/maen/monitor/data/actions.txt')
+            'actions', os.path.join(dirname, 'data/actions.txt'))
         self.lists['matches'] = self.read_files(
-            'matches', '/home/maen/monitor/data/matches.txt')
+            'matches', os.path.join(dirname, 'data/matches.txt'))
         self.waiters = {}
 
         self.ofctl = ofctl_v1_3
@@ -76,7 +79,7 @@ class FlowManager(app_manager.RyuApp):
         """Create and return a logger object."""
         # TODO: simplify
         logger = logging.getLogger(logname)
-        logger_handler = WatchedFileHandler(logfile)
+        logger_handler = WatchedFileHandler(logfile, mode='w')
         # removed \t%(name)-6s
         log_fmt = '%(asctime)s\t%(levelname)-8s\t%(message)s'
         logger_handler.setFormatter(
@@ -138,10 +141,13 @@ class FlowManager(app_manager.RyuApp):
             'OUTPUT': (parser.OFPActionOutput, 'port'),
         }
 
-        for key in set:
+        #for key in set:  #old
+        for action in set:  #new
+            key = action.keys()[0] #There should be only one key
+            value = action[key]
             if key in aDict:
                 f = aDict[key][0]       # the action
-                if aDict[key][1]:       # check if the action has a value
+                if aDict[key][1]:       # check if the action needs a value
                     kwargs = {}
                     if aDict[key][1] == 'field':
                         #x = set[key].split('=')
@@ -149,16 +155,19 @@ class FlowManager(app_manager.RyuApp):
                         #field = {'field':x[0], 'value':x[1]}
                         # print(aDict[key][1])
 
-                        kwargs = {aDict[key][1]: set[key]}
+                        #kwargs = {aDict[key][1]: set[key]} # old
+                        kwargs = {aDict[key][1]: value} #new
                         #print(kwargs)
                         raise Exception("Action {} not supported!".format(key))
                     elif aDict[key][1] == 'port':
-                        x = set[key].upper()
+                        #x = set[key].upper() #old
+                        x = value.upper() #new
                         val = self.port_id[x] if x in self.port_id else int(x)
                         #print(val)
                         kwargs = {aDict[key][1]: val}
                     else:
-                        kwargs = {aDict[key][1]: int(set[key])}
+                        #kwargs = {aDict[key][1]: int(set[key])} #old
+                        kwargs = {aDict[key][1]: int(value)}
                     actions.append(f(**kwargs))
                 else:
                     actions.append(f())
@@ -232,9 +241,11 @@ class FlowManager(app_manager.RyuApp):
                     ofproto.OFPIT_CLEAR_ACTIONS, [])]
             # Write Actions
             if d["write"]:
-                writeActions = self.get_actions(parser, d["write"])
-                inst += [parser.OFPInstructionActions(
-                    ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
+               toList = [{k:d["write"][k]} for k in d["write"]]
+               print(toList)
+               writeActions = self.get_actions(parser, toList)
+               inst += [parser.OFPInstructionActions(
+                   ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
             # Write Metadata
             if d["metadata"]:
                 inst += [parser.OFPInstructionWriteMetadata(
@@ -270,11 +281,71 @@ class FlowManager(app_manager.RyuApp):
 
         return "Message sent successfully."
 
+    def process_group_message(self, d):
+        """Sends group form data to the switch to update group tables.
+        """
+
+        dp = self.dpset.get(d["dpid"])
+        if not dp:
+            return "Datapatch does not exist!"
+
+        ofproto = dp.ofproto
+        parser = dp.ofproto_parser
+
+        command = {
+            'add': ofproto.OFPGC_ADD,
+            'mod': ofproto.OFPGC_MODIFY,
+            'del': ofproto.OFPGC_DELETE,
+        }
+
+        cmd = command.get(d["operation"], ofproto.OFPGC_ADD)
+
+        type_convert = {'ALL': dp.ofproto.OFPGT_ALL,
+                        'SELECT': dp.ofproto.OFPGT_SELECT,
+                        'INDIRECT': dp.ofproto.OFPGT_INDIRECT,
+                        'FF': dp.ofproto.OFPGT_FF}
+
+        gtype = type_convert.get(d["type"])
+        
+        group_id = d["group_id"]
+
+        buckets = []
+        for bucket in  d["buckets"]:
+            print("bucket", bucket)
+            weight = bucket.get('weight', 0)
+            watch_port = bucket.get('watch_port', ofproto.OFPP_ANY)
+            watch_group = bucket.get('watch_group', dp.ofproto.OFPG_ANY)
+            actions = []
+            if bucket['actions']:
+                actions = self.get_actions(parser, bucket['actions'])
+                buckets.append(dp.ofproto_parser.OFPBucket(
+                    weight, watch_port, watch_group, actions))
+
+        #print(dp, cmd, gtype, group_id, buckets)
+        group_mod = parser.OFPGroupMod(
+            dp, cmd, gtype, group_id, buckets)
+        
+        try:
+            dp.send_msg(group_mod)    # ryu/ryu/controller/controller.py
+        except KeyError as e:
+            return e.__repr__()
+        except Exception as e:
+            return e.__repr__()
+        
+        return "Message sent successfully."
+
     def get_flow_stats(self, req, dpid):
         flow = {}  # no filters
         dp = self.dpset.get(int(str(dpid), 0))
         return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
+    def get_stats(self, req, dpid):
+        dp = self.dpset.get(int(str(dpid), 0))
+        if req == "flows":
+            return self.ofctl.get_flow_stats(dp, self.waiters)
+        elif req == "groups":
+           return {"desc": self.ofctl.get_group_desc(dp, self.waiters),
+                     "stats": self.ofctl.get_group_stats(dp, self.waiters)}
 
     def get_packet_summary(self, content):
         pkt = packet.Packet(content)
@@ -299,9 +370,9 @@ class FlowManager(app_manager.RyuApp):
         # ofp_event.EventOFPMeterStatsReply,
         # ofp_event.EventOFPMeterFeaturesStatsReply,
         # ofp_event.EventOFPMeterConfigStatsReply,
-        # ofp_event.EventOFPGroupStatsReply,
+        ofp_event.EventOFPGroupStatsReply,
         # ofp_event.EventOFPGroupFeaturesStatsReply,
-        # ofp_event.EventOFPGroupDescStatsReply,
+        ofp_event.EventOFPGroupDescStatsReply,
         # ofp_event.EventOFPPortDescStatsReply,
         # ofp_event.EventOFPPacketIn,
     ], MAIN_DISPATCHER)
@@ -360,7 +431,7 @@ class FlowManager(app_manager.RyuApp):
     def error_msg_handler(self, ev):
         msg = ev.msg
 
-        self.logger.info('OFPErrorMsg: type=0x%02x code=0x%02x '
+        self.logger.error('OFPErrorMsg: type=0x%02x code=0x%02x '
                           'message=%s',
                           msg.type, msg.code, utils.hex_array(msg.data))
 
@@ -387,18 +458,6 @@ class FlowManager(app_manager.RyuApp):
                          self.get_packet_summary(msg.data))
 
     # @set_ev_cls(event.EventSwitchEnter)
-    # def topology_handler(self, ev):
-    #     """Get Topology Data
-    #     """
-    #     switch_list = get_all_switch(self)
-    #     switches = [switch.to_dict() for switch in switch_list]
-    #     links_list = get_all_link(self)
-    #     links = [link.to_dict() for link in links_list]
-    #     host_list = get_all_host(self)
-    #     hosts = [h.to_dict() for h in host_list]
-
-    #     self.topology = {"switches": switches, "links":links, "hosts": hosts}
-
     def get_topology_data(self):
         """Get Topology Data
         """

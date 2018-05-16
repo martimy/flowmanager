@@ -19,6 +19,10 @@
 	color: var(--pcolor-3);
 }
 
+.license {
+	font-family: 'Courier New', monospace;	
+}
+
 #header {
 	background: transparent url("../img/switch.svg") no-repeat;
 	background-size: 40px 40px;

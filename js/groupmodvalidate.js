@@ -1,26 +1,10 @@
-// Called by readForm to get key,value pairs for action set
-function readKeyValueToObject(str1, str2, out) {
-  $('tr').has(str1).each(function() {
+// Called by readForm to get key,value pairs
+function readKeyValue(id, str1, str2, out) {
+  $('#'+id+' tr').has(str1).each(function() {
     var $key = $(this).find(str1).val().trim();
     var $value = $(this).find(str2).val().trim();
-    if ($value.indexOf('/') > 0) {
-      $value = $value.split('/')
-    }
     if($key != '') {
       out[$key] = $value;
-    }
-  });
-}
-
-// Called by readForm to get key,value pairs for action list
-function readKeyValueToList(str1, str2, out) {
-  $('tr').has(str1).each(function() {
-    var $key = $(this).find(str1).val().trim();
-    var $value = $(this).find(str2).val().trim();
-    if($key != '') {
-      var obj = {}; //TODO: simplify
-      obj[$key] = $value;
-      out.push(obj);
     }
   });
 }
@@ -36,7 +20,11 @@ function readForm($form) {
   // Read Flow Operation type
   var op = $('[name="operation"]:checked').val();
   formData['operation'] = op;
-  
+
+  // Read group type
+  var gtype = $('#gtype').val();
+  formData['type'] = gtype;
+
   // Read all fields of type=number
   var $nums = $all.filter('[type=number]');
   $nums.each( function() {
@@ -51,23 +39,13 @@ function readForm($form) {
     formData[this.id] = this.checked;
   })
 
-  // Read Match fields and values
-  var matchObj = {};
-  if(!formData["matchcheckbox"]) {
-    readKeyValueToObject('[name="matchfield"]', '[name="matchvalue"]', matchObj);
+  // Read Actions fields and values
+  formData.buckets = []
+  for(var i=1; i<4; i++) {
+    var bucketObj = {};
+    readKeyValue('Bucket_'+i, '[name="applyaction"]', '[name="applyvalue"]', bucketObj);
+    formData.buckets.push({"actions": bucketObj});
   }
-
-  // Read Apply Actions fields and values
-  var applyList = [];
-  readKeyValueToList('[name="applyaction"]', '[name="applyvalue"]', applyList);
-
-  // Read Write Actions fields and values
-  var writeObj = {};
-  readKeyValueToObject('[name="writeaction"]', '[name="writevalue"]', writeObj);
-
-  formData.match = matchObj;
-  formData.apply = applyList;
-  formData.write = writeObj;
 
   return formData;
 }

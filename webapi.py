@@ -35,11 +35,11 @@ class WebApi(ControllerBase):
 
     @route('monitor', '/status', methods=['GET'])
     def get_flow_stats(self, req, **_kwargs):
-        """Get flows
+        """Get switch data
         """
         if req.GET['status'] and req.GET['dpid']:
             res = Response(content_type="application/json")
-            reply = self.api.get_flow_stats(req, req.GET['dpid'])
+            reply = self.api.get_stats(req.GET['status'], req.GET['dpid'])
             res.json = reply
             return res
         return Response(status=404) # Resource does not exist
@@ -52,6 +52,16 @@ class WebApi(ControllerBase):
         reply = self.api.get_topology_data()
         res.json = reply
         return res       
+
+    @route('monitor', '/groupform', methods=['GET', 'POST'])
+    def get_group_form(self, req, **_kwargs):
+        """Connect with group form
+        """ 
+        if req.POST:
+            res = Response()
+            res.body = self.api.process_group_message(req.json)
+            return res
+        return Response(status=400)  # bad request
 
     @route('monitor', '/flowform', methods=['GET', 'POST'])
     def get_flow_form(self, req, **_kwargs):
