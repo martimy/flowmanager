@@ -241,10 +241,11 @@ class FlowManager(app_manager.RyuApp):
                     ofproto.OFPIT_CLEAR_ACTIONS, [])]
             # Write Actions
             if d["write"]:
-               toList = [{k:d["write"][k]} for k in d["write"]]
-               print(toList)
-               writeActions = self.get_actions(parser, toList)
-               inst += [parser.OFPInstructionActions(
+                # from dict to list
+                toList = [{k:d["write"][k]} for k in d["write"]]
+                #print(toList)
+                writeActions = self.get_actions(parser, toList)
+                inst += [parser.OFPInstructionActions(
                    ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
             # Write Metadata
             if d["metadata"]:

@@ -1,10 +1,12 @@
-// Called by readForm to get key,value pairs
-function readKeyValue(id, str1, str2, out) {
+// Called by readForm to get key,value pairs for action list
+function readKeyValueToList(id, str1, str2, out) {
   $('#'+id+' tr').has(str1).each(function() {
     var $key = $(this).find(str1).val().trim();
     var $value = $(this).find(str2).val().trim();
     if($key != '') {
-      out[$key] = $value;
+      var obj = {}; //TODO: simplify
+      obj[$key] = $value;
+      out.push(obj);
     }
   });
 }
@@ -42,10 +44,11 @@ function readForm($form) {
   // Read Actions fields and values
   formData.buckets = []
   for(var i=1; i<4; i++) {
-    var bucketObj = {};
-    readKeyValue('Bucket_'+i, '[name="applyaction"]', '[name="applyvalue"]', bucketObj);
-    formData.buckets.push({"actions": bucketObj});
+    var bucketList = [];
+    readKeyValueToList('Bucket_'+i, '[name="applyaction"]', '[name="applyvalue"]', bucketList);
+    formData.buckets.push({"actions": bucketList});
   }
+  console.log(formData.buckets)
 
   return formData;
 }
