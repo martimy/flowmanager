@@ -141,8 +141,7 @@ class FlowManager(app_manager.RyuApp):
             'OUTPUT': (parser.OFPActionOutput, 'port'),
         }
 
-        #for key in set:  #old
-        for action in set:  #new
+        for action in set:
             key = action.keys()[0] #There should be only one key
             value = action[key]
             if key in aDict:
@@ -150,23 +149,13 @@ class FlowManager(app_manager.RyuApp):
                 if aDict[key][1]:       # check if the action needs a value
                     kwargs = {}
                     if aDict[key][1] == 'field':
-                        #x = set[key].split('=')
-                        # x has same values as OFPMatch
-                        #field = {'field':x[0], 'value':x[1]}
-                        # print(aDict[key][1])
-
-                        #kwargs = {aDict[key][1]: set[key]} # old
-                        kwargs = {aDict[key][1]: value} #new
-                        #print(kwargs)
-                        raise Exception("Action {} not supported!".format(key))
+                        x = value.split('=')
+                        kwargs = {x[0]: x[1]}
                     elif aDict[key][1] == 'port':
-                        #x = set[key].upper() #old
-                        x = value.upper() #new
+                        x = value.upper()
                         val = self.port_id[x] if x in self.port_id else int(x)
-                        #print(val)
                         kwargs = {aDict[key][1]: val}
                     else:
-                        #kwargs = {aDict[key][1]: int(set[key])} #old
                         kwargs = {aDict[key][1]: int(value)}
                     actions.append(f(**kwargs))
                 else:
@@ -241,6 +230,7 @@ class FlowManager(app_manager.RyuApp):
                     ofproto.OFPIT_CLEAR_ACTIONS, [])]
             # Write Actions
             if d["write"]:
+                # bc actions must be unique they are in dict
                 # from dict to list
                 toList = [{k:d["write"][k]} for k in d["write"]]
                 #print(toList)
@@ -312,7 +302,7 @@ class FlowManager(app_manager.RyuApp):
 
         buckets = []
         for bucket in  d["buckets"]:
-            print("bucket", bucket)
+            #print("bucket", bucket)
             weight = bucket.get('weight', 0)
             watch_port = bucket.get('watch_port', ofproto.OFPP_ANY)
             watch_group = bucket.get('watch_group', dp.ofproto.OFPG_ANY)
