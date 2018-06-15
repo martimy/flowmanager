@@ -13,6 +13,8 @@
 // limitations under the License.
 
 $(function () {
+  //var url = "http://" + location.hostname + ":8080";
+
   // constants
   var LABEL = 0;
   var HINT = 1;
@@ -20,9 +22,10 @@ $(function () {
   var DESC = 3;
 
   var actions = {};
+  var matches = {};
 
   //var xhr = new XMLHttpRequest();
-  var $form = $('#groupmod');
+  var $form = $('#metermod');
 
   // When Enter is pressed, go to the next input instead of sumbitting
   // the form.
@@ -39,27 +42,14 @@ $(function () {
     }
   });
 
-  // Initialize datalists used by the Match and Action input
-  // the lists come form the Ryu app
-  function init_dataList(thelist, listID) {
-    var $datalist = $('<datalist>');
-    $datalist.attr('id',listID)
-    for(var key in thelist) {
-      var $option = $('<option>');
-      $option.text(key);
-      $datalist.append($option);
-    }
-    $form.append($datalist);
-  };
-
   // Handle table 'click' events
   /* When the '+' button is clicked, a row is added to the fields table
-     based on a clone of the last row. The field input needs to be bond
+     based on a clone of the last row. The field input needs to be bound
      to a listener and the value input field needs to be cleaned of existing
      'placehoder'. Finally the '+' is changed to '-'
      When is '-' button is clicked, the current row is deleted
   */
- $('.extendable').on('click',function(e) {
+  $('.extendable').on('click',function(e) {
     var target = e.target;
     if (target.value =='+') {
       var $row = $(this).find('tr:last');
@@ -74,9 +64,7 @@ $(function () {
           $field.on('change', on_action_change );
       } else if ($field.attr('name') === 'writeaction') {
           $field.on('change', on_action_change );
-      } else if ($field.attr('name').includes('bucketaction')) {
-          $field.on('change', on_action_change );
-      }      
+      }
       target.value = '-';
     } else if (e.target.value == '-') {
       $(target).parent().parent().remove();
@@ -88,44 +76,34 @@ $(function () {
     $(this).attr('onfocus','this.value=""');
   });
 
-  // Get hints from data lists
-  function get_hint(dict, label) {
-    var l = label.trim();
-    if(l === '' || l == null || !(l in dict)) {
-      return '';
-    }
-    return dict[label][HINT];
-  };
-
   // Action taken when a Oparation input is changed
   function on_operation_change (e) {
     if (e.target.value.indexOf("del") > -1) {
       if ($('input[name="operation"]:checked').val()) {
         $('#out_fields>input').prop("disabled", false);
+        // change the default value to -1
+        $('#out_port').val(-1);
+        $('#out_group').val(-1);
       }
     } else {
       $('#out_fields>input').prop("disabled", true);
+        // reset the value
+        $('#out_port').val('');
+        $('#out_group').val('');
     }
   };
 
-    // Action taken when an Action input is changed
-    function on_action_change (e) {
-        var $f = $('input')
-        var $next = $f.eq($f.index(this) + 1);
-        $next.val('');
-        var hint = get_hint(actions, this.value);
-        if (hint === "None") {
-            $next.attr('placeholder', '');
-            $next.prop('disabled', true);
-        } else {
-            $next.prop('disabled', false);
-            $next.attr('placeholder', hint);
-        }
-        };
+  // Action taken when a Match input is changed
+  function on_type_change (e) {
+    var $f = $('input');
+    var $next = $f.eq($f.index(this) + 1);
+    $next.val('');
+    // disable/enable fields based on selection
+  };
 
   // Bind Change events
   $('[name="operation"]').on('change', on_operation_change);
-  $('[name="applyaction"]').on('change', on_action_change);
+  $('[name="typelist"]').on('change', on_type_change);
 
   // Handle form 'submit' events
   $form.on('submit', function(e) {
@@ -133,13 +111,13 @@ $(function () {
 
     // Read the form input
     var formData = readForm($form);
-    var r = validate(formData, [], actions);
+    var r = validate(formData, matches, actions);
     var msg = r.message;
 
     //console.log(formData);
 
     // Send the data to the server
-    $.post("/groupform", JSON.stringify(formData))
+    $.post("/meterform", JSON.stringify(formData))
       .done( function(response) {
         msg += response;
         displaySnackbar(msg);
@@ -150,26 +128,18 @@ $(function () {
       })
   });
 
+  // Setup the form
+
   // Display Snackbar
   function displaySnackbar(msg) {
-    var $x = $("#snackbar");
-    $x.text(msg)
-    $x.toggleClass("show");
-    setTimeout(function(){ $x.toggleClass("show"); }, 3000);
+      var $x = $("#snackbar");
+      $x.text(msg)
+      $x.toggleClass("show");
+      setTimeout(function(){ $x.toggleClass("show"); }, 3000);
   }
 
-  // Initialize the form
   // Get data lists from the controller
   function init_form() {
-    // Get accepatble action types
-    $.get("/flowform","list=actions").done( function(response) {
-      actions = response; // assign to global var
-      init_dataList(actions, "actionlist");
-    })
-    .fail( function() {
-      $('#output').text("Could not get actions list!");
-    })
-
     // Get switches list
     $.get("/flowform","list=switches").done( function(response) {
       var $dps = $('#dpid');
@@ -182,5 +152,6 @@ $(function () {
     })
   };
 
-  init_form();    
+  init_form();
+
 });

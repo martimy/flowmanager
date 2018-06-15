@@ -1,3 +1,17 @@
+// Copyright (c) 2018 Maen Artimy
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 $(function() {
     var size = 60;
     var radius = 8;
@@ -36,19 +50,26 @@ $(function() {
             nodes.push({"id":lst[i].dpid, "type": "switch"});
         }
 
-        lst = top.links;
-        for(var i=0; i<lst.length; i++) {
-            if(lst[i].src.dpid < lst[i].dst.dpid) { // prevent duplicate links
-               links.push({"source":lst[i].src.dpid, "target":lst[i].dst.dpid, "value": 4, 
-                  "port":{"source": lst[i].src.port_no, "target":lst[i].dst.port_no}});
+        if(top.links.length > 0) {
+            lst = top.links;
+            for(var i=0; i<lst.length; i++) {
+                if(lst[i].src.dpid < lst[i].dst.dpid) { // prevent duplicate links
+                links.push({"source":lst[i].src.dpid, "target":lst[i].dst.dpid, "value": 4, 
+                    "port":{"source": lst[i].src.port_no, "target":lst[i].dst.port_no}});
+                }
+            }
+        } else { // represent the network with a cloud
+            nodes.push({"id":0, "type": "cloud"});
+            for(var i=0; i<lst.length; i++) {
+                links.push({"source":0, "target":lst[i].dpid, "value": 4, 
+                    "port":{"source":0, "target":0}});
             }
         }
 
         lst = top.hosts;
         for(var i=0; i<lst.length; i++) {
             nodes.push({"id":lst[i].mac, "type": "host"});
-            links.push({"source":lst[i].port.dpid, "target":lst[i].mac, 
-                        "value": 2, 
+            links.push({"source":lst[i].port.dpid, "target":lst[i].mac, "value": 2,
                         "port":{"source":lst[i].port.port_no, "target":0}});
         }
 
@@ -56,11 +77,14 @@ $(function() {
         return {"nodes": nodes, "links": links};
     }
 
+    // Plot the topology using D3.js
+    // Many online tutorials explain how this works. Example: www.puzzlr.org/force-graphs-with-d3
     function plotGraph(graph) {
         var svg = d3.select("svg");
         var width = +svg.attr("width");
         var height = +svg.attr("height");
 
+        // Create a force layout simulation
         var simulation = d3.forceSimulation()
             .nodes(graph.nodes)
             .force("charge_force", d3.forceManyBody().strength(-size*10))
@@ -68,7 +92,7 @@ $(function() {
             .force("links", d3.forceLink(graph.links).id(function(d) { return d.id; }).distance(size*2))
             .force("box_force", box_force)
 
-        //custom force to put stuff in a box 
+        //custom force to put everything in a box 
         function box_force() {
             var curr_node;
             for (var i = 0, n = graph.nodes.length; i < n; ++i) {
@@ -90,6 +114,8 @@ $(function() {
             .attr("xlink:href", function(d) { 
                 if(d.type === "switch") {
                     return "/home/img/switch.svg"
+                } else if(d.type === "cloud") {
+                    return "/home/img/cloud.svg"
                 } else {
                     return "/home/img/pc.svg"
                 } 
@@ -129,7 +155,7 @@ $(function() {
             .attr("class", "end")        
             .text(function(d) { return trim_zeros(d.port.target); })
 
-
+        // Simulation steps
         function tickActions() {
             function norm(d) {
                 return Math.sqrt((d.target.x - d.source.x)**2 + (d.target.y - d.source.y)**2);
@@ -146,10 +172,12 @@ $(function() {
                 .attr("x2", function(d) { return (d.target.x - d.source.x) * (1 - size/2/norm(d)); })
                 .attr("y2", function(d) { return (d.target.y - d.source.y) * (1 - size/2/norm(d)); })
             
+            // position of the link start port
             link.selectAll("circle.start")
                 .attr("cx", function(d) { return (d.target.x - d.source.x) * size/2/norm(d); })
                 .attr("cy", function(d) { return (d.target.y - d.source.y) * size/2/norm(d); })
             
+            // psotion of the link end port
             link.selectAll("circle.end")
                 .attr("cx", function(d) { return (d.target.x - d.source.x) * (1 - size/2/norm(d)); })
                 .attr("cy", function(d) { return (d.target.y - d.source.y) * (1 - size/2/norm(d)); })
@@ -164,6 +192,7 @@ $(function() {
 
           }
  
+        // Handling mouse drag
         var drag_handler = d3.drag()
             .on("start", drag_start)
             .on("drag", drag_drag)
@@ -186,6 +215,7 @@ $(function() {
             d.fy = null; //d.y;
         }
         
+        // Handling mouse over
         function handleMouseOver(d, i) {
             // d3.select(this)
             //     .attr("width", 2*size)
@@ -200,9 +230,11 @@ $(function() {
 
         drag_handler(node);
 
+        // run tickActions in every simulation step
         simulation.on("tick", tickActions );
     }
 
+    // Display the raw topology data at the bottom of the window
     function listTopology(network) {
         data = "<h1>Switches</h1>" + JSON.stringify(network.switches) + "<br>";
         data += "<h1>Links</h1>" + JSON.stringify(network.links) + "<br>";

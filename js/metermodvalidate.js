@@ -12,28 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Called by readForm to get key,value pairs for action set
-function readKeyValueToObject(str1, str2, out) {
-  $('tr').has(str1).each(function() {
-    var $key = $(this).find(str1).val().trim();
-    var $value = $(this).find(str2).val().trim();
-    if ($value.indexOf('/') > 0) {
-      $value = $value.split('/')
-    }
-    if($key != '') {
-      out[$key] = $value;
-    }
-  });
-}
-
 // Called by readForm to get key,value pairs for action list
-function readKeyValueToList(str1, str2, out) {
-  $('tr').has(str1).each(function() {
-    var $key = $(this).find(str1).val().trim();
-    var $value = $(this).find(str2).val().trim();
+function readMeterValueToList(out) {
+  $('#Bands tr').has('[name="bandtype"]').each(function() {
+    var $key = $(this).find('[name="bandtype"]').val().trim();
     if($key != '') {
-      var obj = {}; //TODO: simplify
-      obj[$key] = $value;
+      var obj = []
+      obj.push($key)
+      obj.push(parseInt($(this).find('[name="rate"]').val()));
+      obj.push(parseInt($(this).find('[name="burst"]').val().trim()));
+      obj.push(parseInt($(this).find('[name="prec"]').val().trim()));
       out.push(obj);
     }
   });
@@ -47,17 +35,16 @@ function readForm($form) {
   // Read switch ID
   formData['dpid'] = parseInt($('#dpid').val())
 
-  // Read Flow Operation type
+  // Read Operation type
   var op = $('[name="operation"]:checked').val();
   formData['operation'] = op;
-  
+
   // Read all fields of type=number
   var $nums = $all.filter('[type=number]');
   $nums.each( function() {
     var n = parseInt(this.value);
     formData[this.id] = isNaN(n) ? 0 : n;
   })
-  // goto table must be > table_id
 
   // Read checkboxes
   var $ckb = $all.filter('[type=checkbox]');
@@ -65,23 +52,12 @@ function readForm($form) {
     formData[this.id] = this.checked;
   })
 
-  // Read Match fields and values
-  var matchObj = {};
-  if(!formData["matchcheckbox"]) {
-    readKeyValueToObject('[name="matchfield"]', '[name="matchvalue"]', matchObj);
-  }
+  // Read Actions fields and values
+  bandsList = []
+  readMeterValueToList(bandsList);
 
-  // Read Apply Actions fields and values
-  var applyList = [];
-  readKeyValueToList('[name="applyaction"]', '[name="applyvalue"]', applyList);
-
-  // Read Write Actions fields and values
-  var writeObj = {};
-  readKeyValueToObject('[name="writeaction"]', '[name="writevalue"]', writeObj);
-
-  formData.match = matchObj;
-  formData.apply = applyList;
-  formData.write = writeObj;
+  formData.bands = bandsList
+  console.log(formData)
 
   return formData;
 }

@@ -1,3 +1,17 @@
+// Copyright (c) 2018 Maen Artimy
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 $(function () {
   // Table template
   var tableTemplate = " <div class=\"card wide\"> \
@@ -62,14 +76,14 @@ $(function () {
     var rows = Object.values(response)['0'];
 
     // get the headers
-    var col = [];
-    for (var c in rows[0]) {
-      col.push(c);
+    var col = ["priority", "match", "cookie", "duration_sec", "idle_timeout", "hard_timeout", "actions", "packet_count", "byte_count", "flags"]
+    // missing "duration_nsec", "length", "table_id"
+    /* Note that the whole content variable is just a string */
+    var header = "<thead><tr>"
+    for(i=0; i<col.length; i++){
+      header += '<th data-sort="number">' + hc(col[i]) + '</th>';
     }
-    // TODO: make column order custom
-    // Sort the column names
-    col.sort()
-    col.reverse();
+    header += "</tr></thead>"
 
     var tables = [];
     for (var t=0; t<rows.length; t++) {
@@ -83,17 +97,6 @@ $(function () {
       }
     }
 
-    /* Note that the whole content variable is just a string */
-    var tid = 0;
-    var header = "<thead><tr>"
-    for(i=0; i<col.length; i++){
-      if(col[i] === "table_id") {
-        tid = i; // mark the col. num. so we can skip it late
-      } else {
-        header += '<th data-sort="number">' + hc(col[i]) + '</th>';
-      }
-    }
-    header += "</tr></thead>"
 
     for(var t=0; t<tables.length; t++) {
       rows = tables[t];
@@ -101,14 +104,14 @@ $(function () {
       for (var i = 0; i < rows.length; i++) {
         body += "<tr>"
         for (var j = 0; j < col.length; j++) {
-          if(j!=tid) {
+          //if(j!=tid) {
             var cell = rows[i][col[j]]
             if(typeof cell === 'object') {
-              body += "<td>" + JSON.stringify(cell) + "</td>";
+              body += "<td>" + JSON.stringify(cell).replace(',',',\n') + "</td>";
             } else {
               body += "<td>" + cell + "</td>";
             }
-          }
+          //}
         }
         body += "</tr>"
       }

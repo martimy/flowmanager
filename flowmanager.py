@@ -1,4 +1,16 @@
-# Copyright (C) 2018 Maen Artimy
+# Copyright (c) 2018 Maen Artimy
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 from ryu.base import app_manager
 from ryu.app.wsgi import WSGIApplication
@@ -318,6 +330,56 @@ class FlowManager(app_manager.RyuApp):
         
         try:
             dp.send_msg(group_mod)    # ryu/ryu/controller/controller.py
+        except KeyError as e:
+            return e.__repr__()
+        except Exception as e:
+            return e.__repr__()
+        
+        return "Message sent successfully."
+
+    def process_meter_message(self, d):
+        """Sends meter form data to the switch to update meter table.
+        """
+
+        dp = self.dpset.get(d["dpid"])
+        if not dp:
+            return "Datapatch does not exist!"
+
+        ofproto = dp.ofproto
+        parser = dp.ofproto_parser
+
+        command = {
+            'add': ofproto.OFPMC_ADD,
+            'mod': ofproto.OFPMC_MODIFY,
+            'del': ofproto.OFPMC_DELETE,
+        }
+        cmd = command.get(d["operation"], ofproto.OFPMC_ADD)
+
+        meter_id = d["meter_id"]
+
+        # Flags
+        flags = 0
+        flags += 0x01 if d['OFPMF_KBPS'] else 0
+        flags += 0x02 if d['OFPMF_PKTPS'] else 0
+        flags += 0x04 if d['OFPMF_BURST'] else 0
+        flags += 0x08 if d['OFPMF_STATS'] else 0
+
+        bands = []
+        for band in  d["bands"]:
+            #mtype = type_convert.get(band[0])
+            if band[0] == 'DROP':
+                bands += [parser.OFPMeterBandDrop(rate=band[1],
+                    burst_size=band[2])]
+            elif band[0] == 'DSCP_REMARK':
+                bands += [parser.OFPMeterBandDscpRemark(rate=band[1], 
+                    burst_size=band[2], prec_level=band[3])]
+
+        print(dp, cmd, flags, meter_id, bands)
+    
+        meter_mod = parser.OFPMeterMod(dp, cmd, flags, meter_id, bands)
+        
+        try:
+            dp.send_msg(meter_mod)
         except KeyError as e:
             return e.__repr__()
         except Exception as e:
