@@ -40,7 +40,7 @@ $ ryu-manager --observe-links ~/flowmanager/flowmanager.py ryu.app.simple_switch
 
 Use a web broswer to launch the site http://localhost:8080/home/index.html
 
-![alt text](http://localhost/home/img.img.png)
+![SCREEN1](https://github.com/martimy/flowmanager/blob/master/img/screen1.png)
 
 ## Built With
 
