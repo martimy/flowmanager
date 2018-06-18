@@ -21,14 +21,26 @@ $ git clone https://github.com/martimy/flowmanager
 
 ## Running the app
 
+Run the FlowManager alone:
 ```
-$ ryu-manager ~/monitor/flowmanager.py
+$ ryu-manager ~/flowmanager/flowmanager.py
 ```
 
-## Deployment
+or with another RYU application:
 
-The following is a typical deplyment scenario for FlowManager:
+```
+$ ryu-manager ~/flowmanager/flowmanager.py ryu.app.simple_switch_13
+```
 
+and to display the topology:
+
+```
+$ ryu-manager --observe-links ~/flowmanager/flowmanager.py ryu.app.simple_switch_13
+```
+
+Use a web broswer to launch the site http://localhost:8080/home/index.html
+
+![alt text](http://localhost/home/img.img.png)
 
 ## Built With
 
@@ -43,7 +55,3 @@ The following is a typical deplyment scenario for FlowManager:
 
 FlowManager is licensed under the Apache 2 License - see the [LICENSE.md](LICENSE.md) file for details
 
-## Acknowledgments
-
-*
-*
