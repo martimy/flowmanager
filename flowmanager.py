@@ -24,6 +24,7 @@ from ryu.controller.handler import set_ev_cls
 
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
+from ryu.lib import ofctl_utils
 from ryu import utils
 
 # for packet content
@@ -104,6 +105,26 @@ class FlowManager(app_manager.RyuApp):
     def get_switches(self):
         """Return switches."""
         return self.dpset.get_all()
+
+    def get_switch_desc(self, dpid):
+        dp = self.dpset.get(dpid)
+        return self.ofctl.get_desc_stats(dp, self.waiters, to_user=True)
+
+    def get_port_desc(self, dpid):
+        dp = self.dpset.get(dpid)
+        return self.ofctl.get_port_desc(dp, self.waiters)
+
+    def get_port_stat(self, dpid):
+        dp = self.dpset.get(dpid)
+        return self.ofctl.get_port_stats(dp, self.waiters, port=None, to_user=True)
+    
+    def get_flow_summary(self, dpid):
+        dp = self.dpset.get(dpid)
+        return self.ofctl.get_aggregate_flow_stats(dp, self.waiters)
+    
+    def get_table_stat(self, dpid):
+        dp = self.dpset.get(dpid)
+        return self.ofctl.get_table_stats(dp, self.waiters)
 
     def read_logs(self):
         items = []
@@ -412,12 +433,12 @@ class FlowManager(app_manager.RyuApp):
     ##### Event Handlers #######################################
 
     @set_ev_cls([  # ofp_event.EventOFPStatsReply,
-        # ofp_event.EventOFPDescStatsReply,
+        ofp_event.EventOFPDescStatsReply,
         ofp_event.EventOFPFlowStatsReply,
-        # ofp_event.EventOFPAggregateStatsReply,
-        # ofp_event.EventOFPTableStatsReply,
+        ofp_event.EventOFPAggregateStatsReply,
+        ofp_event.EventOFPTableStatsReply,
         # ofp_event.EventOFPTableFeaturesStatsReply,
-        # ofp_event.EventOFPPortStatsReply,
+        ofp_event.EventOFPPortStatsReply,
         # ofp_event.EventOFPQueueStatsReply,
         # ofp_event.EventOFPQueueDescStatsReply,
         # ofp_event.EventOFPMeterStatsReply,
@@ -426,14 +447,10 @@ class FlowManager(app_manager.RyuApp):
         ofp_event.EventOFPGroupStatsReply,
         # ofp_event.EventOFPGroupFeaturesStatsReply,
         ofp_event.EventOFPGroupDescStatsReply,
-        # ofp_event.EventOFPPortDescStatsReply,
+        ofp_event.EventOFPPortDescStatsReply,
         # ofp_event.EventOFPPacketIn,
     ], MAIN_DISPATCHER)
     def stats_reply_handler(self, ev):
-        """This method is taken from ryu.app.ofctl_rest
-        It is used to fill flow tables
-        """
-
         msg = ev.msg
         dp = msg.datapath
 

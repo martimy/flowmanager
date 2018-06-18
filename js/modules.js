@@ -76,7 +76,7 @@ var dpList = function (jsondata, element) {
 	element.innerHTML = "";
 	var ul = document.createElement("ul");
 	for(var s in switches) {
-		var num = switches[s]; //("000000000000000" + switches[s].toString(16)).substr(-16);
+		var num = +switches[s]; //("000000000000000" + switches[s].toString(16)).substr(-16);
 		//html += num + "<br>";
 
 		var li = document.createElement("li");

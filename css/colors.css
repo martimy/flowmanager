@@ -1,9 +1,6 @@
-/* CSS - Cascading Style Sheet */
-/* Palette color codes */
-/* Palette URL: http://paletton.com/#uid=33A0E0ky8ttljB7r8y3ACnDH2il */
-
-/* Feel free to copy&paste color codes to your application */
-
+/*
+    Copyright (c) Maen Artimy, 2018
+*/
 
 :root2 {
     --pcolor-0: #0B5199;
@@ -29,7 +26,6 @@
 }
 
 :root {
-    /* Palette URL: http://paletton.com/#uid=33i0u0kkLl-adwofvqMpLgwvcb8 */
     --pcolor-0: #246767;	/* Main Primary color */
     --pcolor-1: #699A9A;
     --pcolor-2: #428080;

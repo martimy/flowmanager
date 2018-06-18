@@ -25,8 +25,6 @@ from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
 
-# sys.path.append('/home/maen/ofworkspace/simpleswitch2/ss2')
-
 # ref: https://tools.itef.org/doc/python-routes/html
 
 
@@ -55,6 +53,36 @@ class WebApi(ControllerBase):
             res.json = reply
             return res
         return Response(status=404) # Resource does not exist
+
+    @route('monitor', '/data', methods=['GET'])
+    def get_flow_data(self, req, **_kwargs):
+        """Get switch data
+        """
+        # TODO: merge with get_flow_stats 
+        if req.GET:
+            lst = {}
+            if req.GET.get("list") == "switches":
+                lst = {t[0]:t[0] for t in self.api.get_switches()}
+            if req.GET.get("switchdesc"):
+                dpid = int(req.GET["switchdesc"])
+                lst = self.api.get_switch_desc(dpid)
+            if req.GET.get("portdesc"):
+                dpid = int(req.GET["portdesc"])
+                lst = self.api.get_port_desc(dpid)
+            if req.GET.get("portstat"):
+                dpid = int(req.GET["portstat"])
+                lst = self.api.get_port_stat(dpid)
+            if req.GET.get("flowsumm"):
+                dpid = int(req.GET["flowsumm"])
+                lst = self.api.get_flow_summary(dpid)
+            if req.GET.get("tablestat"):
+                dpid = int(req.GET["tablestat"])
+                lst = self.api.get_table_stat(dpid)
+
+            res = Response(content_type="application/json")
+            res.json = lst
+            return res
+        return Response(status=400)  # bad request
 
     @route('monitor', '/topology', methods=['GET'])
     def get_topology(self, req, **_kwargs):
@@ -101,7 +129,7 @@ class WebApi(ControllerBase):
                 lst = self.lists["matches"]
             elif req.GET["list"] == "switches":
                 lst = {t[0]:str(t[0]) for t in self.api.get_switches()}
-                print(lst)
+                #print(lst)
 
             res = Response(content_type="application/json")
             res.json = lst

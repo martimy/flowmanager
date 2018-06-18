@@ -1,3 +1,18 @@
+// Copyright (c) 2018 Maen Artimy
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
 var BAR_IDX = 1;
 var CONTAINER_IDX = 2;
 
@@ -75,16 +90,17 @@ var generateCards = ( function() {
 })();
 
 var views = [
-{id:"mSwitch", cmd:"/stats/switches", dsc:"Switch ID(s)", call:dpList, ref:true},
-{id:"mSwitchDesc", cmd:"/stats/desc/<dpid>", dsc:"Switch Desc", call:dpStruct},
-//temp{id:"mFlowsFilter", post:true, cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
-{id:"mPortDesc", cmd:"/stats/portdesc/<dpid>", dsc:"Port Desc", call:dpTable, ref:true},
+{id:"mSwitch", cmd:"/data?list=switches", dsc:"Switch ID(s)", call:dpList, ref:true},
+{id:"mSwitchDesc", cmd:"/data?switchdesc=<dpid>", dsc:"Switch Desc", call:dpStruct},
+{id:"mPortDesc", cmd:"/data?portdesc=<dpid>", dsc:"Port Desc", call:dpTable, ref:true},
+{id:"mPorts", cmd:"/data?portstat=<dpid>", dsc:"Ports stats", call:dpTable, ref:true},
+{id:"mAggFlows", cmd:"/data?flowsumm=<dpid>", dsc:"Flow Summary", call:dpTable, ref:true},
+{id:"mTableStats", cmd:"/data?tablestat=<dpid>", dsc:"Table stats", call:dpTable, ref:true},
+// not supported yet:
+//{id:"mFlowsFilter", post:true, cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
 //{id:"mFlows", cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
-{id:"mAggFlows", cmd:"/stats/aggregateflow/<dpid>", dsc:"Flow Summary", call:dpTable, ref:true},
-/*{id:"mTableFeature", cmd:"/stats/tablefeatures/<dpid>", dsc:"Table Features", call:dpTable, ref:true},*/
-{id:"mTableStats", cmd:"/stats/table/<dpid>", dsc:"Table stats", call:dpTable, ref:true},
-{id:"mPorts", cmd:"/stats/port/<dpid>", dsc:"Ports stats", call:dpTable, ref:true}/*,
-{id:"mQueueStats", cmd:"/stats/queue/<dpid>", dsc:"Queue Stats", call:dpTable, ref:true},
-{id:"mQueueDesc", cmd:"/stats/queuedesc/<dpid>", dsc:"Queue Desc", call:dpTable, ref:true},
-{id:"mMeters", cmd:"/stats/meter/<dpid>", dsc:"Meters stats"}*/
+//{id:"mTableFeature", cmd:"/stats/tablefeatures/<dpid>", dsc:"Table Features", call:dpTable, ref:true},
+//{id:"mQueueStats", cmd:"/stats/queue/<dpid>", dsc:"Queue Stats", call:dpTable, ref:true},
+//{id:"mQueueDesc", cmd:"/stats/queuedesc/<dpid>", dsc:"Queue Desc", call:dpTable, ref:true},
+//{id:"mMeters", cmd:"/stats/meter/<dpid>", dsc:"Meters stats"}
 ];
