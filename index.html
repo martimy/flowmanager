@@ -2,48 +2,28 @@
 <meta charset="utf-8">
 <html>
 <head>
-	<title>FlowManager</title>
+	<title>Flow Manager</title>
 	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css\colors.css?v2">
 	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\cards.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\table.css?v2">
 	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
+	<script src="js\main.js?v2"></script>
+	<script src="js\modules.js?v2"></script>
+	<script src="js\cards.js?v2"></script>
 	<script src="js\jquery-3.3.1.min.js"></script>
 </head>
-<body>
+<body onload="generateCards.run(views, 'main');moduleManager.loadModules(views)">
+<script>console.log("started!");</script>
 <div class="container_16">
-	<div id="header" class="grid_16">
-		<h1>FlowManager</h1>
-	</div>
-	<div id="menu" class="grid_2"></div>
-	<div id="main" class="grid_14">
-		<div class="frontleft">
-			<p>The FlowManager is a RYU controller application 
-					that gives the user manual control over the flow 
-					tables in an OpenFlow network. The user can create, 
-					modify, or delete flow entries directly from the application. 
-					The user can also monitor the OpenFlow switches and 
-					view statistics. The FlowManager is ideal for learning 
-					OpenFlow in a lab environment, or to monitor and control flows in a 
-					production network.</p>
-
-			<ul>
-				<li>Easy way to learn OpenFlow and control OpenFlow switches.</li>
-				<li>No coding required.</li>
-				<li>Uses Ryu controller.</li>
-				<li>Supports OpenFlow v1.3.</li>
-				<li>Open Source under Apache 2.0.</li>
-			</ul>
-			<h2>Features</h2>
-			<ul>
-				<li>Add/modify/delete flow entries in flow tables.</li>
-				<li>Add/modify/delete group tables and meters.</li>
-				<li>View flow tables, group tables, and meters.</li>
-				<li>View switch statistics.</li>
-				<li>View network toplogy.</li>
-			</ul>
-		</div>
-	</div>
+<div id="header" class="grid_16">
+	<h1>Flow Manager</h1>
+</div>
+<div id="menu" class="grid_2"></div>
+<div id="main" class="grid_14"></div>
+</div>
 </div>
 <script src="js\mainmenu.js"></script>
+<script>console.log("finished!");</script>
 </body>
 </html>
