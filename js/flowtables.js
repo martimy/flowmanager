@@ -85,20 +85,21 @@ $(function () {
     }
     header += "</tr></thead>"
 
-    var tables = [];
+    var tables = {};
     for (var t=0; t<rows.length; t++) {
       var tb = rows[t].table_id;
       if(tb in tables) {
         tables[tb].push(rows[t]);
       } else {
-        tables.push(tb);
+        //tables.push(tb);
         tables[tb] = [];
         tables[tb].push(rows[t]);
       }
     }
 
+    console.log(tables)
 
-    for(var t=0; t<tables.length; t++) {
+    for(t in tables) {
       rows = tables[t];
       var body = "<tbody>";
       for (var i = 0; i < rows.length; i++) {

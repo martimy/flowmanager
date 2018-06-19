@@ -58,7 +58,7 @@ $(function() {
                     "port":{"source": lst[i].src.port_no, "target":lst[i].dst.port_no}});
                 }
             }
-        } else { // represent the network with a cloud
+        } else if (top.switches.length > 1) { // represent the network with a cloud
             nodes.push({"id":0, "type": "cloud"});
             for(var i=0; i<lst.length; i++) {
                 links.push({"source":0, "target":lst[i].dpid, "value": 4, 
