@@ -2,16 +2,18 @@
 
 The FlowManager is a RYU controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a production environment. 
 
-## Getting Started
 
-These instructions will get you a copy of FlowManager on your local machine.
+![SCREEN1](img/screen1.png)
+![SCREEN2](img/screen2.png)
+![SCREEN3](img/screen3.png)
+![SCREEN4](img/screen4.png)
 
-### Dependencies
+## Dependencies
 
 FlowManager is a [RYU Controller](https://osrg.github.io/ryu/) application, so make sure that the controller is installed properly before you proceed.
 Also, if you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
 
-### Installation
+## Installation
 
 Install FlowManager using the following steps:
 
@@ -39,14 +41,6 @@ $ ryu-manager --observe-links ~/flowmanager/flowmanager.py ryu.app.simple_switch
 ```
 
 Use a web broswer to launch the site http://localhost:8080/home/index.html
-
-![SCREEN1](https://github.com/martimy/flowmanager/blob/master/img/screen1.png)
-
-![SCREEN2](https://github.com/martimy/flowmanager/blob/master/img/screen2.png)
-
-![SCREEN3](https://github.com/martimy/flowmanager/blob/master/img/screen3.png)
-
-![SCREEN4](https://github.com/martimy/flowmanager/blob/master/img/screen4.png)
 
 
 ## Built With
