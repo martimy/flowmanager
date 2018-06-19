@@ -15,7 +15,7 @@
 import json
 import os
 import mimetypes
-import requests
+#import requests
 import datetime as dt
 import sys
 
