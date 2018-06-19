@@ -108,24 +108,37 @@ class FlowManager(app_manager.RyuApp):
 
     def get_switch_desc(self, dpid):
         dp = self.dpset.get(dpid)
-        return self.ofctl.get_desc_stats(dp, self.waiters, to_user=True)
+        if dp:
+            return self.ofctl.get_desc_stats(dp, self.waiters, to_user=True)
+        else:
+            return None
 
     def get_port_desc(self, dpid):
         dp = self.dpset.get(dpid)
-        return self.ofctl.get_port_desc(dp, self.waiters)
+        if dp:
+            return self.ofctl.get_port_desc(dp, self.waiters)
+        else:
+            return None
 
     def get_port_stat(self, dpid):
         dp = self.dpset.get(dpid)
-        return self.ofctl.get_port_stats(dp, self.waiters, port=None, to_user=True)
-    
+        if dp:
+            return self.ofctl.get_port_stats(dp, self.waiters, port=None, to_user=True)
+        return None
+
     def get_flow_summary(self, dpid):
         dp = self.dpset.get(dpid)
-        return self.ofctl.get_aggregate_flow_stats(dp, self.waiters)
-    
+        if dp:
+            return self.ofctl.get_aggregate_flow_stats(dp, self.waiters)
+        return None
+
     def get_table_stat(self, dpid):
         dp = self.dpset.get(dpid)
-        return self.ofctl.get_table_stats(dp, self.waiters)
-
+        if dp:
+            return self.ofctl.get_table_stats(dp, self.waiters)
+        else:
+            return None
+            
     def read_logs(self):
         items = []
         with open(self.logfile, 'r') as my_file:
