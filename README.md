@@ -61,5 +61,5 @@ Use a web broswer to launch the site http://localhost:8080/home/index.html
 
 ## License
 
-FlowManager is licensed under the Apache 2 License - see the [LICENSE.md](LICENSE.md) file for details
+FlowManager is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details
 
