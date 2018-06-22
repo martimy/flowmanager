@@ -421,7 +421,7 @@ class FlowManager(app_manager.RyuApp):
         
         return "Message sent successfully."
 
-    def get_flow_stats(self, req, dpid):
+    def get_flow_stats(self, req, dpid): # unused
         flow = {}  # no filters
         dp = self.dpset.get(int(str(dpid), 0))
         return self.ofctl.get_flow_stats(dp, self.waiters, flow)
@@ -433,6 +433,10 @@ class FlowManager(app_manager.RyuApp):
         elif req == "groups":
            return {"desc": self.ofctl.get_group_desc(dp, self.waiters),
                      "stats": self.ofctl.get_group_stats(dp, self.waiters)}
+        elif req == "meters":
+           return {"desc": self.ofctl.get_meter_config(dp, self.waiters),
+                    "stats": self.ofctl.get_meter_stats(dp, self.waiters)}
+
 
     def get_packet_summary(self, content):
         pkt = packet.Packet(content)
@@ -454,9 +458,9 @@ class FlowManager(app_manager.RyuApp):
         ofp_event.EventOFPPortStatsReply,
         # ofp_event.EventOFPQueueStatsReply,
         # ofp_event.EventOFPQueueDescStatsReply,
-        # ofp_event.EventOFPMeterStatsReply,
+        ofp_event.EventOFPMeterStatsReply,
         # ofp_event.EventOFPMeterFeaturesStatsReply,
-        # ofp_event.EventOFPMeterConfigStatsReply,
+        ofp_event.EventOFPMeterConfigStatsReply,
         ofp_event.EventOFPGroupStatsReply,
         # ofp_event.EventOFPGroupFeaturesStatsReply,
         ofp_event.EventOFPGroupDescStatsReply,

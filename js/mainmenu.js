@@ -18,8 +18,9 @@ $(function () {
 
   var menu = '<div class="menuitem"> \
     <a href="index.html">Home</a> \
-    <a href="flows.html">Flow Tables</a> \
-    <a href="groups.html">Group Tables</a> \
+    <a href="flows.html">Flows</a> \
+    <a href="groups.html">Groups</a> \
+    <a href="meters.html">Meters</a> \
     <a href="flowform.html">Flow Control</a> \
     <a href="groupform.html">Group Control</a> \
     <a href="meterform.html">Meter Control</a> \

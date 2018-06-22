@@ -17,7 +17,7 @@ $(function () {
   var tableTemplate = " <div class=\"card wide\"> \
       <div class=\"header\"><h1>{Title}</h1></div> \
       <div class=\"container\">{content}</div> \
-      <div class=\"footing\"></div></div>";
+      <div class=\"footing\">{footer}</div></div>";
 
   var dps = null;
 
@@ -26,8 +26,17 @@ $(function () {
   	return myString.replace("_"," ").replace(/\b\w/g, l => l.toUpperCase())
   }
 
+  function toUser(str) {
+    if (str == '4294967295') {
+      return 'ANY';
+    } /*else if (typeof str === 'object' && str.length == 0 ) {
+      return 'DROP';
+    }*/
+    return str;
+  }
+
   // Create the tab structure
-  function buildTabs(dps) {
+  function buildTabs(dps, fill_container) {
     // Add tab buttons
     var tabs = '<div class="tab">';
     for(var d in dps) {
@@ -41,10 +50,7 @@ $(function () {
       $('#main').append('<div id="Switch_'+dps[d]+'" class="tabcontent"></div>');
     }
 
-    // Fill the containers with flow tables
-    for(var d in dps) {
-      getFlows(dps[d]);
-    } 
+    fill_container(dps);
 
     // When a tab is clicked:
     // 1) Hide all contents,
@@ -70,76 +76,88 @@ $(function () {
   }
 
   // Create Flow Tables
-  function buildFlowTables(response) {
-    // extract the flows
-    dpid = parseInt(Object.keys(response)[0]);
-    var rows = Object.values(response)['0'];
+  function buildMeterTables(response) {
+    // extract the group data
+    gdesc = response.desc
+    gstats = response.stats
+    
+    console.log(gdesc)
+    console.log(gstats)
+
+    dpid = parseInt(Object.keys(gdesc)[0]);
+    var groups = Object.values(gdesc)['0'];
+    var stats = Object.values(gstats)['0'];
+
+    console.log(groups)
+    console.log(stats)
 
     // get the headers
-    var col = ["priority", "match", "cookie", "duration_sec", "idle_timeout", "hard_timeout", "actions", "packet_count", "byte_count", "flags"]
-    // missing "duration_nsec", "length", "table_id"
-    /* Note that the whole content variable is just a string */
+    var col = ["band", "type", "rate", "burst_size", "packet_band_count", "byte_band_count"];
     var header = "<thead><tr>"
     for(i=0; i<col.length; i++){
       header += '<th data-sort="number">' + hc(col[i]) + '</th>';
     }
     header += "</tr></thead>"
 
-    var tables = {};
-    for (var t=0; t<rows.length; t++) {
-      var tb = rows[t].table_id;
-      if(tb in tables) {
-        tables[tb].push(rows[t]);
-      } else {
-        //tables.push(tb);
-        tables[tb] = [];
-        tables[tb].push(rows[t]);
-      }
-    }
-
-    //console.log(tables)
-
-    for(t in tables) {
-      rows = tables[t];
+    // get the groups
+    for (var i = 0; i < groups.length; i++) {
       var body = "<tbody>";
-      for (var i = 0; i < rows.length; i++) {
-        body += "<tr>"
-        for (var j = 0; j < col.length; j++) {
-          //if(j!=tid) {
-            var cell = rows[i][col[j]]
-            if(typeof cell === 'object') {
-              body += "<td>" + JSON.stringify(cell).replace(',',',\n') + "</td>";
-            } else {
-              body += "<td>" + cell + "</td>";
-            }
-          //}
+      var buckets = groups[i].bands;
+      //console.log(buckets)
+      var raw = "<tr>";
+      for (var j = 0; j < buckets.length; j++) {
+        raw += "<td>"+j+"</td>" // the raw order
+        bucket = buckets[j];
+        bucketstat = stats[i].band_stats[j];
+        for (var k = 1; k < col.length; k++) {
+          if(bucket[col[k]] != null) {
+            raw += "<td>" + toUser(bucket[col[k]]) + "</td>";
+          } else if(bucketstat[col[k]] != null) {
+            raw += "<td>" + bucketstat[col[k]] + "</td>";
+          } else {
+            raw += "<td>---</td>"; 
+          }
         }
-        body += "</tr>"
+        raw += "</tr>";
       }
-      body += "</tbody>"
-      var content = '<table class="sortable">' + header + body + '</table>'
-      var card = tableTemplate.replace("{Title}", "Switch "+dpid + ", Table "+t).replace("{content}", content)
-      //$('#main').append('<div id="Switch_'+dpid+'" class="card wide tabcontent">'+card+'</div>');
+      body += raw + "</tbody>";
+      var content = '<table class="sortable fixed">' + header + body + '</table>'
+      var footer = "<table class='oneliner'><tr><td>Duration: " + stats[i].duration_sec + "</td>"
+                        + "<td>Flows: " + stats[i].flow_count + "</td>"
+                        + "<td>Packets: " + stats[i].packet_in_count + "</td>"                        
+                        + "<td>Bytes: " + stats[i].byte_in_count + "</td></tr></table>"
+                           
+      var card = tableTemplate
+                .replace("{Title}", "Meter: "+ groups[i].meter_id)
+                .replace("{content}", content)
+                .replace("{footer}", footer)
       $('#Switch_'+dpid).append(card);
     }
 
+  };
+
+  // Fill the containers with data
+  function filler(dps) {
+    for(var d in dps) {
+      getMeters(dps[d]);
+    }
   }
 
   // Get flow entries from server and build tables
-  function getFlows(id) {
+  function getMeters(id) {
     var flows = null;
-    $.get("/status", {status:"flows", dpid:id})
+    $.get("/status", {status:"meters", dpid:id})
     .done( function(response) {
-      buildFlowTables(response); 
+      buildMeterTables(response); 
     });
   };
 
-  // Get the switches list from server and build the flow tables
+  // Get the switches list from server and build the group tables
   function getSwitches(f) {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        buildTabs(response);
+        buildTabs(response, filler);
       }
     })
     .fail( function() {
@@ -163,7 +181,6 @@ $(function () {
     $('#main').html("");
     getSwitches();
   })
-
 
   getSwitches();
 });

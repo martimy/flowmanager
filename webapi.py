@@ -49,8 +49,7 @@ class WebApi(ControllerBase):
         """
         if req.GET['status'] and req.GET['dpid']:
             res = Response(content_type="application/json")
-            reply = self.api.get_stats(req.GET['status'], req.GET['dpid'])
-            res.json = reply
+            res.json = self.api.get_stats(req.GET['status'], req.GET['dpid'])
             return res
         return Response(status=404) # Resource does not exist
 
