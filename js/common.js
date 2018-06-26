@@ -58,22 +58,28 @@ function CommonTables() {
     var tableTemplate = " <div class=\"card wide\"> \
         <div class=\"header\"><h1>{Title}</h1></div> \
         <div class=\"container\">{content}</div> \
-        <div class=\"footing\"></div></div>";
-  
+        <div class=\"footing\">{footer}</div></div>";
+
     // remove underscore and switch to uppercase
     function hc(myString) {
         return myString.replace("_"," ").replace(/\b\w/g, l => l.toUpperCase())
     }
   
-    function buildTable(title, col, body) {
+    function buildTable(title, col, body, footer) {
       var header = "<thead><tr>"
       for(i=0; i<col.length; i++){
         header += '<th data-sort="number">' + hc(col[i]) + '</th>';
       }
       header += "</tr></thead>"
   
-      var content = '<table class="sortable">' + header + body + '</table>';
-      var card = tableTemplate.replace("{Title}", title).replace("{content}", content);
+      var content = '<table class="sortable fixed">' + header + body + '</table>'; // try also <table align="ceneer">
+      //var card = tableTemplate.replace("{Title}", title).replace("{content}", content);
+                                 
+      var card = tableTemplate
+                .replace("{Title}", title)
+                .replace("{content}", content)
+                .replace("{footer}", footer)
+
       return card;
     }
   

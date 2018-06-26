@@ -13,18 +13,8 @@
 // limitations under the License.
 
 $(function () {
-  // Table template
-  var tableTemplate = " <div class=\"card wide\"> \
-      <div class=\"header\"><h1>{Title}</h1></div> \
-      <div class=\"container\">{content}</div> \
-      <div class=\"footing\">{footer}</div></div>";
-
   var dps = null;
-
-  // remove underscore and switch to uppercase
-  function hc(myString) {
-  	return myString.replace("_"," ").replace(/\b\w/g, l => l.toUpperCase())
-  }
+  var tabs = new CommonTabs();
 
   function toUser(str) {
     if (str == '4294967295') {
@@ -35,51 +25,10 @@ $(function () {
     return str;
   }
 
-  // Create the tab structure
-  function buildTabs(dps) {
-    // Add tab buttons
-    var tabs = '<div class="tab">';
-    for(var d in dps) {
-      tabs += '<button class="tablinks">Switch_'+dps[d]+'</button>';
-    }
-    tabs += '</div>';
-    $('#main').append(tabs);
-
-    // Add empty containers for contents
-    for(var d in dps) {
-      $('#main').append('<div id="Switch_'+dps[d]+'" class="tabcontent"></div>');
-    }
-
-    // Fill the containers with flow tables
-    for(var d in dps) {
-      getGroups(dps[d]);
-    } 
-
-    // When a tab is clicked:
-    // 1) Hide all contents,
-    // 2) Make the clicked tab active, and
-    // 3) Show the content of the active tab
-    // 4) Save the new active tab in local storage
-    $('.tablinks').on('click', function(e) {
-      $('.tabcontent').hide();      
-      $('.tablinks').removeClass("active");
-      $(this).addClass("active");
-      var id = $(this).text();
-      $('#'+id).show();
-      localStorage.setItem('activeTab', id);
-    })
-
-    var activeTab = localStorage.getItem('activeTab');
-    if(activeTab !== null) {
-      //setActiveTab(activeTab);
-      $('button:contains('+ activeTab +')').addClass("active");
-      $('#'+activeTab).show();
-      //console.log(activeTab);
-    } 
-  }
-
   // Create Flow Tables
   function buildGroupTables(response) {
+    var tableObj = new CommonTables();
+
     // extract the group data
     gdesc = response.desc
     gstats = response.stats
@@ -89,11 +38,6 @@ $(function () {
 
     // get the headers
     var col = ["bucket", "weight", "watch_group", "watch_port", "actions", "packet_count", "byte_count"];
-    var header = "<thead><tr>"
-    for(i=0; i<col.length; i++){
-      header += '<th data-sort="number">' + hc(col[i]) + '</th>';
-    }
-    header += "</tr></thead>"
 
     // get the groups
     for (var i = 0; i < groups.length; i++) {
@@ -117,20 +61,25 @@ $(function () {
         raw += "</tr>";
       }
       body += raw + "</tbody>";
-      var content = '<table class="sortable fixed">' + header + body + '</table>'
+
       var footer = "<table class='oneliner'><tr><td>Type: " + groups[i].type + "<td></td>"
                         + "<td>Duration: " + stats[i].duration_sec + "<td></td>"
                         + "<td>Refs: " + stats[i].ref_count + "<td></td></table>"
-                           
-      var card = tableTemplate
-                .replace("{Title}", "Group: "+ groups[i].group_id)
-                .replace("{content}", content)
-                .replace("{footer}", footer)
+
+      var title = "Switch "+dpid + ", Table "+ groups[i].group_id;
+      var card = tableObj.buildTable(title, col, body, footer);
       $('#Switch_'+dpid).append(card);
     }
 
   }
 
+  // Fill the containers with data
+  function filler(dps) {
+    for(var d in dps) {
+      getGroups(dps[d]);
+    } 
+  }
+  
   // Get flow entries from server and build tables
   function getGroups(id) {
     var flows = null;
@@ -145,24 +94,13 @@ $(function () {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        buildTabs(response);
+        tabs.buildTabs(response, filler);
       }
     })
     .fail( function() {
       $('#error').text("Cannot read switches!");
     })
   };
-
-  // Get the last active tab
-  function getActive() {
-    var name;
-    if(localStorage.getItem('activeTab') === null) {
-        localStorage.setItem('name', name);
-    } else {
-        name = localStorage.getItem('name');
-    }
-
-  }
 
   // When the refresh button is clicked, clear the page and start over
   $('.refresh').on('click', function() {

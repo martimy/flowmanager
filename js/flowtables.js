@@ -60,7 +60,7 @@ $(function () {
       body += "</tbody>"
 
       var title = "Switch "+dpid + ", Table "+t;
-      var card = tableObj.buildTable(title, col, body);
+      var card = tableObj.buildTable(title, col, body, "");
 
       $('#Switch_'+dpid).append(card);
     }
