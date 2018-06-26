@@ -165,16 +165,6 @@ $(function () {
     })
   };
 
-  // Get the last active tab
-  function getActive() {
-    var name;
-    if(localStorage.getItem('activeTab') === null) {
-        localStorage.setItem('name', name);
-    } else {
-        name = localStorage.getItem('name');
-    }
-
-  }
 
   // When the refresh button is clicked, clear the page and start over
   $('.refresh').on('click', function() {
