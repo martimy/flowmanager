@@ -14,9 +14,8 @@
 
 
 $(function () {
-
   var dps = null;
-  var tabs = new CommonTabs();
+  var tabsObj = new CommonTabs();
 
 
   // Create Flow Tables
@@ -59,7 +58,7 @@ $(function () {
       }
       body += "</tbody>"
 
-      var title = "Switch "+dpid + ", Table "+t;
+      var title = "Table "+t;
       var card = tableObj.buildTable(title, col, body, "");
 
       $('#Switch_'+dpid).append(card);
@@ -88,7 +87,7 @@ $(function () {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        tabs.buildTabs(response, filler);
+        tabsObj.buildTabs(response, filler);
       }
     })
     .fail( function() {

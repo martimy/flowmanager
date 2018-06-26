@@ -14,7 +14,7 @@
 
 $(function () {
   var dps = null;
-  var tabs = new CommonTabs();
+  var tabsObj = new CommonTabs();
 
   function toUser(str) {
     if (str == '4294967295') {
@@ -25,7 +25,7 @@ $(function () {
     return str;
   }
 
-  // Create Flow Tables
+  // Create Group Tables
   function buildGroupTables(response) {
     var tableObj = new CommonTables();
 
@@ -66,7 +66,7 @@ $(function () {
                         + "<td>Duration: " + stats[i].duration_sec + "<td></td>"
                         + "<td>Refs: " + stats[i].ref_count + "<td></td></table>"
 
-      var title = "Switch "+dpid + ", Table "+ groups[i].group_id;
+      var title = "Group "+ groups[i].group_id;
       var card = tableObj.buildTable(title, col, body, footer);
       $('#Switch_'+dpid).append(card);
     }
@@ -94,7 +94,7 @@ $(function () {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        tabs.buildTabs(response, filler);
+        tabsObj.buildTabs(response, filler);
       }
     })
     .fail( function() {
