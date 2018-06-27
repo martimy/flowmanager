@@ -72,27 +72,37 @@ function hc(myString) {
 // Populates the Switch ID card
 var dpList = function (jsondata, element) {
 	var switches = JSON.parse(jsondata);
+	var found = false;
+
 	//var html = "";
 	element.innerHTML = "";
 	var ul = document.createElement("ul");
+	ul.setAttribute("id", "swlist");
 	for(var s in switches) {
 		var num = +switches[s]; //("000000000000000" + switches[s].toString(16)).substr(-16);
 		//html += num + "<br>";
 
 		var li = document.createElement("li");
 		li.innerHTML = num;
-		if(switches[s]===myGlobalObject.dpid()) {
+		if(switches[s] === myGlobalObject.dpid()) {
 			li.classList.add("selected");
+			found = true;
 		}
 		li.addEventListener("click", clickMe);
 		ul.appendChild(li);
 	}
 	element.appendChild(ul);
 	//element.innerHTML = html;
+	if (!found) {
+		var name  = document.getElementById("swlist").firstChild.innerHTML;
+		myGlobalObject.setDPID(name)
+		moduleManager.loadModules(views);
+	}
 };
 
 var dpStruct = function (jsondata, element) {
 	var jsonobj = JSON.parse(jsondata);
+	if(!jsonobj) return;
 	var switchName = Object.keys(jsonobj);
 	var struct = jsonobj[switchName];
 	var html = "";
@@ -125,6 +135,7 @@ var dpTable = function (jsondata, element) {
 	};
 
 	var jsonobj = JSON.parse(jsondata);
+	if(!jsonobj) return;
 
 	var switchName = Object.keys(jsonobj);
 
@@ -197,7 +208,7 @@ var moduleManager = (function () {
 				views[idx].module = myModule;		// we need this to refresh
 				views[idx].container = container;	// we need this to refresh
 
-				if(views[idx].ref) {
+				if(views[idx].ref) { // refresh is required
 					myViews.push(views[idx]);
 				};
 			}

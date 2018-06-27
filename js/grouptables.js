@@ -13,7 +13,6 @@
 // limitations under the License.
 
 $(function () {
-  var dps = null;
   var tabsObj = new CommonTabs();
 
   function toUser(str) {
@@ -72,21 +71,15 @@ $(function () {
     }
 
   }
-
-  // Fill the containers with data
-  function filler(dps) {
-    for(var d in dps) {
-      getGroups(dps[d]);
-    } 
-  }
-  
+ 
   // Get flow entries from server and build tables
-  function getGroups(id) {
-    var flows = null;
-    $.get("/status", {status:"groups", dpid:id})
-    .done( function(response) {
-      buildGroupTables(response); 
-    });
+  function getGroups(dps) {
+    for(var id in dps) {    
+      $.get("/status", {status:"groups", dpid:id})
+      .done( function(response) {
+        buildGroupTables(response); 
+      });
+    }
   };
 
   // Get the switches list from server and build the group tables
@@ -94,7 +87,7 @@ $(function () {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        tabsObj.buildTabs(response, filler);
+        tabsObj.buildTabs(response, getGroups);
       }
     })
     .fail( function() {

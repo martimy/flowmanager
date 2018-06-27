@@ -14,7 +14,6 @@
 
 
 $(function () {
-  var dps = null;
   var tabsObj = new CommonTabs();
 
 
@@ -66,28 +65,24 @@ $(function () {
 
   }
 
-  // Fill the containers with data
-  function filler(dps) {
-    for(var d in dps) {
-      getFlows(dps[d]);
+  // Get flow entries from server and build table
+  function getFlows(dps) {
+    for(var id in dps) {  
+        // works because the keys in dps are switch IDs in integer
+        // while the value is switch ID in str
+        $.get("/status", {status:"flows", dpid:id})
+        .done( function(response) {
+          buildFlowTables(response); 
+        });
     } 
   }
-
-  // Get flow entries from server and build tables
-  function getFlows(id) {
-    var flows = null;
-    $.get("/status", {status:"flows", dpid:id})
-    .done( function(response) {
-      buildFlowTables(response); 
-    });
-  };
 
   // Get the switches list from server and build the flow tables
   function getSwitches(f) {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        tabsObj.buildTabs(response, filler);
+        tabsObj.buildTabs(response, getFlows);
       }
     })
     .fail( function() {
