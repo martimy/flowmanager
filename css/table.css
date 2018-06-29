@@ -65,6 +65,10 @@ table tr.editable {
 	cursor: pointer;
 }
 
+table.logtable tr {
+	cursor: pointer;
+}
+
 th.ascending, th.descending, table.sortable th:hover {
 	background-color: var(--scolor-0);
 	color: var(--white);
@@ -85,7 +89,7 @@ th.descending:after {
 
 .tooltip span {
 	z-index: 10;
-	display: none;
+	/*display: none;*/
 	padding: 5px 5px;
 	margin-top: 10px; 
 	margin-left: 10px;
@@ -94,11 +98,17 @@ th.descending:after {
 	color:#111;
 	border:1px solid #DCA; 
 	background:#fffAF0;
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s, 0.5s linear;
 }
 
 .tooltip:hover span{
-	display: inline;
+	visibility: visible;
+	opacity: 1;
+	transition-delay: 1s;
+	/*display: inline;*/
 }
 
 .callout {
