@@ -15,12 +15,10 @@
 
 $(function () {
   var tabsObj = new CommonTabs();
-
+  var tableObj = new CommonTables();
 
   // Create Flow Tables
   function buildFlowTables(response) {
-    var tableObj = new CommonTables();
-
     // Flow table headers. Missing: "duration_nsec", "length", "table_id"
     var col = ["priority", "match", "cookie", "duration_sec", "idle_timeout", "hard_timeout", "actions", "packet_count", "byte_count", "flags"]
 
@@ -44,11 +42,15 @@ $(function () {
       rows = tables[t];
       var body = "<tbody>";
       for (var i = 0; i < rows.length; i++) {
-        body += "<tr>"
+        body += "<tr class=\"editable\">"
         for (var j = 0; j < col.length; j++) {
             var cell = rows[i][col[j]]
             if(typeof cell === 'object') {
-              body += "<td>" + JSON.stringify(cell).replace(',',',\n') + "</td>";
+              // replaces somthing like 'dl_src' with 'eth_src' to comply with v1.3 naming 
+              body += "<td>" + JSON.stringify(cell)
+                                .replace(/dl_/g,'eth_')
+                                .replace(/nw_/g,'ipv4_')
+                                .replace(',',',\n') + "</td>";
             } else {
               body += "<td>" + cell + "</td>";
             }
@@ -63,7 +65,32 @@ $(function () {
       $('#Switch_'+dpid).append(card);
     }
 
+    $(".editable").contextmenu(
+    //  {
+    //   selector: 'tr',
+    //   callback: function(key, options) {
+    //     //var content = $(this).text();
+    //     alert("You clicked on: " + content);
+    //   },
+    //   items: {
+    //     "edit": {name: "Edit", icon: ""},
+    //     "delete": {name: "Delete", icon: ""},
+    //   }
+    // }, 
+    function(e) { // save flow entry content
+      e.preventDefault();
+      
+      var sw = tabsObj.getCurrentSwitch().replace('Switch_','');
+      var table = tableObj.getCurrentTable(this).replace('Table ','');
+      var flow = {"switch": sw, "table": table};
+      $(this).children().each(function(index){
+        flow[col[index]] = $(this).text();
+      });
+      localStorage.setItem('flow', JSON.stringify(flow));
+    });
+
   }
+
 
   // Get flow entries from server and build table
   function getFlows(dps) {

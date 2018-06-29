@@ -48,8 +48,15 @@ function CommonTabs() {
       //console.log(activeTab);
     }
   }
+
+  function getCurrentSwitch() {
+    //var sw = $('div[id^=Switch]').css("display","block");
+    return $(".tab > .active").text()
+  }
+
   return {
-    buildTabs: buildTabs
+    buildTabs: buildTabs,
+    getCurrentSwitch: getCurrentSwitch
   };
 }
 
@@ -83,8 +90,13 @@ function CommonTables() {
       return card;
     }
   
+    function getCurrentTable(entry) {
+      return $(entry).closest('div').prev('div').find('h1').text();
+    }
+
     return {
-      buildTable: buildTable
-      }
+      buildTable: buildTable,
+      getCurrentTable: getCurrentTable
+    }
   }
   

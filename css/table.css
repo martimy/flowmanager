@@ -61,6 +61,10 @@ table.sortable th:hover {
 	cursor: pointer;
 }
 
+table tr.editable {
+	cursor: pointer;
+}
+
 th.ascending, th.descending, table.sortable th:hover {
 	background-color: var(--scolor-0);
 	color: var(--white);

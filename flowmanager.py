@@ -421,10 +421,10 @@ class FlowManager(app_manager.RyuApp):
         
         return "Message sent successfully."
 
-    def get_flow_stats(self, req, dpid): # unused
-        flow = {}  # no filters
-        dp = self.dpset.get(int(str(dpid), 0))
-        return self.ofctl.get_flow_stats(dp, self.waiters, flow)
+    # def get_flow_stats(self, req, dpid): # unused
+    #     flow = {}  # no filters
+    #     dp = self.dpset.get(int(str(dpid), 0))
+    #     return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
     def get_stats(self, req, dpid):
         dp = self.dpset.get(int(str(dpid), 0))

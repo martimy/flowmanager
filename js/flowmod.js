@@ -55,31 +55,35 @@ $(function () {
   /* When the '+' button is clicked, a row is added to the fields table
      based on a clone of the last row. The field input needs to be bound
      to a listener and the value input field needs to be cleaned of existing
-     'placehoder'. Finally the '+' is changed to '-'
-     When is '-' button is clicked, the current row is deleted
+     'placeholder'. Finally the '+' is changed to '-'
+     When the '-' button is clicked, the current row is deleted
   */
   $('.extendable').on('click',function(e) {
     var target = e.target;
     if (target.value =='+') {
-      var $row = $(this).find('tr:last');
-      $(this).append('<tr>'+$row.html()+'</tr>')
-      $row = $(this).find('tr:last')
-      $row.find('input').eq(1).attr('placeholder', '');
-      $row.find('input').eq(1).prop('disabled', false);
-      var $field = $row.find('input').eq(0)
-      if($field.attr('name') === 'matchfield') {
-          $field.on('change', on_match_change );
-      } else if ($field.attr('name') === 'applyaction') {
-          $field.on('change', on_action_change );
-      } else if ($field.attr('name') === 'writeaction') {
-          $field.on('change', on_action_change );
-      }
+      addRaw(this);
       target.value = '-';
     } else if (e.target.value == '-') {
       $(target).parent().parent().remove();
     }
   });
 
+  function addRaw(item) {
+    var $row = $(item).find('tr:last');
+    $(item).append('<tr>'+$row.html()+'</tr>')
+    $row = $(item).find('tr:last')
+    $row.find('input').eq(1).attr('placeholder', '');
+    $row.find('input').eq(1).prop('disabled', false);
+    var $field = $row.find('input').eq(0)
+    if($field.attr('name') === 'matchfield') {
+        $field.on('change', on_match_change );
+    } else if ($field.attr('name') === 'applyaction') {
+        $field.on('change', on_action_change );
+    } else if ($field.attr('name') === 'writeaction') {
+        $field.on('change', on_action_change );
+    }
+
+  }
   // Clears the current value of the list input when is comes to focus.
   $('input[list]').on('focus', function(e) {
     $(this).attr('onfocus','this.value=""');
@@ -94,7 +98,7 @@ $(function () {
     return dict[label][HINT];
   };
 
-  // Action taken when a Oparation input is changed
+  // Action taken when a flow mod oparation input is changed
   function on_operation_change (e) {
     if (e.target.value.indexOf("del") > -1) {
       if ($('input[name="operation"]:checked').val()) {
@@ -218,6 +222,20 @@ $(function () {
       $('#output').text("Cannot read switches!");
     })
   };
+
+  if (localStorage.getItem('flow')) {
+    $('input[name="import"]').show();
+  }
+
+  var fillObj = FlowFill(addRaw);
+
+  $('input[name="import"]').on("click", function(e) {
+    var data = localStorage.getItem('flow');
+    var flow = JSON.parse(data);
+    localStorage.removeItem("flow");
+    $('input[name="import"]').hide();
+    fillObj.fillFlowForm(flow);
+  })
 
   read_dataLists();
 
