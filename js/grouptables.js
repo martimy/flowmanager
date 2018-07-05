@@ -35,6 +35,11 @@ $(function () {
     var groups = Object.values(gdesc)['0'];
     var stats = Object.values(gstats)['0'];
 
+    if(groups.length == 0) {
+      $('#Switch_'+dpid).append("There are no groups!");
+      return
+    }
+
     // get the headers
     var col = ["bucket", "weight", "watch_group", "watch_port", "actions", "packet_count", "byte_count"];
 

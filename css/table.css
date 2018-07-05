@@ -109,6 +109,7 @@ th.descending:after {
 	opacity: 1;
 	transition-delay: 1s;
 	/*display: inline;*/
+	cursor: auto;
 }
 
 .callout {
@@ -119,3 +120,6 @@ th.descending:after {
 	left:-12px;
 }
 
+span.dropmenu {
+	display: none;
+}

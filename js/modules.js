@@ -93,8 +93,8 @@ var dpList = function (jsondata, element) {
 	}
 	element.appendChild(ul);
 	//element.innerHTML = html;
-	if (!found) {
-		var name  = document.getElementById("swlist").firstChild.innerHTML;
+	if (!found && document.getElementById("swlist").firstChild) {
+		var name  = document.getElementById("swlist").firstChild.innerHTML
 		myGlobalObject.setDPID(name)
 		moduleManager.loadModules(views);
 	}

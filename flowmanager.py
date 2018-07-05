@@ -33,7 +33,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
 # for topology discovery
-from ryu.topology import event, switches
+#from ryu.topology import event, switches
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
@@ -503,7 +503,7 @@ class FlowManager(app_manager.RyuApp):
         else:
             reason = 'unknown'
 
-        self.logger.info('OFPFlowRemoved: '
+        self.logger.info('FlowRemoved\t'
                          'cookie=%d priority=%d reason=%s table_id=%d '
                          'duration_sec=%d duration_nsec=%d '
                          'idle_timeout=%d hard_timeout=%d '
@@ -518,7 +518,7 @@ class FlowManager(app_manager.RyuApp):
     def error_msg_handler(self, ev):
         msg = ev.msg
 
-        self.logger.error('OFPErrorMsg: type=0x%02x code=0x%02x '
+        self.logger.error('ErrorMsg\ttype=0x%02x code=0x%02x '
                           'message=%s',
                           msg.type, msg.code, utils.hex_array(msg.data))
 
@@ -536,7 +536,7 @@ class FlowManager(app_manager.RyuApp):
         else:
             reason = 'UNKNOWN'
 
-        self.logger.info('OFPPacketIn: '
+        self.logger.info('PacketIn\t'
                          'buffer_id=%x total_len=%d reason=%s '
                          'table_id=%d cookie=%d match=%s summary=%s',
                          msg.buffer_id, msg.total_len, reason,

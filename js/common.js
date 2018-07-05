@@ -63,7 +63,7 @@ function CommonTabs() {
 function CommonTables() {
     // Table template
     var tableTemplate = " <div class=\"card wide\"> \
-        <div class=\"header\"><h1>{Title}</h1></div> \
+        <div class=\"header\"><h1>{Title}</h1><span class=\"dropmenu\">Menu</span></div> \
         <div class=\"container\">{content}</div> \
         <div class=\"footing\">{footer}</div></div>";
 

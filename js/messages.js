@@ -16,6 +16,7 @@ $(function() {
     var header = '<thead><tr data-sort="number"> \
     <th data-sort="date">Time</th> \
     <th data-sort="name">Level</th> \
+    <th data-sort="name">Type</th> \
     <th data-sort="name">Message</th></tr></thead>';
 
     // Get logs
@@ -30,7 +31,8 @@ $(function() {
                     body += "<tr>"
                     body += "<td>" + row[0] + "</td>";
                     body += "<td>" + row[1] + "</td>";
-                    body += "<td class=\"tooltip\"><span>" + row[2] + "</span>" + row[2] + "</td>";
+                    body += "<td>" + row[2] + "</td>";
+                    body += "<td class=\"tooltip\"><span>" + row[3] + "</span>" + row[3] + "</td>";
                     body += "</tr>";
                 }
                 body += "</tbody>";

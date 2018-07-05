@@ -26,6 +26,12 @@ $(function () {
     dpid = parseInt(Object.keys(response)[0]);
 
     var rows = Object.values(response)['0'];
+
+    if(rows.length == 0) {
+      $('#Switch_'+dpid).append("There are no flow entries!");
+      return
+    }
+
     var tables = {};
     for (var t=0; t<rows.length; t++) {
       var tb = rows[t].table_id;
@@ -57,6 +63,7 @@ $(function () {
         }
         body += "</tr>"
       }
+
       body += "</tbody>"
 
       var title = "Table "+t;
@@ -69,24 +76,25 @@ $(function () {
     //  {
     //   selector: 'tr',
     //   callback: function(key, options) {
-    //     //var content = $(this).text();
+    //     var content = $(this).text();
     //     alert("You clicked on: " + content);
     //   },
     //   items: {
-    //     "edit": {name: "Edit", icon: ""},
+    //     "export": {name: "Export", icon: ""},
     //     "delete": {name: "Delete", icon: ""},
     //   }
     // }, 
     function(e) { // save flow entry content
       e.preventDefault();
-      
-      var sw = tabsObj.getCurrentSwitch().replace('Switch_','');
-      var table = tableObj.getCurrentTable(this).replace('Table ','');
-      var flow = {"switch": sw, "table": table};
+      var flow = {}
+      flow["switch"] = tabsObj.getCurrentSwitch().replace('Switch_','');
+      flow["table"] = tableObj.getCurrentTable(this).replace('Table ','');
       $(this).children().each(function(index){
         flow[col[index]] = $(this).text();
       });
       localStorage.setItem('flow', JSON.stringify(flow));
+      //$(".dropmenu").css({'top':e.pageY, 'left':e.pageX, 'position':'absolute'});
+      //$(".dropmenu").css("display","block");
     });
 
   }

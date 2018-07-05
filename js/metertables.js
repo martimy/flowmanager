@@ -36,6 +36,11 @@ $(function () {
     var groups = Object.values(gdesc)['0'];
     var stats = Object.values(gstats)['0'];
 
+    if(groups.length == 0) {
+      $('#Switch_'+dpid).append("There are no meters!");
+      return
+    }
+
     // get the headers
     var col = ["band", "type", "rate", "burst_size", "packet_band_count", "byte_band_count"];
 
