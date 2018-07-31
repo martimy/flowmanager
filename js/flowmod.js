@@ -24,7 +24,6 @@ $(function () {
   var actions = {};
   var matches = {};
 
-  //var xhr = new XMLHttpRequest();
   var $form = $('#flowmod');
 
   // When Enter is pressed, go to the next input instead of sumbitting
@@ -118,7 +117,7 @@ $(function () {
   // Action taken when a Match input is changed
   function on_match_change (e) {
     var $f = $('input');
-    var $next = $f.eq($f.index(this) + 1);
+    var $next = $f.eq($f.index(this) + 1); // get the next input field
     $next.val('');
     //$next.attr('placehoder','');
     $next.attr('placeholder', get_hint(matches, this.value));
@@ -168,13 +167,13 @@ $(function () {
       })
   });
 
-  // Setup the form
+  // Initialize the form
 
-  // Initialize datalists used by the Match and Action input
-  // the lists come form the Ryu app
+  // Create datalist elements used by the Match and Action input
   function init_dataList(thelist, listID) {
-    var $datalist = $('<datalist>');
+    var $datalist = $('<datalist>'); 
     $datalist.attr('id',listID)
+    // display the key as an input option
     for(var key in thelist) {
       var $option = $('<option>');
       $option.text(key);

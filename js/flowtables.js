@@ -50,16 +50,16 @@ $(function () {
       for (var i = 0; i < rows.length; i++) {
         body += "<tr class=\"editable\">"
         for (var j = 0; j < col.length; j++) {
-            var cell = rows[i][col[j]]
-            if(typeof cell === 'object') {
-              // replaces somthing like 'dl_src' with 'eth_src' to comply with v1.3 naming 
-              body += "<td>" + JSON.stringify(cell)
-                                .replace(/dl_/g,'eth_')
-                                .replace(/nw_/g,'ipv4_')
-                                .replace(',',',\n') + "</td>";
-            } else {
-              body += "<td>" + cell + "</td>";
-            }
+          var cell = rows[i][col[j]]
+          if(typeof cell === 'object') {
+            // replaces somthing like 'dl_src' with 'eth_src' to comply with v1.3 naming 
+            body += "<td>" + JSON.stringify(cell)
+                              .replace(/dl_/g,'eth_')
+                              .replace(/nw_/g,'ipv4_')
+                              .replace(',',',\n') + "</td>";
+          } else {
+            body += "<td>" + cell + "</td>";
+          }
         }
         body += "</tr>"
       }
@@ -72,19 +72,10 @@ $(function () {
       $('#Switch_'+dpid).append(card);
     }
 
-    $(".editable").contextmenu(
-    //  {
-    //   selector: 'tr',
-    //   callback: function(key, options) {
-    //     var content = $(this).text();
-    //     alert("You clicked on: " + content);
-    //   },
-    //   items: {
-    //     "export": {name: "Export", icon: ""},
-    //     "delete": {name: "Delete", icon: ""},
-    //   }
-    // }, 
-    function(e) { // save flow entry content
+    // clicking on a flow entry saves the flow entry content
+    // in the local storage
+    $(".editable").unbind('click');
+    $(".editable").on('click', function(e) { 
       e.preventDefault();
       var flow = {}
       flow["switch"] = tabsObj.getCurrentSwitch().replace('Switch_','');
@@ -93,12 +84,13 @@ $(function () {
         flow[col[index]] = $(this).text();
       });
       localStorage.setItem('flow', JSON.stringify(flow));
+      msg = "Flow entry copied to local storage.";
+      displaySnackbar(msg);
       //$(".dropmenu").css({'top':e.pageY, 'left':e.pageX, 'position':'absolute'});
       //$(".dropmenu").css("display","block");
     });
 
   }
-
 
   // Get flow entries from server and build table
   function getFlows(dps) {
@@ -117,13 +109,22 @@ $(function () {
     $.get("/flowform","list=switches")
     .done( function(response) {
       if(response) {
-        tabsObj.buildTabs(response, getFlows);
+        tabsObj.buildTabs(response, getFlows); 
       }
     })
     .fail( function() {
-      $('#error').text("Cannot read switches!");
+      msg = "Cannot read switches!";
+      displaySnackbar(msg);
     })
   };
+
+  // Display Snackbar
+  function displaySnackbar(msg) {
+    var $x = $("#snackbar");
+    $x.text(msg)
+    $x.toggleClass("show");
+    setTimeout(function(){ $x.toggleClass("show"); }, 3000);
+  }
 
   // When the refresh button is clicked, clear the page and start over
   $('.refresh').on('click', function() {
@@ -131,5 +132,6 @@ $(function () {
     getSwitches();
   })
 
+  localStorage.removeItem('flow');  
   getSwitches();
 });

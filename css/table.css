@@ -62,7 +62,7 @@ table.sortable th:hover {
 }
 
 table tr.editable {
-	cursor: pointer;
+	cursor: copy;
 }
 
 table.logtable tr {
@@ -95,10 +95,11 @@ th.descending:after {
 	margin-left: 10px;
 	width: 400px; 
 	position: absolute;
-	color:#111;
-	border:1px solid #DCA; 
-	background:#fffAF0;
-	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+	color: white;
+	/*border:1px solid #DCA; */
+	background-color: var(--pcolor-0);
+	/*box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);*/
+	border-radius: 2px;
 	visibility: hidden;
 	opacity: 0;
 	transition: visibility 0s, 0.5s linear;
@@ -122,4 +123,29 @@ th.descending:after {
 
 span.dropmenu {
 	display: none;
+}
+
+.contextmenu span {
+	z-index: 10;
+	/*display: none;*/
+	padding: 5px 5px;
+	margin-top: 10px; 
+	margin-left: 10px;
+	width: 400px; 
+	position: absolute;
+	color:#111;
+	border:1px solid #DCA; 
+	background:#fffAF0;
+	box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+	visibility: hidden;
+	opacity: 0;
+	transition: visibility 0s, 0.5s linear;
+}
+
+.contextmenu:hover span{
+	visibility: visible;
+	opacity: 1;
+	transition-delay: 1s;
+	/*display: inline;*/
+	cursor: auto;
 }

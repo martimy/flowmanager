@@ -21,12 +21,14 @@ function CommonTabs() {
       tabs += '<button class="tablinks">Switch_' + dps[d] + '</button>';
     }
     tabs += '</div>';
+    
     $('#main').append(tabs);
     // Add empty containers for contents
     for (var d in dps) {
       $('#main').append('<div id="Switch_' + dps[d] + '" class="tabcontent"></div>');
     }
     fill_container(dps);
+
     // When a tab is clicked:
     // 1) Hide all contents,
     // 2) Make the clicked tab active, and
@@ -40,6 +42,7 @@ function CommonTabs() {
       $('#' + id).show();
       localStorage.setItem('activeTab', id);
     });
+
     var activeTab = localStorage.getItem('activeTab');
     if (activeTab !== null) {
       //setActiveTab(activeTab);

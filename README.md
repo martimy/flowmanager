@@ -3,10 +3,8 @@
 The FlowManager is a RYU controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a production environment. 
 
 
-![SCREEN1](img/screen1.png)
-![SCREEN2](img/screen2.png)
-![SCREEN3](img/screen3.png)
-![SCREEN4](img/screen4.png)
+![SCREEN1](img/screen1.png) ![SCREEN2](img/screen2.png)
+![SCREEN3](img/screen3.png) ![SCREEN4](img/screen4.png)
 
 ## Dependencies
 
