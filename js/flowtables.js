@@ -16,6 +16,7 @@
 $(function () {
   var tabsObj = new CommonTabs();
   var tableObj = new CommonTables();
+  var latest_response = null;
 
   // Create Flow Tables
   function buildFlowTables(response) {
@@ -99,6 +100,7 @@ $(function () {
         // while the value is switch ID in str
         $.get("/status", {status:"flows", dpid:id})
         .done( function(response) {
+          latest_response = response;
           buildFlowTables(response); 
         });
     } 
@@ -131,6 +133,23 @@ $(function () {
     $('#main').html("");
     getSwitches();
   })
+
+  // When the save button is clicked
+  $('.save').on('click', function() {
+    console.log(latest_response);
+    $.getJSON('data/actions.json')
+    .done( function(response) {
+      if(response) {
+        console.log(response) 
+      }
+    })
+    .fail( function() {
+      msg = "Cannot read file!";
+      displaySnackbar(msg);
+    })
+  })
+
+
 
   localStorage.removeItem('flow');  
   getSwitches();

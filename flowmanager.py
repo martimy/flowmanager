@@ -69,11 +69,11 @@ class FlowManager(app_manager.RyuApp):
         # get this file's path
         dirname = os.path.dirname(__file__)
 
-        self.lists = {}
-        self.lists['actions'] = self.read_files(
-            'actions', os.path.join(dirname, 'data/actions.txt'))
-        self.lists['matches'] = self.read_files(
-            'matches', os.path.join(dirname, 'data/matches.txt'))
+        # self.lists = {}
+        # self.lists['actions'] = self.read_files(
+        #     'actions', os.path.join(dirname, 'data/actions.txt'))
+        # self.lists['matches'] = self.read_files(
+        #     'matches', os.path.join(dirname, 'data/matches.txt'))
         self.waiters = {}
 
         self.ofctl = ofctl_v1_3
@@ -82,7 +82,7 @@ class FlowManager(app_manager.RyuApp):
         wsgi.register(WebApi,
                       {"webctl": self,
                        "dpset": self.dpset,
-                       "lists": self.lists,
+                       # "lists": self.lists,
                        "waiters": self.waiters})
 
         # Setup logging
@@ -151,20 +151,20 @@ class FlowManager(app_manager.RyuApp):
                 #items.append(line)
         return items
 
-    def read_files(self, key, filename):
-        """Reads tab-seperated text files.
-        Used to read files that contain data about match fields and actions.
-        """
+    # def read_files(self, key, filename):
+    #     """Reads tab-seperated text files.
+    #     Used to read files that contain data about match fields and actions.
+    #     """
 
-        items = {}
-        with open(filename, 'r') as my_file:
-            while True:
-                line = my_file.readline()
-                if not line:
-                    break
-                lst = line.split('\t')
-                items[lst[0]] = lst
-        return items
+    #     items = {}
+    #     with open(filename, 'r') as my_file:
+    #         while True:
+    #             line = my_file.readline()
+    #             if not line:
+    #                 break
+    #             lst = line.split('\t')
+    #             items[lst[0]] = lst
+    #     return items
 
     def get_actions(self, parser, set):
         actions = []

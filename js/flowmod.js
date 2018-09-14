@@ -190,10 +190,10 @@ $(function () {
       setTimeout(function(){ $x.toggleClass("show"); }, 3000);
   }
 
-  // Get data lists from the controller
+  // Get data lists from server
   function read_dataLists() {
     // Get accepatble action types
-    $.get("/flowform","list=actions").done( function(response) {
+    $.getJSON("data/actions.json").done( function(response) {
       actions = response; // assign to global var
       init_dataList(actions, "actionlist");
     })
@@ -202,7 +202,7 @@ $(function () {
     })
 
     // Get accepatble match fields
-    $.get("/flowform","list=matches").done( function(response) {
+    $.getJSON("data/matches.json").done( function(response) {
       matches = response; // assign to global var
       init_dataList(matches, "matchlist");
     })

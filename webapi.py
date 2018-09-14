@@ -32,7 +32,7 @@ class WebApi(ControllerBase):
     def __init__(self, req, link, data, **config):
         super(WebApi, self).__init__(req, link, data, **config)
         self.api = data["webctl"]
-        self.lists = data["lists"]
+        #self.lists = data["lists"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
 
     def make_response(self, filename):
@@ -122,11 +122,11 @@ class WebApi(ControllerBase):
             return res
         elif req.GET and "list" in req.GET:
             lst = {}
-            if req.GET["list"] == "actions":
-                lst = self.lists["actions"]
-            elif req.GET["list"] == "matches":
-                lst = self.lists["matches"]
-            elif req.GET["list"] == "switches":
+            # if req.GET["list"] == "actions":
+            #     lst = self.lists["actions"]
+            # elif req.GET["list"] == "matches":
+            #     lst = self.lists["matches"]
+            if req.GET["list"] == "switches":
                 lst = {t[0]:str(t[0]) for t in self.api.get_switches()}
                 #print(lst)
 
