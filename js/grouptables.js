@@ -89,7 +89,7 @@ $(function () {
 
   // Get the switches list from server and build the group tables
   function getSwitches(f) {
-    $.get("/flowform","list=switches")
+    $.get("/data","list=switches")
     .done( function(response) {
       if(response) {
         tabsObj.buildTabs(response, getGroups);

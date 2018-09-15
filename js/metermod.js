@@ -141,7 +141,7 @@ $(function () {
   // Get data lists from the controller
   function init_form() {
     // Get switches list
-    $.get("/flowform","list=switches").done( function(response) {
+    $.get("/data","list=switches").done( function(response) {
       var $dps = $('#dpid');
       for (var i in response) {
         $dps.append('<option value="' + response[i] + '">SW_' + response[i] + '</option>')

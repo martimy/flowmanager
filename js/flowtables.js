@@ -16,7 +16,6 @@
 $(function () {
   var tabsObj = new CommonTabs();
   var tableObj = new CommonTables();
-  var latest_response = null;
 
   // Create Flow Tables
   function buildFlowTables(response) {
@@ -96,11 +95,8 @@ $(function () {
   // Get flow entries from server and build table
   function getFlows(dps) {
     for(var id in dps) {  
-        // works because the keys in dps are switch IDs in integer
-        // while the value is switch ID in str
         $.get("/status", {status:"flows", dpid:id})
         .done( function(response) {
-          latest_response = response;
           buildFlowTables(response); 
         });
     } 
@@ -108,7 +104,7 @@ $(function () {
 
   // Get the switches list from server and build the flow tables
   function getSwitches(f) {
-    $.get("/flowform","list=switches")
+    $.get("/data","list=switches")
     .done( function(response) {
       if(response) {
         tabsObj.buildTabs(response, getFlows); 
@@ -129,26 +125,46 @@ $(function () {
   }
 
   // When the refresh button is clicked, clear the page and start over
-  $('.refresh').on('click', function() {
+  $("[name='refresh']").on('click', function() {
     $('#main').html("");
     getSwitches();
   })
 
-  // When the save button is clicked
-  $('.save').on('click', function() {
-    console.log(latest_response);
-    $.getJSON('data/actions.json')
-    .done( function(response) {
-      if(response) {
-        console.log(response) 
-      }
-    })
-    .fail( function() {
-      msg = "Cannot read file!";
-      displaySnackbar(msg);
-    })
-  })
+  $("[name='save']").on('click', function() {
+     // Download a file to local disk
+    function download(filename, data) {
+      var element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+      element.setAttribute('download', filename);
+      element.style.display = 'none';
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    }
 
+    $.get("/data","list=switches")
+      .done( function(switches){
+        var lst = []
+        var all_flows = []
+
+        for(sw in switches) {
+          lst.push(
+            $.get("/status", {status:"flows", dpid:switches[sw]})
+            .done( function(flows) {
+              all_flows.push(flows)
+            })
+          )
+        }
+        // Wait for all switches to reply 
+        $.when.apply(this,lst).then(function() {
+          // console.log("are they finsihed")
+          // console.log(all_flows)
+          var filename = "flows_"+Date.now()+".json"
+          download(filename, JSON.stringify(all_flows, undefined, 2));
+        });
+  
+      })
+  })
 
 
   localStorage.removeItem('flow');  

@@ -58,7 +58,7 @@ class WebApi(ControllerBase):
         """Get switch data
         """
         # TODO: merge with get_flow_stats 
-        if req.GET:
+        if req.GET: # is this if needed? 
             lst = {}
             if req.GET.get("list") == "switches":
                 lst = {t[0]:t[0] for t in self.api.get_switches()}
@@ -92,7 +92,7 @@ class WebApi(ControllerBase):
         res.json = reply
         return res       
 
-    @route('monitor', '/meterform', methods=['GET', 'POST'])
+    @route('monitor', '/meterform', methods=['POST'])
     def get_meter_form(self, req, **_kwargs):
         """Connect with meter form
         """ 
@@ -102,7 +102,7 @@ class WebApi(ControllerBase):
             return res
         return Response(status=400)  # bad request
 
-    @route('monitor', '/groupform', methods=['GET', 'POST'])
+    @route('monitor', '/groupform', methods=['POST'])
     def get_group_form(self, req, **_kwargs):
         """Connect with group form
         """ 
@@ -112,7 +112,7 @@ class WebApi(ControllerBase):
             return res
         return Response(status=400)  # bad request
 
-    @route('monitor', '/flowform', methods=['GET', 'POST'])
+    @route('monitor', '/flowform', methods=['POST'])
     def get_flow_form(self, req, **_kwargs):
         """Connect with flow form
         """ 
@@ -120,19 +120,19 @@ class WebApi(ControllerBase):
             res = Response()
             res.body = self.api.process_flow_message(req.json)
             return res
-        elif req.GET and "list" in req.GET:
-            lst = {}
-            # if req.GET["list"] == "actions":
-            #     lst = self.lists["actions"]
-            # elif req.GET["list"] == "matches":
-            #     lst = self.lists["matches"]
-            if req.GET["list"] == "switches":
-                lst = {t[0]:str(t[0]) for t in self.api.get_switches()}
-                #print(lst)
+        # elif req.GET and "list" in req.GET:
+        #     lst = {}
+        #     # if req.GET["list"] == "actions":
+        #     #     lst = self.lists["actions"]
+        #     # elif req.GET["list"] == "matches":
+        #     #     lst = self.lists["matches"]
+        #     if req.GET["list"] == "switches":
+        #         lst = {t[0]:t[0] for t in self.api.get_switches()}
+        #         #print(lst)
 
-            res = Response(content_type="application/json")
-            res.json = lst
-            return res
+        #     res = Response(content_type="application/json")
+        #     res.json = lst
+        #     return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/logs', methods=['GET'])
