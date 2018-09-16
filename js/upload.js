@@ -15,13 +15,6 @@
 $(function () {
     var $form = $('#flowupload');
     //function to validate file extension
-    function validaExtension(fld)  {
-        if(!/(\.json)$/i.test(fld)) 
-        {
-            return false;
-        }
-        return true;
-    }
 
   // Display Snackbar
   // TODO: move it to a common file
@@ -32,33 +25,61 @@ $(function () {
     setTimeout(function(){ $x.toggleClass("show"); }, 3000);
   }
 
+
+  $('#chooseFile').bind('change', function () {
+    var filename = $("#chooseFile").val();
+    //if (/^\s*$/.test(filename)) {
+    if(!/(\.json)$/i.test(filename)) { 
+      $(".file-upload").removeClass('active');
+      $("#noFile").text("No file chosen..."); 
+      displaySnackbar("Invalid Extension!")
+    }
+    else {
+      $(".file-upload").addClass('active');
+      $("#noFile").text(filename.replace("C:\\fakepath\\", ""));
+
+      var $input = $("#flowscontent");
+      var inputFiles = this.files;
+      var inputFile = inputFiles[0];
+
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        $input.val(event.target.result);
+        //console.log(event.target.result);
+      };
+      reader.onerror = function(event) {
+        displaySnackbar("Error "+event.target.error.code);
+      };
+      reader.readAsText(inputFile);
+      $(".file-submit").prop('disabled', false);
+    }
+  });
+
+  
+
   // Handle form 'submit' events
   $form.on('submit', function(e) {
     e.preventDefault();
-    console.log('hello')
-    // Read the form input
-    //var formData = {};
 
-    var filename = $("[name='file']").val();
-    console.log(filename)
-    valid = validaExtension(filename)
-    if(!valid) {
-        displaySnackbar("Invalid extenstion!");
+    var $input = $("#flowscontent");
+    var data = $input.val();
+    if(!data) {
+        return;
     }
 
-    //console.log(formData);
-
-    // Send the data to the server
-    // $.post("/flowform", JSON.stringify(formData))
-    //   .done( function(response) {
-    //     msg += response;
-    //     displaySnackbar(msg);
-    //   })
-    //   .fail( function() {
-    //     msg += "No response from controller.";
-    //     displaySnackbar(msg);
-    //   })
+    //Send the data to the server
+    $.post("/flowupload", data)
+      .done( function(response) {
+        msg = response;
+        displaySnackbar(msg);
+      })
+      .fail( function() {
+        msg = "No response from controller.";
+        displaySnackbar(msg);
+      })
 
   });
 }
 )
+
+  

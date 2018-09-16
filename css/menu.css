@@ -6,7 +6,6 @@
 
 .menuitem {
   width: 100%; /* Set a width if you like */
- 
 }
 
 .menuitem a {
@@ -17,13 +16,12 @@
   border-radius: 5px;
   margin-top: 2px;
   color: var(--tcolor-4);
-
   font-size: 16px;
 }
 
-.menuitem a:nth-of-type(1) {
+/* .menuitem a:nth-of-type(1) {
   margin-top: 0px;
-}
+} */
 
 .menuitem a:hover {
   background-color: var(--tcolor-0);
@@ -64,4 +62,17 @@
   margin: -60px 0px 5px 10px;
   border-radius: 5px;
   border: var(--pcolor-0) solid 2px;*/
+}
+
+/* Style the navigation menu */
+.topmenu {
+  overflow: hidden;
+  position: relative;
+}
+
+/* Hide the links inside the navigation menu (except for logo/home) */
+#myLinks {
+  display: none;
+  margin-left: 20px;
+
 }

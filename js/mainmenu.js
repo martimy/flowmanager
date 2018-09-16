@@ -17,24 +17,40 @@ $(function () {
   var url  = window.location.href;
 
   var menu = '<div class="menuitem"> \
-    <a href="index.html">Home</a> \
-    <a href="flows.html">Flows</a> \
-    <a href="groups.html">Groups</a> \
-    <a href="meters.html">Meters</a> \
-    <a href="flowform.html">Flow Control</a> \
-    <a href="groupform.html">Group Control</a> \
-    <a href="meterform.html">Meter Control</a> \
-    <a href="topology.html">Topology</a> \
-    <a href="messages.html">Messages</a> \
-    <a href="about.html">About</a> \
+  <a href="index.html">Home</a> \
+  <a href="flows.html">Flows</a> \
+  <a href="groups.html">Groups</a> \
+  <a href="meters.html">Meters</a> \
+  <div class="topmenu"> \
+    <a href="#home">Flow Control</a> \
+    <div id="myLinks"> \
+      <a href="flowform.html">Flow Entry</a> \
+      <a href="flowupload.html">Flow Upload</a> \
+    </div> \
+  </div> \
+  <a href="groupform.html">Group Control</a> \
+  <a href="meterform.html">Meter Control</a> \
+  <a href="topology.html">Topology</a> \
+  <a href="messages.html">Messages</a> \
+  <a href="about.html">About</a> \
   </div>'
 
-  var logo = '<div class="logowrapper"></div>';
+  //var logo = '<div class="logowrapper"></div>';
 
-  var filename = url.substring(url.lastIndexOf('/')+1);
+  var hashtag = url.lastIndexOf('#')
+  var slash = url.lastIndexOf('/') + 1
+  var filename = hashtag < 0 ? url.substring(slash) : url.substring(slash, hashtag);
+  console.log(filename)
 
   $('#menu').html(menu);
   var $link = $('a[href="' + filename + '"]');
   $link.addClass("active");
+  $link.parent().show();
+
+  $(".topmenu").click(function() {
+    //$("#myLinks").show();
+    $("#myLinks").animate({height: "toggle"}, 120);
+  })
+
 
 });

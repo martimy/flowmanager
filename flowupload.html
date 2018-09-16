@@ -18,10 +18,19 @@
 <div id="menu" class="grid_2"></div>
 <div id="main" class="grid_14">
     <!--form method="post" enctype="multipart/form-data"-->
+    
     <form  id="flowupload" action="action" method="post">
-        <input type="file" name="file"><br>
-        <input type="submit" value="Upload File" name="submit">
+        <div class="file-upload">
+            <div class="file-select">
+              <div class="file-select-button" id="fileName">Choose File</div>
+              <div class="file-select-name" id="noFile">No file chosen...</div> 
+              <input type="file" name="chooseFile" id="chooseFile">
+            </div>
+          </div>
+        <textarea id="flowscontent" rows="25" cols="50"></textarea><br>
+        <input type="submit" value="Update Flows" name="submit" class="file-submit" disabled>
     </form>
+
 <div id="output"></div>
 <div id="snackbar"></div>
 </div>
@@ -30,3 +39,6 @@
 <script src="js\upload.js"></script>
 </body>
 </html>
+
+
+  

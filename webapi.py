@@ -120,19 +120,16 @@ class WebApi(ControllerBase):
             res = Response()
             res.body = self.api.process_flow_message(req.json)
             return res
-        # elif req.GET and "list" in req.GET:
-        #     lst = {}
-        #     # if req.GET["list"] == "actions":
-        #     #     lst = self.lists["actions"]
-        #     # elif req.GET["list"] == "matches":
-        #     #     lst = self.lists["matches"]
-        #     if req.GET["list"] == "switches":
-        #         lst = {t[0]:t[0] for t in self.api.get_switches()}
-        #         #print(lst)
+        return Response(status=400)  # bad request
 
-        #     res = Response(content_type="application/json")
-        #     res.json = lst
-        #     return res
+    @route('monitor', '/flowupload', methods=['POST'])
+    def get_flow_upload(self, req, **_kwargs):
+        """Connect with flow form
+        """ 
+        if req.POST:
+            res = Response()
+            res.body = self.api.process_flow_upload(req.json)
+            return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/logs', methods=['GET'])

@@ -318,6 +318,103 @@ class FlowManager(app_manager.RyuApp):
 
         return "Message sent successfully."
 
+    def _prep_instructions(self, actions, ofproto, parser):
+        # instructions
+        inst = []
+        apply_actions = []
+        write_actions = []
+
+        for item in actions:
+            # Python 2 has both types
+            if isinstance(item, unicode) or isinstance(item, str):
+                if item.startswith('WRITE_METADATA'):
+                    metadata = item.split(':')[1].split('/')
+                    # expecting hex data
+                    inst += [parser.OFPInstructionWriteMetadata(int(metadata[0], 16), int(metadata[1], 16))]
+                elif item.startswith('GOTO_TABLE'):
+                    table_id = int(item.split(':')[1])
+                    inst += [parser.OFPInstructionGotoTable(table_id)]
+                elif item.startswith('METER_ID'):
+                    meter_id = int(item.split(':')[1])
+                    inst += [parser.OFPInstructionMeter(meter_id)]
+                elif item.startswith('CLEAR_ACTIONS'):
+                    inst += [parser.OFPInstructionActions(ofproto.OFPIT_CLEAR_ACTIONS, [])]
+                else:  # Apply Actions
+                    action = item.split(':')
+                    apply_actions += [{action[0]: action[1]}]
+
+            elif isinstance(item, dict): # WRITE ACTIONS
+                wractions = item["WRITE_ACTIONS"]
+                for witem in wractions:
+                    action = witem.split(':')
+                    write_actions += [{action[0]: action[1]}]                    
+        
+        if apply_actions:
+            applyActions = self.get_actions(parser, apply_actions)
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_APPLY_ACTIONS, applyActions)]                    
+
+        if write_actions:
+            writeActions = self.get_actions(parser, write_actions)
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
+
+        return inst
+
+
+    def process_flow_upload(self, d):
+        """Sends flows to the switch to update flow tables.
+        """
+        switches = {str(t[0]):t[1] for t in self.get_switches()}
+        for item in d:    # for each switch
+            dpid = item.keys()[0]
+            if dpid in switches.keys():
+
+                dp = switches[dpid]
+                ofproto = dp.ofproto
+                parser = dp.ofproto_parser
+
+                msg = parser.OFPFlowMod(dp,
+                            table_id=ofproto.OFPTT_ALL,
+                            command=ofproto.OFPFC_DELETE,
+                            out_port=ofproto.OFPP_ANY,
+                            out_group=ofproto.OFPG_ANY)
+
+                dp.send_msg(msg)
+
+                for flowentry in item[dpid]:
+                    del flowentry['byte_count']
+                    del flowentry['duration_sec']
+                    del flowentry['duration_nsec']
+                    del flowentry['packet_count']
+                    del flowentry['length']
+
+
+                    flowentry['datapath'] = dp
+                    flowentry['command'] = ofproto.OFPFC_ADD
+                    
+                    mf = flowentry["match"]
+                    flowentry['match'] = parser.OFPMatch(**mf)
+
+                    inst = self._prep_instructions(flowentry['actions'], ofproto, parser)
+                    del flowentry['actions']
+                    if inst:
+                        flowentry['instructions'] = inst
+
+                    try:
+                        msg = parser.OFPFlowMod(**flowentry)
+                    except Exception as e:
+                        return "Value for '{}' is not found!".format(e.message)
+                    
+                    try:
+                        dp.send_msg(msg)
+                    except KeyError as e:
+                        return e.__repr__()
+                    except Exception as e:
+                        return e.__repr__()
+
+        return "Flows updated successfully."
+
     def process_group_message(self, d):
         """Sends group form data to the switch to update group tables.
         """

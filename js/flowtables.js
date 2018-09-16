@@ -132,7 +132,9 @@ $(function () {
 
   $("[name='save']").on('click', function() {
      // Download a file to local disk
-    function download(filename, data) {
+    function download(filename, odata) {
+      // compatibility issue
+      data = odata.replace(/dl_src/g, "eth_src").replace(/dl_dst/g, "eth_dst")
       var element = document.createElement('a');
       element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
       element.setAttribute('download', filename);
@@ -151,6 +153,7 @@ $(function () {
           lst.push(
             $.get("/status", {status:"flows", dpid:switches[sw]})
             .done( function(flows) {
+              console.log(flows)
               all_flows.push(flows)
             })
           )

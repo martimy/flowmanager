@@ -133,7 +133,7 @@ input[type=button] {
   cursor: pointer;
 }
 
-input[type=button]:hover {
+input[type=button]:hover,  {
   background-color: var(--scolor-0);
 
 }
@@ -146,3 +146,80 @@ select option:hover {
   background-color: var(--scolor-0);
 }
 
+/* Simplified version of https://codepen.io/sazzad/pen/antDJ */
+.file-upload {
+  display:block;
+  text-align:center;
+  width: 450px;
+  margin: 4px 8px;
+}
+
+.file-upload .file-select {
+  display:block;
+  border: 2px solid var(--scolor-0);
+  border-radius: 4px;
+  color: var(--scolor-3);
+  cursor:pointer;
+  height:30px;
+  line-height:30px;
+  text-align:left;
+  background:#FFFFFF;
+  overflow:hidden;
+  position:relative;
+}
+
+.file-upload .file-select .file-select-button {
+  background:var(--scolor-0);
+  padding:0 10px;
+  display:inline-block;
+  height:30px;line-height:30px;
+  color: white;
+  font-weight: bold;
+}
+
+.file-upload .file-select .file-select-name {
+  line-height:30px;
+  display:inline-block;
+  padding:0 10px;
+}
+
+.file-upload .file-select:hover {
+  border-color:var(--scolor-3);
+}
+
+.file-upload .file-select:hover .file-select-button {
+  background:var(--scolor-3);
+  color:#FFFFFF;
+}
+
+.file-upload.active .file-select {
+  border-color:var(--scolor-0);
+}
+
+.file-upload.active .file-select .file-select-button{
+  background:var(--scolor-0);
+  color:#FFFFFF;
+}
+
+.file-upload .file-select input[type=file]{
+  z-index:100;
+  cursor:pointer;
+  position:absolute;
+  height:100%;
+  width:100%;
+  top:0;
+  left:0;
+  opacity:0;
+  filter:alpha(opacity=0);
+}
+
+.file-submit:disabled,
+.file-submit:disabled:hover {
+  background-color: gray;
+}
+
+#flowscontent {
+  margin: 10px;
+  border: 2px solid var(--scolor-0);
+  border-radius: 4px;
+}
