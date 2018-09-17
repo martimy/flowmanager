@@ -134,7 +134,9 @@ $(function () {
      // Download a file to local disk
     function download(filename, odata) {
       // compatibility issue
-      data = odata.replace(/dl_src/g, "eth_src").replace(/dl_dst/g, "eth_dst")
+      data = odata.replace(/dl_src/g, "eth_src")
+        .replace(/dl_dst/g, "eth_dst")
+        .replace(/dl_type/g, "eth_type")
       var element = document.createElement('a');
       element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
       element.setAttribute('download', filename);

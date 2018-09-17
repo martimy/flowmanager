@@ -32,7 +32,7 @@
 
 		<div class="fieldset">
 			<h1>Flags:</h1>
-			<input type="checkbox" id="OFPMF_KBPS"><label for="OFPMF_KBPS">Rate in Kbps</label>
+			<input type="checkbox" id="OFPMF_KBPS" checked="checked"><label for="OFPMF_KBPS">Rate in Kbps</label>
 			<input type="checkbox" id="OFPMF_PKTPS"><label for="OFPMF_PKTPS">Rate in pps</label>
 			<input type="checkbox" id="OFPMF_BURST"><label for="OFPMF_BURST">Do Burst Size</label>
 			<input type="checkbox" id="OFPMF_STATS"><label for="OFPMF_STATS">Collect Statistics</label>
@@ -57,17 +57,17 @@
 						<th>Band Type</th><th>Rate</th><th>Burst Size</th><th>Prec Level</th><th></th>
 					</tr>
 					<tr>
-						<td><input list="bandtype" name="bandtype"></td>
-						<td><input type="number" name="rate"></td>
-						<td><input type="number" name="burst"></td>
-						<td><input type="number" name="prec"></td>
+						<td><input list="bandtype" name="bandtype" value="DROP"></td>
+						<td><input type="number" name="rate" min="0" value="0"></td>
+						<td><input type="number" name="burst" min="0" value="0"></td>
+						<td><input type="number" name="prec"</td>
 						<td><input type="button" name="bapply" value="+"></td>
 					</tr>
 				</table>
 				<datalist id="bandtype">
 					<option value="DROP">
 					<option value="DSCP_REMARK">
-				  </datalist>
+				</datalist>
 		</div>
 	</div>
 </form>

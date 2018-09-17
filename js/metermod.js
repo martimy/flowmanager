@@ -16,10 +16,10 @@ $(function () {
   //var url = "http://" + location.hostname + ":8080";
 
   // constants
-  var LABEL = 0;
-  var HINT = 1;
-  var EXAMPLE = 2;
-  var DESC = 3;
+  // var LABEL = 0;
+  // var HINT = 1;
+  // var EXAMPLE = 2;
+  // var DESC = 3;
 
   var actions = {};
   var matches = {};
@@ -29,6 +29,7 @@ $(function () {
 
   // When Enter is pressed, go to the next input instead of sumbitting
   // the form.
+  // TODO: move to common
   $form.on('keypress', ':input', function (e) {
     if(e.which == 13) {
       e.preventDefault();

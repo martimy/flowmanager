@@ -241,6 +241,12 @@ class FlowManager(app_manager.RyuApp):
 
             # Match fields
             mf = d["match"]
+
+            # convert port names to numbers
+            if "in_port" in mf:
+                x = mf["in_port"]
+                mf["in_port"] = self.port_id[x] if x in self.port_id else x
+
             match = parser.OFPMatch(**mf)
             # print(match.to_jsondict())
 
@@ -394,6 +400,23 @@ class FlowManager(app_manager.RyuApp):
                     flowentry['command'] = ofproto.OFPFC_ADD
                     
                     mf = flowentry["match"]
+
+                    # Quick and ugly fixes
+                    # convert port names to numbers
+                    if "in_port" in mf:
+                        x = mf["in_port"]
+                        mf["in_port"] = self.port_id[x] if x in self.port_id else x
+                    # split address and mask
+                    if "eth_dst" in mf:
+                        if '/' in mf["eth_dst"]: # there is a mask
+                            x = mf["eth_dst"].split('/')
+                            mf["eth_dst"] = (x[0], x[1])
+                    if "eth_src" in mf:
+                        if '/' in mf["eth_src"]: # there is a mask
+                            x = mf["eth_src"].split('/')
+                            mf["eth_src"] = (x[0], x[1])
+
+
                     flowentry['match'] = parser.OFPMatch(**mf)
 
                     inst = self._prep_instructions(flowentry['actions'], ofproto, parser)
@@ -488,12 +511,14 @@ class FlowManager(app_manager.RyuApp):
 
         meter_id = d["meter_id"]
 
-        # Flags
         flags = 0
         flags += 0x01 if d['OFPMF_KBPS'] else 0
         flags += 0x02 if d['OFPMF_PKTPS'] else 0
         flags += 0x04 if d['OFPMF_BURST'] else 0
         flags += 0x08 if d['OFPMF_STATS'] else 0
+
+        # Flags must have KBPS or PKTPS
+        flags = flags if (flags & 0x03) else (flags | 0x01)
 
         bands = []
         for band in  d["bands"]:
@@ -505,11 +530,9 @@ class FlowManager(app_manager.RyuApp):
                 bands += [parser.OFPMeterBandDscpRemark(rate=band[1], 
                     burst_size=band[2], prec_level=band[3])]
 
-        print(dp, cmd, flags, meter_id, bands)
-    
+        # TODO: catch some errors
         meter_mod = parser.OFPMeterMod(dp, cmd, flags, meter_id, bands)
-        
-        try:
+        try:    
             dp.send_msg(meter_mod)
         except KeyError as e:
             return e.__repr__()
