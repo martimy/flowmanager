@@ -1,26 +1,24 @@
-
-/* New tabs */
+/* Copyright (c) 2018 Maen Artimy */
 
 .tab-list {
     list-style: none;
-    overflow: hidden;
-    margin: 2px 0px 0px 10px;
-    padding-left: 10px;
-    border-bottom: 2px solid var(--tcolor-3);
+    margin: 0px 0px 0px 10px;
+    padding: 5px 10px 5px 10px;
+    border-radius: 5px;
+    background-color: var(--pcolor-2);    
 }
 
 .tab-control {
-    /*border: none;
-    outline: none;*/
     cursor: pointer;
-    padding: 12px;
-    font-size: 16px;
-    margin: 0px 2px 0px 2px;
+    padding: 10px;
+    font-size: 14px;
     color: var(--tcolor-4);
     display: inline-block;
     background-color: var(--tcolor-2);
-    border-radius: 7px 7px 0 0;
-    min-width: 100px;
+    border: 1px solid var(--tcolor-3);
+    margin: 2px;
+    border-radius: 5px;
+    min-width: 80px;
     text-align: center;
 }
 
@@ -30,16 +28,17 @@
 }
 
 .tab-control.active {
-    background-color: var(--tcolor-3);
     color: white;
+    background-color: var(--tcolor-3);
+    /*border: 1px solid var(--tcolor-3);*/
 }
 
 .tab-panel {
     display: none;
     margin-left: 10px;
+    margin-top: 20px; 
     overflow: hidden;
-    padding-top: 10px; 
-
+    z-index: 0;
 }
 
 .tab-panel.active {

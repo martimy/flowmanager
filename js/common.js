@@ -147,7 +147,7 @@ function Tabs() {
         // Add tab buttons
         var tabs = '<ul class="tab-list">';
         for (var d in tab_names) {
-            tabs += '<li class="tab-control" data-tab="tab-' + tab_names[d] + '">Switch_' + tab_names[d] + '</li>';
+            tabs += '<li class="tab-control" data-tab="tab-' + tab_names[d] + '">SW_' + tab_names[d] + '</li>';
         }
         tabs += '</ul>';
 
@@ -284,7 +284,7 @@ function getSwitchData(request, f, g) {
 
     })
     .fail( function() {
-        msg = "Cannot read switches!";
+        msg = "Cannot read datapaths!";
         displayMessage(msg);
     })
 }
