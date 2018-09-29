@@ -153,6 +153,21 @@ $(function () {
     })
   };
 
+
+  if (sessionStorage.getItem('meter')) {
+    $('input[name="import"]').show();
+  }
+
+  //var fillObj = FlowFill(addRaw);
+
+  $('input[name="import"]').on("click", function(e) {
+    var data = sessionStorage.getItem('meter');
+    var flow = JSON.parse(data);
+    sessionStorage.removeItem("meter");
+    $('input[name="import"]').hide();
+    //fillObj.fillFlowForm(flow);
+  })
+
   init_form();
 
 });

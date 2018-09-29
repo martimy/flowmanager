@@ -1,51 +1,47 @@
-/*
-    Copyright (c) Maen Artimy, 2018
-*/
 
-/* Style the tab */
-.tab {
+/* New tabs */
+
+.tab-list {
+    list-style: none;
     overflow: hidden;
-    /*border: 1px solid #ccc;*/
-    background-color: var(--tcolor-2);
-    margin-left: 10px;
-    border-radius: 5px;
+    margin: 2px 0px 0px 10px;
     padding-left: 10px;
-    margin-bottom: 20px;
-}
-
-/* Style the buttons that are used to open the tab content */
-.tab button {
-    float: left;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    padding: 8px 12px;
-    font-size: 16px;
-    /*transition: 0.3s;*/
-    /*border-radius: 5px;*/
-    margin: 4px;
-    background-color: var(--tcolor-2);
-    color: var(--tcolor-4);
-}
-
-/* Change background color of buttons on hover */
-.tab button:hover {
-    /*background-color: var(--tcolor-0);*/
-    color: var(--white);
-}
-
-/* Create an active/current tablink class */
-.tab button.active {
-    /*background-color: var(--tcolor-3);*/
     border-bottom: 2px solid var(--tcolor-3);
-    color: var(--white);
-    padding: 8px 12px 4px 12px;
 }
 
-/* Style the tab content */
-.tabcontent {
+.tab-control {
+    /*border: none;
+    outline: none;*/
+    cursor: pointer;
+    padding: 12px;
+    font-size: 16px;
+    margin: 0px 2px 0px 2px;
+    color: var(--tcolor-4);
+    display: inline-block;
+    background-color: var(--tcolor-2);
+    border-radius: 7px 7px 0 0;
+    min-width: 100px;
+    text-align: center;
+}
+
+.tab-control:hover {
+    background-color: var(--tcolor-0);
+    color: white;
+}
+
+.tab-control.active {
+    background-color: var(--tcolor-3);
+    color: white;
+}
+
+.tab-panel {
     display: none;
-    content: "No tables to display!";
-    /*width: 1080px;*/
     margin-left: 10px;
+    overflow: hidden;
+    padding-top: 10px; 
+
+}
+
+.tab-panel.active {
+    display: inherit;
 }

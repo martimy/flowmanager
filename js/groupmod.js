@@ -182,5 +182,20 @@ $(function () {
     })
   };
 
+  if (sessionStorage.getItem('group')) {
+    $('input[name="import"]').show();
+  }
+
+  //var fillObj = FlowFill(addRaw);
+
+  $('input[name="import"]').on("click", function(e) {
+    var data = sessionStorage.getItem('group');
+    var flow = JSON.parse(data);
+    sessionStorage.removeItem("group");
+    $('input[name="import"]').hide();
+    //fillObj.fillFlowForm(flow);
+  })
+
+
   init_form();    
 });

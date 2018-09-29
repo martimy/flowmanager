@@ -12,100 +12,138 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+// Main code to handle group tables
 $(function () {
-  var tabsObj = new CommonTabs();
+    var tabsObj = new Tabs();
+    var tablesObj = new Tables('group');
+   
+    var header_of13 = {"bucket": ["Bucket", 'number'],
+                        "weight": ["Weight", "number"],
+                        "watch_group": ["Watch\nGroup", "number"],
+                        "watch_port": ["Watch\nPort", "number"],
+                        "actions": ["Actions", "alphanum"],
+                        "packet_count": ["Packet\nCount", "number"], 
+                        "byte_count": ["Byte\nCount", "number"]};
+                        
+    // Table Header Mapping Function
+    function headerMapping(orgstr) {
+        var map = header_of13;
+        var newstr = map[orgstr] != null ? map[orgstr][0] : hc(orgstr);
+        var newtype = map[orgstr] != null ? map[orgstr][1] : "number";
+        return [newstr, newtype];
+    };
 
-  function toUser(str) {
-    if (str == '4294967295') {
-      return 'ANY';
-    } /*else if (typeof str === 'object' && str.length == 0 ) {
-      return 'DROP';
-    }*/
-    return str;
-  }
-
-  // Create Group Tables
-  function buildGroupTables(response) {
-    var tableObj = new CommonTables();
-
-    // extract the group data
-    gdesc = response.desc
-    gstats = response.stats
-    dpid = parseInt(Object.keys(gdesc)[0]);
-    var groups = Object.values(gdesc)['0'];
-    var stats = Object.values(gstats)['0'];
-
-    if(groups.length == 0) {
-      $('#Switch_'+dpid).append("There are no groups!");
-      return
+    var footer = {"type": "Type", "duration_sec": "Duration", "ref_count": "References"};
+    
+    // Table Footer Mapping Function
+    function footerMapping(orgstr) {
+        var map = footer;
+        var newstr = map[orgstr] != null ? map[orgstr] : hc(orgstr);
+        return newstr;
     }
 
-    // get the headers
-    var col = ["bucket", "weight", "watch_group", "watch_port", "actions", "packet_count", "byte_count"];
+    // Create Group Table database
+    function buildGroupTables(dpid, grplist) {
+        var thelist = JSON.parse(fix_compatibility(JSON.stringify(grplist)));
 
-    // get the groups
-    for (var i = 0; i < groups.length; i++) {
-      var body = "<tbody>";
-      var buckets = groups[i].buckets;
-      //console.log(buckets)
-      var raw = "<tr>";
-      for (var j = 0; j < buckets.length; j++) {
-        raw += "<td>"+j+"</td>" // the raw order
-        bucket = buckets[j];
-        bucketstat = stats[i].bucket_stats[j];
-        for (var k = 1; k < col.length; k++) {
-          if(bucket[col[k]] != null) {
-            raw += "<td>" + toUser(bucket[col[k]]) + "</td>";
-          } else if(bucketstat[col[k]] != null) {
-            raw += "<td>" + bucketstat[col[k]] + "</td>";
-          } else {
-            raw += "<td>---</td>"; 
-          }
+        var fields = Object.keys(header_of13);
+        var dp_tables = {};
+
+        thelist.forEach(function(group) {
+            var table_id = group['group_id'];
+            // if table obj has not been created yet
+            if (!dp_tables[table_id]) { 
+                dp_tables[table_id] = new DPTable(table_id, "Group", fields, [], {});
+                dp_tables[table_id].extra.labels = Object.keys(footer);
+                dp_tables[table_id].extra.data = group;
+            }
+                       
+            for(i in group.buckets) {
+                var bucket = Object.assign(group.buckets[i], group.bucket_stats[i]);
+                bucket.bucket = i;
+                dp_tables[table_id].data.push(bucket);
+            };
+
+            // delete group.buckets;
+            // delete group.bucket_stats;
+        });
+       
+        var $html_code = $('<div></div>');
+        for(var i in dp_tables) {
+            var dp_table = dp_tables[i];
+            tablesObj.makeRows(dpid, dp_table, headerMapping, cellFormating);
+            tablesObj.makeFooter(dpid, dp_table, footerMapping, cellFormating);
+            var $card = tablesObj.buildTableCard(dp_table);
+            $html_code.append($card);
         }
-        raw += "</tr>";
-      }
-      body += raw + "</tbody>";
-
-      var footer = "<table class='oneliner'><tr><td>Type: " + groups[i].type + "<td></td>"
-                        + "<td>Duration: " + stats[i].duration_sec + "<td></td>"
-                        + "<td>Refs: " + stats[i].ref_count + "<td></td></table>"
-
-      var title = "Group "+ groups[i].group_id;
-      var card = tableObj.buildTable(title, col, body, footer);
-      $('#Switch_'+dpid).append(card);
+        return $html_code;
     }
 
-  }
- 
-  // Get flow entries from server and build tables
-  function getGroups(dps) {
-    for(var id in dps) {    
-      $.get("/status", {status:"groups", dpid:id})
-      .done( function(response) {
-        buildGroupTables(response); 
-      });
+    // Get flows data from swicthes
+    function loadGroups() {
+        getSwitchData(
+            "groups",
+            function (sw_list) {
+                tabsObj.buildTabs("#main", sw_list, "Not groups to show!")
+            },
+            function (all_groups) {
+                for(var i in all_groups) {
+                    var stats = all_groups[i].stats;
+                    var desc = all_groups[i].desc;
+                    var sw = Object.keys(desc)[0] // the first key is the datapath id
+                    
+                    var groups = [];
+                    for(i in desc[sw]) {
+                        groups.push(Object.assign(desc[sw][i], stats[sw][i]))
+                    };
+
+                    var $html_code = buildGroupTables(sw, groups);
+                    tabsObj.buildContent(sw, $html_code);
+                    tabsObj.setActive();
+                }
+            }
+        );
     }
-  };
 
-  // Get the switches list from server and build the group tables
-  function getSwitches(f) {
-    $.get("/data","list=switches")
-    .done( function(response) {
-      if(response) {
-        tabsObj.buildTabs(response, getGroups);
-      }
+    // Save flows
+    function saveGroups() {
+        getSwitchData(
+            "groups",
+            function () {
+                // do nothing
+            },
+            function (all_groups) {
+                data = fix_compatibility(JSON.stringify(all_groups, undefined, 2))
+                var filename = "groups_"+Date.now()+".json"
+                downloadFile(filename, data);
+            }
+        );
+    }
+        
+    // When the refresh button is clicked, clear the page and start over
+    $("[name='refresh']").on('click', function() {
+        loadGroups();
     })
-    .fail( function() {
-      $('#error').text("Cannot read switches!");
+    
+    // When the save  button is clicked, read the flows and save them in a file
+    $("[name='save']").on('click', function() {
+        saveGroups();
     })
-  };
 
-  // When the refresh button is clicked, clear the page and start over
-  $('.refresh').on('click', function() {
-    $('#main').html("");
-    getSwitches();
-  })
+    loadGroups();
 
 
-  getSwitches();
-});
+    // function startRefresh() {
+    //     setTimeout(startRefresh,10000);
+    //     loadFlows();
+    // }
+
+    // startRefresh()
+
+    // function autoRefreshPage() {
+    //     loadFlows();
+    // }
+    // setInterval(loadFlows, 5000);
+
+})

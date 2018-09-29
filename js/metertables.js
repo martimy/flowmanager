@@ -12,102 +12,145 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
+// Main code to handle group tables
 $(function () {
-  var tabsObj = new CommonTabs();
-  
-  function toUser(str) {
-    if (str == '4294967295') {
-      return 'ANY';
-    } /*else if (typeof str === 'object' && str.length == 0 ) {
-      return 'DROP';
-    }*/
-    return str;
-  }
+    var tabsObj = new Tabs();
+    var tablesObj = new Tables('meter');
+   
+    var header_of13 = {"band": ["Band", 'number'],
+                        "type": ["Type", "number"],
+                        "rate": ["Rate", "number"],
+                        "burst_size": ["Burst Size", "number"]};
+                        
+    // Table Header Mapping Function
+    function headerMapping(orgstr) {
+        var map = header_of13;
+        var newstr = map[orgstr] != null ? map[orgstr][0] : hc(orgstr);
+        var newtype = map[orgstr] != null ? map[orgstr][1] : "number";
+        return [newstr, newtype];
+    };
 
-  // Create Meter Tables
-  function buildMeterTables(response) {
-    var tableObj = new CommonTables();
-
-    // extract the meter data
-    gdesc = response.desc
-    gstats = response.stats
-
-    dpid = parseInt(Object.keys(gdesc)[0]);
-    var groups = Object.values(gdesc)['0'];
-    var stats = Object.values(gstats)['0'];
-
-    if(groups.length == 0) {
-      $('#Switch_'+dpid).append("There are no meters!");
-      return
+    var footer = {"flow_count": "Flow Count", "packet_in_count": "Packets", "byte_in_count": "Bytes", "duration_sec": "Duration", "flags": "Flags"};
+    
+    // Table Footer Mapping Function
+    function footerMapping(orgstr) {
+        var map = footer;
+        var newstr = map[orgstr] != null ? map[orgstr] : hc(orgstr);
+        return newstr;
     }
 
-    // get the headers
-    var col = ["band", "type", "rate", "burst_size", "packet_band_count", "byte_band_count"];
-
-    // get the meters
-    for (var i = 0; i < groups.length; i++) {
-      var body = "<tbody>";
-      var buckets = groups[i].bands;
-      //console.log(buckets)
-      var raw = "<tr>";
-      for (var j = 0; j < buckets.length; j++) {
-        raw += "<td>"+j+"</td>" // the raw order
-        bucket = buckets[j];
-        bucketstat = stats[i].band_stats[j];
-        for (var k = 1; k < col.length; k++) {
-          if(bucket[col[k]] != null) {
-            raw += "<td>" + toUser(bucket[col[k]]) + "</td>";
-          } else if(bucketstat[col[k]] != null) {
-            raw += "<td>" + bucketstat[col[k]] + "</td>";
-          } else {
-            raw += "<td>---</td>"; 
-          }
+    // Format the cell content
+    function meterCellFormating(cell) {
+        var newcell = cell;
+        if(Array.isArray(cell)) {
+            newcell = JSON.stringify(cell);
+            newcell = newcell.replace(/^\[/,'').replace(/\]$/,'').replace(/"/g,'');
         }
-        raw += "</tr>";
-      }
-      body += raw + "</tbody>";
-
-      var footer = "<table class='oneliner'><tr><td>Duration: " + stats[i].duration_sec + "</td>"
-                        + "<td>Flows: " + stats[i].flow_count + "</td>"
-                        + "<td>Packets: " + stats[i].packet_in_count + "</td>"                        
-                        + "<td>Bytes: " + stats[i].byte_in_count + "</td></tr></table>"
-
-      var title = "Meter: "+ groups[i].meter_id;
-      var card = tableObj.buildTable(title, col, body, footer);
-      $('#Switch_'+dpid).append(card);
+        return newcell;
     }
 
-  };
+    // Create Meter Table database
+    function buildMeterTables(dpid, mtrlist) {
+        var thelist = JSON.parse(fix_compatibility(JSON.stringify(mtrlist)));
 
-  // Get flow entries from server and build tables
-  function getMeters(dps) {
-    for(var id in dps) {
-      $.get("/status", {status:"meters", dpid:id})
-      .done( function(response) {
-        buildMeterTables(response); 
-      });
+        var fields = Object.keys(header_of13);
+        var dp_tables = {};
+
+        thelist.forEach(function(meter) {
+            var table_id = meter['meter_id'];
+            // if table obj has not been created yet
+            if (!dp_tables[table_id]) { 
+                dp_tables[table_id] = new DPTable(table_id, "Meter", fields, [], {});
+                dp_tables[table_id].extra.labels = Object.keys(footer);
+                dp_tables[table_id].extra.data = meter;
+            }
+                       
+            for(i in meter.bands) {
+                var band = Object.assign(meter.bands[i], meter.band_stats[i]);
+                band.band = i;
+                dp_tables[table_id].data.push(band);
+            };
+
+            // delete group.buckets;
+            // delete group.bucket_stats;
+        });
+       
+        var $html_code = $('<div></div>');
+        for(var i in dp_tables) {
+            var dp_table = dp_tables[i];
+            tablesObj.makeRows(dpid, dp_table, headerMapping, cellFormating);
+            tablesObj.makeFooter(dpid, dp_table, footerMapping, meterCellFormating);
+            var $card = tablesObj.buildTableCard(dp_table);
+            $html_code.append($card);
+        }
+        return $html_code;
     }
-  };
 
-  // Get the switches list from server and build the group tables
-  function getSwitches(f) {
-    $.get("/data","list=switches")
-    .done( function(response) {
-      if(response) {
-        tabsObj.buildTabs(response, getMeters);
-      }
+    // Get flows data from swicthes
+    function loadMeters() {
+        getSwitchData(
+            "meters",
+            function (sw_list) {
+                tabsObj.buildTabs("#main", sw_list, "Not meters to show!")
+            },
+            function (all_meters) {
+                for(var i in all_meters) {
+                    var stats = all_meters[i].stats;
+                    var desc = all_meters[i].desc;
+                    var sw = Object.keys(desc)[0] // the first key is the datapath id
+                    
+                    var meters = [];
+                    for(i in desc[sw]) {
+                        meters.push(Object.assign(desc[sw][i], stats[sw][i]))
+                    };
+
+                    var $html_code = buildMeterTables(sw, meters);
+                    tabsObj.buildContent(sw, $html_code);
+                    tabsObj.setActive();
+                }
+            }
+        );
+    }
+
+    // Save flows
+    function saveMeters() {
+        getSwitchData(
+            "meters",
+            function () {
+                // do nothing
+            },
+            function (all_meters) {
+                data = fix_compatibility(JSON.stringify(all_meters, undefined, 2))
+                var filename = "meters_"+Date.now()+".json"
+                downloadFile(filename, data);
+            }
+        );
+    }
+        
+    // When the refresh button is clicked, clear the page and start over
+    $("[name='refresh']").on('click', function() {
+        loadMeters();
     })
-    .fail( function() {
-      $('#error').text("Cannot read switches!");
+    
+    // When the save  button is clicked, read the flows and save them in a file
+    $("[name='save']").on('click', function() {
+        saveMeters();
     })
-  };
+
+    loadMeters();
 
 
-  // When the refresh button is clicked, clear the page and start over
-  $('.refresh').on('click', function() {
-    $('#main').html("");
-    getSwitches();
-  })
+    // function startRefresh() {
+    //     setTimeout(startRefresh,10000);
+    //     loadFlows();
+    // }
 
-  getSwitches();
-});
+    // startRefresh()
+
+    // function autoRefreshPage() {
+    //     loadFlows();
+    // }
+    // setInterval(loadFlows, 5000);
+
+})

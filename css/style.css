@@ -164,7 +164,7 @@ i:hover {
     background-color: var(--pcolor-0);
     color: white;
     text-align: center;
-    border-radius: 2px;
+    border-radius: 5px;
     padding: 16px;
     position: fixed; /* Sit on top of the screen */
     z-index: 1;

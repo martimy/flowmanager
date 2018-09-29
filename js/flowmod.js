@@ -222,16 +222,16 @@ $(function () {
     })
   };
 
-  if (localStorage.getItem('flow')) {
+  if (sessionStorage.getItem('flow')) {
     $('input[name="import"]').show();
   }
 
   var fillObj = FlowFill(addRaw);
 
   $('input[name="import"]').on("click", function(e) {
-    var data = localStorage.getItem('flow');
+    var data = sessionStorage.getItem('flow');
     var flow = JSON.parse(data);
-    localStorage.removeItem("flow");
+    sessionStorage.removeItem("flow");
     $('input[name="import"]').hide();
     fillObj.fillFlowForm(flow);
   })

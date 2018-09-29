@@ -118,22 +118,17 @@ function FlowFill(addRaw) {
         fillApplyActions(apply_actions);
     };
         
-
     function fillFlowForm(flow) {
         $.each(flow, function(key, value) {
         switch(key) {
-            case "switch":
-                $('#dpid').val(value);
-                break;
-            case "table":
-                $('#table_id').val(+value);
-                break;
+            case "dpid":
+            case "table_id":
             case "cookie":
-                dm = value.split("/");
+                /*dm = value.split("/");
                 $('#cookie').val(+dm[0]);
                 if(dm[1]) {
                     $('#cookie_mask').val(+dm[1]);
-                }
+                }*/
             case "priority":
             case "idle_timeout":
             case "hard_timeout": 
@@ -147,10 +142,12 @@ function FlowFill(addRaw) {
                 $("#NO_BYT_COUNTS").prop('checked', value & 0x10);
                 break;
             case "match":
-                fillMatch(JSON.parse(value));
+                //fillMatch(JSON.parse(value));
+                fillMatch(value);
                 break;
             case "actions":
-                fillActions(JSON.parse(value));
+                //fillActions(JSON.parse(value));
+                fillActions(value);
                 break;
         }})
     }

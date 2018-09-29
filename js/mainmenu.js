@@ -40,7 +40,6 @@ $(function () {
   var hashtag = url.lastIndexOf('#')
   var slash = url.lastIndexOf('/') + 1
   var filename = hashtag < 0 ? url.substring(slash) : url.substring(slash, hashtag);
-  console.log(filename)
 
   $('#menu').html(menu);
   var $link = $('a[href="' + filename + '"]');

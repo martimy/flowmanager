@@ -47,10 +47,13 @@ th {
 	text-align: left;
 	padding: 2px 5px;
 	background: var(--scolor-3);
+	white-space:pre; /*allows new line*/
+	height: 32px;
 }
 
 td {
 	padding: 6px;
+	white-space:pre; /*allows new line*/
 }
 
 tr:nth-child(even) {
