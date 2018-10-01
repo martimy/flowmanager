@@ -13,6 +13,7 @@
 // limitations under the License.
 
 $(function() {
+    var tabObj = Tabs('topology');
     var size = 60;
     var radius = 8;
 
@@ -243,15 +244,21 @@ $(function() {
     }
 
     function getTopology() {
+        tabObj.buildTabs("#main", ["Topology", "Tables"], "Nothing to show!");
+        var $svg = $('<svg width="1116" height="600"></svg>');
+        var $data = $('<div id="data"></div>');
+        tabObj.buildContent('Topology', $svg);
+        tabObj.buildContent('Tables', $data);
         d3.json("/topology").then(function(data) {
             listTopology(data)
             plotGraph(toGraph(data));
-        }); 
+        });
+        tabObj.setActive();
     }
 
     // When the refresh button is clicked, clear the page and start over
     $('.refresh').on('click', function() {
-        $('svg').html("");
+        //$('svg').html("");
         getTopology();
     });
 

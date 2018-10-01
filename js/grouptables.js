@@ -15,7 +15,7 @@
 
 // Main code to handle group tables
 $(function () {
-    var tabsObj = new Tabs();
+    var tabsObj = new Tabs('switches');
     var tablesObj = new Tables('group');
    
     var header_of13 = {"bucket": ["Bucket", 'number'],
@@ -100,8 +100,8 @@ $(function () {
 
                     var $html_code = buildGroupTables(sw, groups);
                     tabsObj.buildContent(sw, $html_code);
-                    tabsObj.setActive();
                 }
+                tabsObj.setActive();                
             }
         );
     }

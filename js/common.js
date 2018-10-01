@@ -14,8 +14,8 @@
 
 
 // Generic function to build tables
-function Tables(label) {
-    var type = label;
+function Tables(category) {
+    var category = category;
 
     // Create table header and rows and link them to data
     function makeRows(dpid, table, hdr_format, cell_format) {
@@ -51,7 +51,7 @@ function Tables(label) {
         });
 
         //default sort - works for flows only
-        if(type === 'flow') {
+        if(category === 'flow') {
             function compare(a,b) {
                 return b.datum.priority - a.datum.priority;
             }
@@ -84,9 +84,9 @@ function Tables(label) {
         $(row.$row).unbind('click');
         $(row.$row).on('click', function(e) { 
             e.preventDefault();
-            sessionStorage.setItem(type, JSON.stringify(row.datum));
+            sessionStorage.setItem(category, JSON.stringify(row.datum));
             msg = "Table entry copied to session storage.";
-            displayMessage(msg+type);
+            displayMessage(msg+category);
         });
     };
 
@@ -116,7 +116,7 @@ function Tables(label) {
         var $container = $('<div></div>').addClass('container');
         var $footer = $('<div></div>').addClass('footing');
 
-        var $title = $('<h1></h1>').text(dp_table.label + ' ' + dp_table.table_id);
+        var $title = $('<h1></h1>').text(dp_table.category + ' ' + dp_table.table_id);
         $header.append($title);
 
         var $table = updateTable(dp_table);
@@ -141,19 +141,22 @@ function Tables(label) {
 }
 
 // Generic function to build tabs
-function Tabs() {
+function Tabs(category) {
+    var category = category;
+
     // Create the tab structure
-    function htmlCode(tab_names, msg) {
+    function htmlCode(tab_labels, msg) {
         // Add tab buttons
         var tabs = '<ul class="tab-list">';
-        for (var d in tab_names) {
-            tabs += '<li class="tab-control" data-tab="tab-' + tab_names[d] + '">SW_' + tab_names[d] + '</li>';
+        for (var d in tab_labels) {
+            var label = category === 'switches' ? 'SW_' + tab_labels[d] : tab_labels[d];
+            tabs += '<li class="tab-control" data-tab="tab-' + tab_labels[d] + '">' + label + '</li>';
         }
         tabs += '</ul>';
 
-        for (var s in tab_names) {
+        for (var s in tab_labels) {
             //var message = "contenet...";
-            tabs += '<div class="tab-panel" id="tab-' + tab_names[s] + '">'+msg+'</div>';
+            tabs += '<div class="tab-panel" id="tab-' + tab_labels[s] + '">'+msg+'</div>';
         }
         return tabs;
     }      
@@ -170,20 +173,20 @@ function Tabs() {
     
             $(this).addClass('active');
             $("#"+tab_id).addClass('active');
-            sessionStorage.setItem('activeTab', tab_id)
+            sessionStorage.setItem('tab_'+category, tab_id)
         })
     }
 
     // Append HTML
-    function buildTabs(parent, tab_names, msg) {
-        var html_code =  htmlCode(tab_names, msg)
+    function buildTabs(parent, tab_labels, msg) {
+        var html_code =  htmlCode(tab_labels, msg)
         $(parent).empty().append(html_code);
         listenToEvents();
     }
 
     // Fill tab panel
-    function buildContent(id, data) {
-        $('#tab-'+id).empty().append(data);
+    function buildContent(id, element) {
+        $('#tab-'+id).empty().append(element);
     }
 
     // Set active tab
@@ -191,8 +194,9 @@ function Tabs() {
         $('.tab-control').removeClass('active');
         $('.tab-panel').removeClass('active');
 
-        var tab_id = sessionStorage.getItem('activeTab');
+        var tab_id = sessionStorage.getItem('tab_'+category);
         if(tab_id === null) {
+            console.log("no tab id saved")
             var $first = $('.tab-control').first();
             //var tab_id = $first.attr('data-tab');
             var tab_id = $first.data('tab');

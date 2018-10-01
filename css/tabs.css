@@ -30,7 +30,6 @@
 .tab-control.active {
     color: white;
     background-color: var(--tcolor-3);
-    /*border: 1px solid var(--tcolor-3);*/
 }
 
 .tab-panel {

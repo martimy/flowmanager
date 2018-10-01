@@ -15,7 +15,7 @@
 
 // Main code to handle flow tables
 $(function () {
-    var tabsObj = new Tabs();
+    var tabsObj = new Tabs('switches');
     var tablesObj = new Tables('flow');
 
     // Flow fields supported by OF1.3
@@ -78,8 +78,8 @@ $(function () {
                     var flows = all_flows[i][sw]
                     var $html_code = buildFlowTables(sw, flows);
                     tabsObj.buildContent(sw, $html_code);
-                    tabsObj.setActive();
                 }
+                tabsObj.setActive();
             }
         );
     }

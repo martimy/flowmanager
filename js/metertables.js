@@ -15,7 +15,7 @@
 
 // Main code to handle group tables
 $(function () {
-    var tabsObj = new Tabs();
+    var tabsObj = new Tabs('switches');
     var tablesObj = new Tables('meter');
    
     var header_of13 = {"band": ["Band", 'number'],
@@ -107,8 +107,8 @@ $(function () {
 
                     var $html_code = buildMeterTables(sw, meters);
                     tabsObj.buildContent(sw, $html_code);
-                    tabsObj.setActive();
                 }
+                tabsObj.setActive();                
             }
         );
     }
