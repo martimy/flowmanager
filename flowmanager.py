@@ -33,7 +33,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
 # for topology discovery
-#from ryu.topology import event, switches
+#from ryu.topology import event
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
@@ -673,6 +673,15 @@ class FlowManager(app_manager.RyuApp):
         links_list = get_all_link(self)
         links = [link.to_dict() for link in links_list]
         host_list = get_all_host(self)
-        hosts = [h.to_dict() for h in host_list]
 
+        # To remove hosts that are not removed by controller
+        ports = []
+        for switch in switch_list:
+           ports += switch.ports
+        port_macs = [p.hw_addr for p in ports]
+        n_host_list = [h for h in host_list if h.port.hw_addr in port_macs]
+
+        hosts = [h.to_dict() for h in n_host_list]
+            
         return {"switches": switches, "links":links, "hosts": hosts}
+
