@@ -47,7 +47,6 @@ $(function () {
 
         thelist.forEach(function(flow) {
             var table_id = flow['table_id'];
-            // if table obj has not been creaded yet
             if (!dp_tables[table_id]) { 
                 dp_tables[table_id] = new DPTable(table_id, "Flow Table", fields, []);
             }
@@ -70,14 +69,16 @@ $(function () {
         getSwitchData(
             "flows",
             function (sw_list) {
-                tabsObj.buildTabs("#main", sw_list, "Not flows to show!")
+                tabsObj.buildTabs("#main", sw_list, "Not flows to show!");
             },
             function (all_flows) {
                 for(var i in all_flows) {
                     var sw = Object.keys(all_flows[i])[0] // the first key is the datapath id
                     var flows = all_flows[i][sw]
-                    var $html_code = buildFlowTables(sw, flows);
-                    tabsObj.buildContent(sw, $html_code);
+                    if(flows.length > 0) {
+                        var $html_code = buildFlowTables(sw, flows);
+                        tabsObj.buildContent(sw, $html_code);
+                    }
                 }
                 tabsObj.setActive();
             }

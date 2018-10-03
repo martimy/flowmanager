@@ -104,9 +104,10 @@ $(function () {
                     for(i in desc[sw]) {
                         meters.push(Object.assign(desc[sw][i], stats[sw][i]))
                     };
-
-                    var $html_code = buildMeterTables(sw, meters);
-                    tabsObj.buildContent(sw, $html_code);
+                    if(meters.length > 0) {
+                        var $html_code = buildMeterTables(sw, meters);
+                        tabsObj.buildContent(sw, $html_code);
+                    }
                 }
                 tabsObj.setActive();                
             }

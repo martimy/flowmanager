@@ -19,10 +19,6 @@ function Tables(category) {
 
     // Create table header and rows and link them to data
     function makeRows(dpid, table, hdr_format, cell_format) {
-        // table = { table_id: <table_id>,
-        //           fields: <array of strings>,
-        //           data: <array of objects> }
-
         var cols = [];
         var $col = $('<tr></tr>');
         for(var i in table.fields) {
@@ -86,7 +82,7 @@ function Tables(category) {
             e.preventDefault();
             sessionStorage.setItem(category, JSON.stringify(row.datum));
             msg = "Table entry copied to session storage.";
-            displayMessage(msg+category);
+            displayMessage(msg);
         });
     };
 
@@ -116,7 +112,7 @@ function Tables(category) {
         var $container = $('<div></div>').addClass('container');
         var $footer = $('<div></div>').addClass('footing');
 
-        var $title = $('<h1></h1>').text(dp_table.category + ' ' + dp_table.table_id);
+        var $title = $('<h1></h1>').text(dp_table.label + ' ' + dp_table.table_id);
         $header.append($title);
 
         var $table = updateTable(dp_table);
@@ -156,7 +152,7 @@ function Tabs(category) {
 
         for (var s in tab_labels) {
             //var message = "contenet...";
-            tabs += '<div class="tab-panel" id="tab-' + tab_labels[s] + '">'+msg+'</div>';
+            tabs += '<div class="tab-panel" id="tab-' + tab_labels[s] + '"><h1>'+msg+'</h1></div>';
         }
         return tabs;
     }      
@@ -196,7 +192,6 @@ function Tabs(category) {
 
         var tab_id = sessionStorage.getItem('tab_'+category);
         if(tab_id === null) {
-            console.log("no tab id saved")
             var $first = $('.tab-control').first();
             //var tab_id = $first.attr('data-tab');
             var tab_id = $first.data('tab');
@@ -258,7 +253,11 @@ function hc(myString) {
 function getSwitchData(request, f, g) {
     $.get("/data","list=switches")
     .done( function(switches) {
-        if (!switches) return;
+        if($.isEmptyObject(switches)) {
+            msg = "No switches found!";
+            displayMessage(msg);
+            return
+        }
 
         // Process the switches list
         f(switches);
@@ -288,7 +287,7 @@ function getSwitchData(request, f, g) {
 
     })
     .fail( function() {
-        msg = "Cannot read datapaths!";
+        msg = "No response from server!";
         displayMessage(msg);
     })
 }

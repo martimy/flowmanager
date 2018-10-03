@@ -18,6 +18,7 @@ import mimetypes
 #import requests
 #import datetime as dt
 #import sys
+import time
 
 # from ryu.base import app_manager
 from ryu.app.wsgi import ControllerBase
@@ -59,7 +60,7 @@ class WebApi(ControllerBase):
         """
         # TODO: merge with get_flow_stats 
         if req.GET: # is this if needed? 
-            lst = {}
+            lst = {} # the server always returns somthing??
             if req.GET.get("list") == "switches":
                 lst = {t[0]:t[0] for t in self.api.get_switches()}
             if req.GET.get("switchdesc"):
@@ -155,18 +156,28 @@ class WebApi(ControllerBase):
         except IOError:
             return Response(status=400)
 
+    # @route('monitor', '/add', methods=['GET'])
+    # def add_item(self, req, **_kwargs):
+    #     if req.GET:
+    #         v = req.GET.get("item")
+    #         self.messages.append(v)
+    #     return Response(status=200)
+
+    # @route('monitor', '/stream', methods=['GET'])
     # def get_log_SSE(self, req, **_kwargs):
     #     # Support for SSE
     #     # https://streamdata.io/blog/server-sent-events/
-
+       
     #     def eventStream():
-    #         while True:
-    #             msgs = self.api.get_messages()
-    #             body = ['data: {}'.format(l) for l in msgs]
+    #         print("entered")
+    #         while len(self.messages) > 0:
+    #             t = self.messages.pop(0) #int(time.time())
+    #             body = 'retry: 10000\ndata: {}\n\n'.format(t)
+    #             yield body
 
-    #             self.api.clear_messages()
-    #             yield '\n'.join(body) + '\n\n'
-
+    #     events = ''.join([e for e in eventStream()])
     #     res = Response(content_type="text/event-stream")
-    #     res.body = eventStream().next()
+    #     res.body = events #next(eventStream(),'')
     #     return res
+
+    # messages = ["Hello,", "how", "are", "you?"]

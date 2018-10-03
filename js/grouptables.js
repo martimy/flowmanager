@@ -97,9 +97,10 @@ $(function () {
                     for(i in desc[sw]) {
                         groups.push(Object.assign(desc[sw][i], stats[sw][i]))
                     };
-
-                    var $html_code = buildGroupTables(sw, groups);
-                    tabsObj.buildContent(sw, $html_code);
+                    if(groups.length > 0) {
+                        var $html_code = buildGroupTables(sw, groups);
+                        tabsObj.buildContent(sw, $html_code);
+                    }
                 }
                 tabsObj.setActive();                
             }
