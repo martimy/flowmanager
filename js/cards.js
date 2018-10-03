@@ -102,5 +102,5 @@ var views = [
 //{id:"mTableFeature", cmd:"/stats/tablefeatures/<dpid>", dsc:"Table Features", call:dpTable, ref:true},
 //{id:"mQueueStats", cmd:"/stats/queue/<dpid>", dsc:"Queue Stats", call:dpTable, ref:true},
 //{id:"mQueueDesc", cmd:"/stats/queuedesc/<dpid>", dsc:"Queue Desc", call:dpTable, ref:true},
-//{id:"mMeters", cmd:"/stats/meter/<dpid>", dsc:"Meters stats"}
+{id:"mMeters", cmd:"/data?meterstat=<dpid>", dsc:"Meter stats", call:dpTable, ref:true}
 ];

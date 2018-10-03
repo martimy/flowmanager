@@ -244,10 +244,10 @@ $(function() {
     }
 
     function getTopology() {
-        tabObj.buildTabs("#main", ["Topology", "Tables"], "Nothing to show!");
+        tabObj.buildTabs("#main", ["Graph", "Tables"], "Nothing to show!");
         var $svg = $('<svg width="1116" height="600"></svg>');
         var $data = $('<div id="data"></div>');
-        tabObj.buildContent('Topology', $svg);
+        tabObj.buildContent('Graph', $svg);
         tabObj.buildContent('Tables', $data);
         d3.json("/topology").then(function(data) {
             listTopology(data)
