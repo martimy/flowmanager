@@ -91,7 +91,8 @@
 
 /*temp*/
 .card.wide .header h1 {
-	float: none;
+    /*float: none;*/
+    float: left;
 }
 
 .card ul {

@@ -1,0 +1,89 @@
+
+/** New frames **/
+.tableframe {
+	background-color: white;
+    width: 1100px; /*needs to be fixed*/
+    font-size: 14px;
+    margin: 0px 10px 20px 10px;
+}
+
+.tableframe .container{
+    padding: 8px 16px;
+    height: auto;
+}
+
+.tableframe .header {
+    border-style: solid;
+    border-color: var(--scolor-3);
+    border-width: 2px 0 2px 0;
+    padding: 0px 16px;
+}
+
+.tableframe .header h1 {
+    display: inline-block;
+    width: 500px;
+}
+
+.tableframe .hiddenrow {
+    display: none;
+}
+
+.header .alert {
+    color: red;
+}
+
+/************ Dropdown menu for tables *********/
+/*.tableframe .header */
+.dropdown {
+    float: right;
+    position: relative;
+}
+
+.dropdown button {
+	padding: 5px 15px;
+    margin: 5px 0px;
+	background-color: var(--scolor-3);
+	border: none;
+	color: var(--white);
+	cursor: pointer;
+	border-radius: 4px;
+    font-weight: bold;
+    width: 100px;
+}
+
+.dropdown button:hover {
+	background-color: var(--scolor-0);
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+    display: none;
+    position: absolute;
+	background-color: var(--scolor-3);
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+    border-radius: 4px;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+    color: white;
+    padding: 5px 15px;
+    text-decoration: none;
+    display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+    background-color: var(--scolor-0);
+    border-radius: 4px;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
+/*.show {display:block;}*/

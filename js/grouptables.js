@@ -54,7 +54,7 @@ $(function () {
             var table_id = group['group_id'];
             // if table obj has not been created yet
             if (!dp_tables[table_id]) { 
-                dp_tables[table_id] = new DPTable(table_id, "Group", fields, [], {});
+                dp_tables[table_id] = new DPTable(table_id, "groups", "Group", fields, [], {});
                 dp_tables[table_id].extra.labels = Object.keys(footer);
                 dp_tables[table_id].extra.data = group;
             }

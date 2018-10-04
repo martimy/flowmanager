@@ -61,7 +61,7 @@ $(function () {
             var table_id = meter['meter_id'];
             // if table obj has not been created yet
             if (!dp_tables[table_id]) { 
-                dp_tables[table_id] = new DPTable(table_id, "Meter", fields, [], {});
+                dp_tables[table_id] = new DPTable(table_id, "meters", "Meter", fields, [], {});
                 dp_tables[table_id].extra.labels = Object.keys(footer);
                 dp_tables[table_id].extra.data = meter;
             }

@@ -21,7 +21,12 @@ function Tables(category) {
     function makeRows(dpid, table, hdr_format, cell_format) {
         var cols = [];
         var $col = $('<tr></tr>');
-        $col.append($('<th><input type="checkbox"/></th>').attr('data-sort', "nosort"));
+
+        var $checkbox = $('<input type="checkbox" class="checkall"/>');
+        var $checktr = $('<th></th>').attr('data-sort', "nosort");
+        $checktr.append($checkbox);
+        
+        $col.append($checktr);
         for(var i in table.fields) {
             cols.push(table.fields[i]);
             var $hdr = $('<th></th>');
@@ -34,8 +39,8 @@ function Tables(category) {
 
         var rows = [];
         table.data.forEach(function(item) {
-            var $row = $('<tr></tr>').addClass('editable');
-            $row.append($('<td><input type="checkbox"/></td>'));
+            var $row = $('<tr></tr>'); //.addClass('editable');
+            $row.append($('<td><input type="checkbox" class="rowbox"/></td>'));
             item.dpid = dpid;
             for(var i in cols) {
                 var field = cols[i];
@@ -55,10 +60,14 @@ function Tables(category) {
             }
             rows.sort(compare);
         }
-
+        
         table['rows'] = rows;
 
-        //return table;
+        $checkbox.change(function() {
+            // Execlude hidden rows
+            //$(this).closest('table').find('tr').not('.hiddenrow').find('.rowbox').prop('checked', this.checked);
+            $(this).closest('table').find('.rowbox').prop('checked', this.checked);
+        });
     }
 
     function makeFooter(dpid, table, ftr_format, cell_format) {
@@ -77,16 +86,16 @@ function Tables(category) {
         table['$footer'] = $footer;
     }
 
-    // Attach event listener
-    function eventListener(row) {
-        $(row.$row).unbind('click');
-        $(row.$row).on('click', function(e) { 
-            e.preventDefault();
-            sessionStorage.setItem(category, JSON.stringify(row.dataitem));
-            msg = "Table entry copied to session storage.";
-            displayMessage(msg);
-        });
-    };
+    // Attach event listener for rows
+    // function eventListener(row) {
+    //     $(row.$row).unbind('click');
+    //     $(row.$row).on('click', function(e) { 
+    //         e.preventDefault();
+    //         sessionStorage.setItem(category, JSON.stringify(row.dataitem));
+    //         msg = "Table entry copied to session storage.";
+    //         displayMessage(msg);
+    //     });
+    // };
 
     // Build the table
     function updateTable(dp_table) {
@@ -103,19 +112,29 @@ function Tables(category) {
         }
         $table.append($tableHead);
         $table.append($tableBody);
+        
+        //dp_table['$table'] = $table; //if a reference needs to be kept
+        
         return $table;
     }
 
     // Build the card surrounding the table. The card 
     // may have additional data, such as caption and stats
     function buildTableCard(dp_table) {
-        var $card = $('<div></div>').addClass('card').addClass('wide');
+        var $card = $('<div></div>').addClass('tableframe');
         var $header = $('<div></div>').addClass('header');
         var $container = $('<div></div>').addClass('container');
         var $footer = $('<div></div>').addClass('footing');
 
         var $title = $('<h1></h1>').text(dp_table.label + ' ' + dp_table.table_id);
+        var $alerts = $('<span class="alert"</span>');
         $header.append($title);
+        $header.append($alerts);
+        
+        if(dp_table.type === "flows") {
+            var $menu = getMenu(dp_table);
+            $header.append($menu);
+        }
 
         var $table = updateTable(dp_table);
         $container.append($table);
@@ -129,6 +148,73 @@ function Tables(category) {
         $card.append($footer);
 
         return $card;
+    }
+
+    function getSelectedRows(dp_table) {
+        var selected = [];
+        dp_table.rows.forEach(function(item) {
+            var $f = item.$row.children(':has(:checkbox:checked)');
+            if($f.length>0) {
+                selected.push(item);
+            }
+        });
+        return selected;
+    }
+
+    function setMenuEvents($list, dp_table) {
+        $list.on('click', 'a[href=hide]', function(e) {
+            e.preventDefault();
+            var selected = getSelectedRows(dp_table);
+            selected.forEach(function(row) {
+                row.$row.addClass("hiddenrow");
+            })
+            if(selected.length>0) {
+                var $span = $(this).closest('.header').find('.alert').text('There are ' + selected.length + ' hidden rows!');
+            }
+        });
+
+        $list.on('click', 'a[href=unhide]', function(e) {
+            e.preventDefault();
+            dp_table.rows.forEach(function(row) {
+                row.$row.removeClass("hiddenrow");
+            });
+            var $span = $(this).closest('.header').find('.alert').empty();
+        });
+
+        $list.on('click', 'a[href=delete], a[href=edit]', function(e) {
+            e.preventDefault();
+            var selected = getSelectedRows(dp_table);
+            if(selected.length>0) {
+                sessionStorage.setItem(category, JSON.stringify(selected[0].dataitem));
+            }
+        });
+
+        $list.on('click', 'a', function(e) {
+            e.preventDefault();
+            var selected = getSelectedRows(dp_table);
+            console.log(selected);
+        });
+    }
+
+    function getMenu(dp_table) {
+        var $menu = $('<div></div>').addClass("dropdown");
+        var $button = $('<button></button>');
+        $button.html('Options');
+
+        var $list = $('<div></div>').addClass("dropdown-content");
+        $list.html('<a href="delete">Delete</a> \
+            <a href="edit" disabled>Edit</a> \
+            <a href="monitor">Monitor</a> \
+            <a href="hide">Hide</a> \
+            <a href="unhide">Unhide</a>');
+
+        setMenuEvents($list, dp_table);
+
+        $menu.append($button);
+        $menu.append($list);
+        
+        
+        return $menu;
     }
 
     return {
@@ -233,7 +319,8 @@ function downloadFile(filename, data) {
 }
 
 // Generic Datapath Data Object
-function DPTable(id, label, fields, data, extra) {
+function DPTable(id, type, label, fields, data, extra) {
+    this.type = type;
     this.table_id = id;
     this.label = label;
     this.fields = fields;

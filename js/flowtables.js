@@ -48,7 +48,7 @@ $(function () {
         thelist.forEach(function(flow) {
             var table_id = flow['table_id'];
             if (!dp_tables[table_id]) { 
-                dp_tables[table_id] = new DPTable(table_id, "Flow Table", fields, []);
+                dp_tables[table_id] = new DPTable(table_id, "flows", "Flow Table", fields, []);
             }
             dp_tables[table_id].data.push(flow);
         });

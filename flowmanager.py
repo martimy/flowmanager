@@ -39,6 +39,7 @@ from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 from webapi import WebApi
 import os, logging
 from logging.handlers import WatchedFileHandler
+import datetime
 
 
 class FlowManager(app_manager.RyuApp):
@@ -74,6 +75,18 @@ class FlowManager(app_manager.RyuApp):
                        "dpset": self.dpset,
                        "waiters": self.waiters})
 
+        self.reqfunction = {
+            "switchdesc": self.ofctl.get_desc_stats,
+            "portdesc": self.ofctl.get_port_desc,
+            "portstat": self.ofctl.get_port_stats,
+            "flowsumm": self.ofctl.get_aggregate_flow_stats,
+            "tablestat": self.ofctl.get_table_stats,
+            "queueconfig": self.ofctl.get_queue_config,
+            "queuestat": self.ofctl.get_queue_stats,
+            "meterstat": self.ofctl.get_meter_stats,
+            "tablefeature": self.ofctl.get_table_features,
+        }
+
         # Setup logging
         self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
 
@@ -106,23 +119,43 @@ class FlowManager(app_manager.RyuApp):
            return {"desc": self.ofctl.get_meter_config(dp, self.waiters),
                     "stats": self.ofctl.get_meter_stats(dp, self.waiters)}
 
-    # merg with abo
     def get_stats_request(self, request, dpid):
         dp = self.dpset.get(dpid)
 
-        if not dp:
-            return None
+        func = self.reqfunction.get(request, None)
 
-        switch = {
-            "switchdesc": self.ofctl.get_desc_stats(dp, self.waiters, to_user=True),
-            "portdesc": self.ofctl.get_port_desc(dp, self.waiters),
-            "portstat": self.ofctl.get_port_stats(dp, self.waiters, port=None, to_user=True),
-            "flowsumm": self.ofctl.get_aggregate_flow_stats(dp, self.waiters),
-            "tablestat": self.ofctl.get_table_stats(dp, self.waiters),
-            "meterstat": self.ofctl.get_meter_stats(dp, self.waiters),
-        }
+        if dp and func:
+            return func(dp, self.waiters)
 
-        return switch.get(request, None)
+        return None
+
+    # # merg with above
+    # def get_stats_request(self, request, dpid):
+    #     dp = self.dpset.get(dpid)
+
+    #     if not dp:
+    #         return None
+
+    #     if request == "switchdesc":
+    #         return self.ofctl.get_desc_stats(dp, self.waiters)
+    #     elif request == "portdesc": 
+    #         return self.ofctl.get_port_desc(dp, self.waiters)
+    #     elif request == "portstat":
+    #         return self.ofctl.get_port_stats(dp, self.waiters)
+    #     elif request == "flowsumm":
+    #         return self.ofctl.get_aggregate_flow_stats(dp, self.waiters)
+    #     elif request == "tablestat": 
+    #         return self.ofctl.get_table_stats(dp, self.waiters)
+    #     elif request == "queueconfig": 
+    #         return self.ofctl.get_queue_config(dp, self.waiters)
+    #     elif request == "queuestat": 
+    #         return self.ofctl.get_queue_stats(dp, self.waiters)
+    #     elif request == "meterstat": 
+    #         return self.ofctl.get_meter_stats(dp, self.waiters)
+    #     elif request == "tablefeature": 
+    #         return self.ofctl.get_table_features(dp, self.waiters)
+        
+    #     return None
             
     def read_logs(self):
         items = []
@@ -543,7 +576,6 @@ class FlowManager(app_manager.RyuApp):
         # ofp_event.EventOFPGroupFeaturesStatsReply,
         ofp_event.EventOFPGroupDescStatsReply,
         ofp_event.EventOFPPortDescStatsReply,
-        # ofp_event.EventOFPPacketIn,
     ], MAIN_DISPATCHER)
     def stats_reply_handler(self, ev):
         msg = ev.msg

@@ -96,11 +96,8 @@ var views = [
 {id:"mPorts", cmd:"/data?portstat=<dpid>", dsc:"Ports stats", call:dpTable, ref:true},
 {id:"mAggFlows", cmd:"/data?flowsumm=<dpid>", dsc:"Flow Summary", call:dpTable, ref:true},
 {id:"mTableStats", cmd:"/data?tablestat=<dpid>", dsc:"Table stats", call:dpTable, ref:true},
-// not supported yet:
-//{id:"mFlowsFilter", post:true, cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
-//{id:"mFlows", cmd:"/stats/flow/<dpid>", dsc:"Flows", call:dpTable, ref:true},
-//{id:"mTableFeature", cmd:"/stats/tablefeatures/<dpid>", dsc:"Table Features", call:dpTable, ref:true},
-//{id:"mQueueStats", cmd:"/stats/queue/<dpid>", dsc:"Queue Stats", call:dpTable, ref:true},
-//{id:"mQueueDesc", cmd:"/stats/queuedesc/<dpid>", dsc:"Queue Desc", call:dpTable, ref:true},
-{id:"mMeters", cmd:"/data?meterstat=<dpid>", dsc:"Meter stats", call:dpTable, ref:true}
+//{id:"mTableFeature", cmd:"/data?tablefeature=<dpid>", dsc:"Table Features", call:dpTable, ref:true},
+//{id:"mQueueStats", cmd:"/data?queuestat=<dpid>", dsc:"Queue Stats", call:dpTable, ref:true},
+//{id:"mQueueConfig", cmd:"/data?queueconfig=<dpid>", dsc:"Queue Configuration", call:dpTable, ref:true},
+//{id:"mMeters", cmd:"/data?meterstat=<dpid>", dsc:"Meter stats", call:dpTable, ref:true}
 ];
