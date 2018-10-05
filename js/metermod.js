@@ -34,9 +34,7 @@ $(function () {
     if(e.which == 13) {
       e.preventDefault();
       var $canfocus = $(':input');
-      console.log($canfocus.length);
       var index = $canfocus.index(this) + 1;
-      console.log(this);
       if (index >= $canfocus.length) index = 0;
       if ($canfocus.eq(index).is(':disabled')) index++;
       $canfocus.eq(index).focus();
@@ -102,9 +100,26 @@ $(function () {
     // disable/enable fields based on selection
   };
 
+  function on_bandtype_change() {
+    var enable = $(this).val() === "DSCP_REMARK"
+    $('[name="prec"]').prop('disabled', !enable);
+  }
+
   // Bind Change events
   $('[name="operation"]').on('change', on_operation_change);
   $('[name="typelist"]').on('change', on_type_change);
+  $('[name="bandtype"]').on('change', on_bandtype_change);
+  
+  $(':checkbox').change(function() {
+    if (this.id === "OFPMF_KBPS") {
+      $("#OFPMF_PKTPS").prop( "checked", !this.checked);
+      
+    } else if (this.id === "OFPMF_PKTPS") {
+      $("#OFPMF_KBPS").prop( "checked", !this.checked);
+    }
+    var burst = $("#OFPMF_BURST").prop("checked");
+    $('[name="burst"]').prop('disabled', !burst);
+  });
 
   // Handle form 'submit' events
   $form.on('submit', function(e) {
@@ -152,7 +167,6 @@ $(function () {
       $('#output').text("Cannot read switches!");
     })
   };
-
 
   if (sessionStorage.getItem('meter')) {
     $('input[name="import"]').show();

@@ -57,7 +57,7 @@ function readForm($form) {
   readMeterValueToList(bandsList);
 
   formData.bands = bandsList
-  console.log(formData)
+  //console.log(formData)
 
   return formData;
 }

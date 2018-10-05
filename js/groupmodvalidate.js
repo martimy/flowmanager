@@ -62,7 +62,7 @@ function readForm($form) {
     readKeyValueToList('Bucket_'+i, '[name="applyaction"]', '[name="applyvalue"]', bucketList);
     formData.buckets.push({"actions": bucketList});
   }
-  console.log(formData.buckets)
+  //console.log(formData.buckets)
 
   return formData;
 }

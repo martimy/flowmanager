@@ -30,9 +30,7 @@ $(function () {
     if(e.which == 13) {
       e.preventDefault();
       var $canfocus = $(':input');
-      console.log($canfocus.length);
       var index = $canfocus.index(this) + 1;
-      console.log(this);
       if (index >= $canfocus.length) index = 0;
       if ($canfocus.eq(index).is(':disabled')) index++;
       $canfocus.eq(index).focus();
