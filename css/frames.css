@@ -10,6 +10,7 @@
 .tableframe .container{
     padding: 8px 16px;
     height: auto;
+    overflow: auto;
 }
 
 .tableframe .header {
@@ -42,25 +43,26 @@
 .dropdown button {
 	padding: 5px 15px;
     margin: 5px 0px;
-	background-color: var(--scolor-3);
+	background-color: var(--tcolor-2);
 	border: none;
-	color: var(--white);
+	color: var(--tcolor-4);
 	cursor: pointer;
 	border-radius: 4px;
-    font-weight: bold;
-    width: 100px;
+    /*font-weight: bold;*/
+    width: 80px;
 }
 
 .dropdown button:hover {
-	background-color: var(--scolor-0);
+    background-color: var(--tcolor-0);
+    color: white;
 }
 
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
     display: none;
     position: absolute;
-	background-color: var(--scolor-3);
-    min-width: 100px;
+	background-color: var(--tcolor-2);
+    min-width: 80px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
     right: 0;
@@ -69,7 +71,7 @@
 
 /* Links inside the dropdown */
 .dropdown-content a {
-    color: white;
+    color: var(--tcolor-4);
     padding: 5px 15px;
     text-decoration: none;
     display: block;
@@ -77,8 +79,9 @@
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
-    background-color: var(--scolor-0);
+    background-color: var(--tcolor-0);
     border-radius: 4px;
+    color: white;
 }
 
 .dropdown:hover .dropdown-content {

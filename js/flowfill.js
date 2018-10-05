@@ -47,8 +47,15 @@ function FlowFill(addRaw) {
         var idx = 1;
         $.each(mfields, function(index, action) {
             var sep = action.indexOf(":");
-            var cmd = action.substring(0,sep)
-            var act = action.substring(sep+1)
+            console.log(sep)
+            var cmd = '';
+            var act = '';
+            if( sep >= 0) {
+                cmd = action.substring(0, sep);
+                act = action.substring(sep + 1);
+            } else {
+                cmd = action;
+            }
             
             act=act.replace(" {","").replace("}","").replace(":","=");
 

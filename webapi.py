@@ -54,37 +54,6 @@ class WebApi(ControllerBase):
             return res
         return Response(status=404) # Resource does not exist
 
-    # @route('monitor', '/data', methods=['GET'])
-    # def get_flow_data(self, req, **_kwargs):
-    #     """Get switch data
-    #     """
-    #     # TODO: merge with get_flow_stats 
-    #     if req.GET: # is this if needed? 
-    #         lst = {}
-    #         if req.GET.get("list") == "switches":
-    #             lst = {t[0]:t[0] for t in self.api.get_switches()}
-    #         if req.GET.get("switchdesc"):
-    #             dpid = int(req.GET["switchdesc"])
-    #             lst = self.api.get_switch_desc(dpid)
-    #         if req.GET.get("portdesc"):
-    #             dpid = int(req.GET["portdesc"])
-    #             lst = self.api.get_port_desc(dpid)
-    #         if req.GET.get("portstat"):
-    #             dpid = int(req.GET["portstat"])
-    #             lst = self.api.get_port_stat(dpid)
-    #         if req.GET.get("flowsumm"):
-    #             dpid = int(req.GET["flowsumm"])
-    #             lst = self.api.get_flow_summary(dpid)
-    #         if req.GET.get("tablestat"):
-    #             dpid = int(req.GET["tablestat"])
-    #             lst = self.api.get_table_stat(dpid)
-
-    #         res = Response(content_type="application/json")
-    #         res.json = lst
-    #         return res
-    #     return Response(status=400)  # bad request
-
-    # TODO: merge with get_flow_stats 
     @route('monitor', '/data', methods=['GET'])
     def get_switch_data(self, req, **_kwargs):
         """Get switch data
@@ -113,7 +82,7 @@ class WebApi(ControllerBase):
         return res       
 
     @route('monitor', '/meterform', methods=['POST'])
-    def get_meter_form(self, req, **_kwargs):
+    def post_meter_form(self, req, **_kwargs):
         """Connect with meter form
         """ 
         if req.POST:
@@ -123,7 +92,7 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/groupform', methods=['POST'])
-    def get_group_form(self, req, **_kwargs):
+    def post_group_form(self, req, **_kwargs):
         """Connect with group form
         """ 
         if req.POST:
@@ -133,8 +102,8 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/flowform', methods=['POST'])
-    def get_flow_form(self, req, **_kwargs):
-        """Connect with flow form
+    def post_flow_form(self, req, **_kwargs):
+        """Connect with flow control form
         """ 
         if req.POST:
             res = Response()
@@ -143,12 +112,22 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/flowupload', methods=['POST'])
-    def get_flow_upload(self, req, **_kwargs):
-        """Connect with flow form
+    def post_flow_upload(self, req, **_kwargs):
+        """Connect with flow upload form
         """ 
         if req.POST:
             res = Response()
             res.body = self.api.process_flow_upload(req.json)
+            return res
+        return Response(status=400)  # bad request
+
+    @route('monitor', '/flowdel', methods=['POST'])
+    def post_flow_delete(self, req, **_kwargs):
+        """Receive flows delete request
+        """ 
+        if req.POST:
+            res = Response()
+            res.body = self.api.delete_flow_list(req.json)
             return res
         return Response(status=400)  # bad request
 

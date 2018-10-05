@@ -120,42 +120,13 @@ class FlowManager(app_manager.RyuApp):
                     "stats": self.ofctl.get_meter_stats(dp, self.waiters)}
 
     def get_stats_request(self, request, dpid):
+        """Get stats using ryu's api
+        """
         dp = self.dpset.get(dpid)
-
         func = self.reqfunction.get(request, None)
-
         if dp and func:
             return func(dp, self.waiters)
-
         return None
-
-    # # merg with above
-    # def get_stats_request(self, request, dpid):
-    #     dp = self.dpset.get(dpid)
-
-    #     if not dp:
-    #         return None
-
-    #     if request == "switchdesc":
-    #         return self.ofctl.get_desc_stats(dp, self.waiters)
-    #     elif request == "portdesc": 
-    #         return self.ofctl.get_port_desc(dp, self.waiters)
-    #     elif request == "portstat":
-    #         return self.ofctl.get_port_stats(dp, self.waiters)
-    #     elif request == "flowsumm":
-    #         return self.ofctl.get_aggregate_flow_stats(dp, self.waiters)
-    #     elif request == "tablestat": 
-    #         return self.ofctl.get_table_stats(dp, self.waiters)
-    #     elif request == "queueconfig": 
-    #         return self.ofctl.get_queue_config(dp, self.waiters)
-    #     elif request == "queuestat": 
-    #         return self.ofctl.get_queue_stats(dp, self.waiters)
-    #     elif request == "meterstat": 
-    #         return self.ofctl.get_meter_stats(dp, self.waiters)
-    #     elif request == "tablefeature": 
-    #         return self.ofctl.get_table_features(dp, self.waiters)
-        
-    #     return None
             
     def read_logs(self):
         items = []
@@ -199,7 +170,10 @@ class FlowManager(app_manager.RyuApp):
                     kwargs = {}
                     if aDict[key][1] == 'field':
                         x = value.split('=')
-                        kwargs = {x[0]: x[1]}
+                        val = 0
+                        if len(x)>1:
+                            val = int(x[1]) if x[1].isdigit() else x[1]                         
+                        kwargs = {x[0]: val}
                     elif aDict[key][1] == 'port':
                         x = value.upper()
                         val = self.port_id[x] if x in self.port_id else int(x)
@@ -214,10 +188,8 @@ class FlowManager(app_manager.RyuApp):
         return actions
 
     def process_flow_message(self, d):
-        """Sends flow form data to the switch to update flow tables.
-        """
-
-        dp = self.dpset.get(d["dpid"])
+        dpid = int(d.get("dpid", 0))
+        dp = self.dpset.get(dpid)
         if not dp:
             return "Datapatch does not exist!"
 
@@ -239,91 +211,85 @@ class FlowManager(app_manager.RyuApp):
             'buffer_id': ofproto.OFP_NO_BUFFER,
         }
 
-        try:
-            msg_kwargs['table_id'] = d['table_id']
+        msg_kwargs['table_id'] = d.get('table_id', 0)
 
-            # Match fields
-            mf = d["match"]
+        # Match fields
+        mf = d.get("match", None)
+        # convert port names to numbers
+        if "in_port" in mf:
+            x = mf["in_port"]
+            mf["in_port"] = self.port_id[x] if x in self.port_id else x
+        # convert masks to tuples
+        for f in mf:
+            mask_pos = str(mf[f]).find('/')
+            if mask_pos >=0:
+                parts = mf[f].split('/')
+                mf[f] = (parts[0], parts[1])
+            if str(mf[f]).startswith('0x'):
+                mf[f] = int(mf[f],16)
 
-            # convert port names to numbers
-            if "in_port" in mf:
-                x = mf["in_port"]
-                mf["in_port"] = self.port_id[x] if x in self.port_id else x
+        msg_kwargs['match'] =  parser.OFPMatch(**mf) if mf else None
 
-            match = parser.OFPMatch(**mf)
-            # print(match.to_jsondict())
+        msg_kwargs['hard_timeout'] = d.get('hard_timeout', 0)
+        msg_kwargs['idle_timeout'] = d.get('idle_timeout', 0)
+        msg_kwargs['priority'] = d.get('priority', 0)
+        msg_kwargs['cookie'] = d.get('cookie', 0)
+        msg_kwargs['cookie_mask'] = d.get('cookie_mask', 0)
+        msg_kwargs['out_port'] = d.get('out_port', ofproto.OFPP_ANY)
+        msg_kwargs['out_group'] = d.get('out_group', ofproto.OFPG_ANY)
 
-            msg_kwargs['match'] = match
-            # if d['hard_timeout'] else 0
-            msg_kwargs['hard_timeout'] = d['hard_timeout']
-            # if d['idle_timeout'] else 0
-            msg_kwargs['idle_timeout'] = d['idle_timeout']
-            msg_kwargs['priority'] = d['priority']  # if d['priority'] else 0
-            msg_kwargs['cookie'] = d['cookie']  # if d['cookie'] else 0
-            # if d['cookie_mask'] else 0
-            msg_kwargs['cookie_mask'] = d['cookie_mask']
+        # instructions
+        inst = []
+        # Goto meter
+        if ("meter_id" in d) and d['meter_id']:
+            inst += [parser.OFPInstructionMeter(d["meter_id"])]
+        # Apply Actions
+        if ("apply" in d) and d["apply"]:
+            applyActions = self.get_actions(parser, d["apply"])
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
+        # Clear Actions
+        if ("clearactions" in d) and d["clearactions"]:
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_CLEAR_ACTIONS, [])]
+        # Write Actions
+        if ("write" in d) and d["write"]:
+            # bc actions must be unique they are in dict
+            # from dict to list
+            toList = [{k:d["write"][k]} for k in d["write"]]
+            #print(toList)
+            writeActions = self.get_actions(parser, toList)
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
+        # Write Metadata
+        if ("metadata" in d) and d["metadata"]:
+            meta_mask = d.get("metadata_mask", 0)
+            inst += [parser.OFPInstructionWriteMetadata(
+                d["metadata"], meta_mask)]
+        # Goto Table Metadata
+        if ("goto" in d) and d["goto"]:
+            inst += [parser.OFPInstructionGotoTable(table_id=d["goto"])]
 
-            # d['out_port']  # for the delete command
-            msg_kwargs['out_port'] = d['out_port'] if d['out_port'] >= 0 else ofproto.OFPP_ANY
-            # d['out_group'] # for the delete command
-            msg_kwargs['out_group'] = d['out_group'] if d['out_group'] >= 0 else ofproto.OFPG_ANY
+        msg_kwargs['instructions'] = inst
 
-            # instructions
-            inst = []
+        # Flags
+        flags = 0
+        flags += 0x01 if d.get('SEND_FLOW_REM', False) else 0
+        flags += 0x02 if d.get('CHECK_OVERLAP', False) else 0
+        flags += 0x04 if d.get('RESET_COUNTS', False) else 0
+        flags += 0x08 if d.get('NO_PKT_COUNTS', False) else 0
+        flags += 0x10 if d.get('NO_BYT_COUNTS', False) else 0
 
-            # Goto meter
-            if d["meter_id"]:
-                inst += [parser.OFPInstructionMeter(d["meter_id"])]
-            # Apply Actions
-            if d["apply"]:
-                applyActions = self.get_actions(parser, d["apply"])
-                inst += [parser.OFPInstructionActions(
-                    ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
-            # Clear Actions
-            if d["clearactions"]:
-                inst += [parser.OFPInstructionActions(
-                    ofproto.OFPIT_CLEAR_ACTIONS, [])]
-            # Write Actions
-            if d["write"]:
-                # bc actions must be unique they are in dict
-                # from dict to list
-                toList = [{k:d["write"][k]} for k in d["write"]]
-                #print(toList)
-                writeActions = self.get_actions(parser, toList)
-                inst += [parser.OFPInstructionActions(
-                   ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
-            # Write Metadata
-            if d["metadata"]:
-                inst += [parser.OFPInstructionWriteMetadata(
-                    d["metadata"], d["metadata_mask"])]
-            # Goto Table Metadata
-            if d["goto"]:
-                inst += [parser.OFPInstructionGotoTable(table_id=d["goto"])]
-
-            if inst:
-                msg_kwargs['instructions'] = inst
-
-            # Flags
-            flags = 0
-            flags += 0x01 if d['SEND_FLOW_REM'] else 0
-            flags += 0x02 if d['CHECK_OVERLAP'] else 0
-            flags += 0x04 if d['RESET_COUNTS'] else 0
-            flags += 0x08 if d['NO_PKT_COUNTS'] else 0
-            flags += 0x10 if d['NO_BYT_COUNTS'] else 0
-
-            msg_kwargs['flags'] = flags
-
-        except Exception as e:
-            return "Value for '{}' is not found!".format(e.message)
+        msg_kwargs['flags'] = flags
 
         # ryu/ryu/ofproto/ofproto_v1_3_parser.py
         msg = parser.OFPFlowMod(**msg_kwargs)
         try:
             dp.send_msg(msg)    # ryu/ryu/controller/controller.py
         except KeyError as e:
-            return e.__repr__()
+            return "Unrecognized field " + e.__repr__()
         except Exception as e:
-            return e.__repr__()
+            return "Error " + e.__repr__()
 
         return "Message sent successfully."
 
@@ -674,4 +640,13 @@ class FlowManager(app_manager.RyuApp):
         hosts = [h.to_dict() for h in n_host_list]
             
         return {"switches": switches, "links":links, "hosts": hosts}
+
+
+    def delete_flow_list(self, flowlist):
+        for item in flowlist:
+            item['operation'] = 'delst'
+            result = self.process_flow_message(item)
+  
+        return 'Flows deleted successfully!'
+
 

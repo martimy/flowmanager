@@ -49,7 +49,7 @@
     ], 
     "SET_FIELD": [
         "SET_FIELD", 
-        "value", 
+        "field=value", 
         "Set a \"field\" using \"value\" (The set of keywords available for \"field\" is the same as match field)", 
         "See Example of set-field action\n"
     ], 

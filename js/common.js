@@ -22,11 +22,13 @@ function Tables(category) {
         var cols = [];
         var $col = $('<tr></tr>');
 
-        var $checkbox = $('<input type="checkbox" class="checkall"/>');
-        var $checktr = $('<th></th>').attr('data-sort', "nosort");
-        $checktr.append($checkbox);
-        
-        $col.append($checktr);
+        if(category === 'flow') {
+            var $checkbox = $('<input type="checkbox" class="checkall"/>');
+            var $checktr = $('<th></th>').attr('data-sort', "nosort");
+            $checktr.append($checkbox);      
+            $col.append($checktr);
+        }
+
         for(var i in table.fields) {
             cols.push(table.fields[i]);
             var $hdr = $('<th></th>');
@@ -40,7 +42,9 @@ function Tables(category) {
         var rows = [];
         table.data.forEach(function(item) {
             var $row = $('<tr></tr>'); //.addClass('editable');
-            $row.append($('<td><input type="checkbox" class="rowbox"/></td>'));
+            if(category === 'flow') {
+                $row.append($('<td><input type="checkbox" class="rowbox"/></td>'));
+            }
             item.dpid = dpid;
             for(var i in cols) {
                 var field = cols[i];
@@ -63,11 +67,13 @@ function Tables(category) {
         
         table['rows'] = rows;
 
-        $checkbox.change(function() {
-            // Execlude hidden rows
-            //$(this).closest('table').find('tr').not('.hiddenrow').find('.rowbox').prop('checked', this.checked);
-            $(this).closest('table').find('.rowbox').prop('checked', this.checked);
-        });
+        if(typeof($checkbox) !== "undefined") {
+            $checkbox.change(function() {
+                // Execlude hidden rows
+                //$(this).closest('table').find('tr').not('.hiddenrow').find('.rowbox').prop('checked', this.checked);
+                $(this).closest('table').find('.rowbox').prop('checked', this.checked);
+            });
+        }
     }
 
     function makeFooter(dpid, table, ftr_format, cell_format) {
@@ -92,7 +98,7 @@ function Tables(category) {
     //     $(row.$row).on('click', function(e) { 
     //         e.preventDefault();
     //         sessionStorage.setItem(category, JSON.stringify(row.dataitem));
-    //         msg = "Table entry copied to session storage.";
+    //         var msg = "Table entry copied to session storage.";
     //         displayMessage(msg);
     //     });
     // };
@@ -169,7 +175,7 @@ function Tables(category) {
                 row.$row.addClass("hiddenrow");
             })
             if(selected.length>0) {
-                var $span = $(this).closest('.header').find('.alert').text('There are ' + selected.length + ' hidden rows!');
+                $(this).closest('.header').find('.alert').text('There are ' + selected.length + ' hidden rows!');
             }
         });
 
@@ -178,21 +184,44 @@ function Tables(category) {
             dp_table.rows.forEach(function(row) {
                 row.$row.removeClass("hiddenrow");
             });
-            var $span = $(this).closest('.header').find('.alert').empty();
+            $(this).closest('.header').find('.alert').empty();
         });
 
-        $list.on('click', 'a[href=delete], a[href=edit]', function(e) {
+        $list.on('click', 'a[href=delete]', function(e) {
+            e.preventDefault();
+            var selected = getSelectedRows(dp_table);
+            var flows = [];
+            selected.forEach(function(row){
+                flows.push(row.dataitem)
+            });
+            if(flows.length>0) {
+                $.post("/flowdel", JSON.stringify(flows))
+                .done( function(response) {
+                    displayMessage(response);
+                    selected.forEach(function(row) {
+                        row.$row.addClass("hiddenrow"); //temp
+                    })
+                })
+                .fail( function() {
+                    var msg = "No response from controller.";
+                    displayMessage(msg);
+                })
+            }
+        });
+
+        $list.on('click', 'a[href=edit]', function(e) {
             e.preventDefault();
             var selected = getSelectedRows(dp_table);
             if(selected.length>0) {
                 sessionStorage.setItem(category, JSON.stringify(selected[0].dataitem));
+                var msg = "Table entry copied to session storage.";
+                displayMessage(msg);
             }
         });
 
         $list.on('click', 'a', function(e) {
             e.preventDefault();
             var selected = getSelectedRows(dp_table);
-            console.log(selected);
         });
     }
 
@@ -204,7 +233,6 @@ function Tables(category) {
         var $list = $('<div></div>').addClass("dropdown-content");
         $list.html('<a href="delete">Delete</a> \
             <a href="edit" disabled>Edit</a> \
-            <a href="monitor">Monitor</a> \
             <a href="hide">Hide</a> \
             <a href="unhide">Unhide</a>');
 
@@ -330,7 +358,9 @@ function DPTable(id, type, label, fields, data, extra) {
 
 // fix compatibility issue with RYU output
 function fix_compatibility(odata) {
-    return odata.replace(/dl_/g,'eth_').replace(/nw_/g,'ipv4_');
+    return odata.replace(/dl_/g,'eth_')
+                .replace(/nw_/g,'ipv4_')
+                .replace(/eth_vlan/g,'vlan_vid');
 }
 
 // remove underscore and switch to uppercase
@@ -343,7 +373,7 @@ function getSwitchData(request, f, g) {
     $.get("/data","list=switches")
     .done( function(switches) {
         if($.isEmptyObject(switches)) {
-            msg = "No switches found!";
+            var msg = "No switches found!";
             displayMessage(msg);
             return
         }
@@ -362,7 +392,7 @@ function getSwitchData(request, f, g) {
                     all_data.push(flows)
                 })
                 .fail( function() {
-                    msg = "Cannot read " + request + " form " + switches[sw] + "!";
+                    var msg = "Cannot read " + request + " form " + switches[sw] + "!";
                     displayMessage(msg);
                 })
             )
@@ -376,7 +406,7 @@ function getSwitchData(request, f, g) {
 
     })
     .fail( function() {
-        msg = "No response from server!";
+        var msg = "No response from server!";
         displayMessage(msg);
     })
 }
