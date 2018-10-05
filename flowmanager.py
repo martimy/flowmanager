@@ -336,6 +336,11 @@ class FlowManager(app_manager.RyuApp):
 
         return inst
 
+    def process_meter_upload(self, d):
+        return "this feature is not supported yet."
+
+    def process_group_upload(self, d):
+        return "this feature is not supported yet."
 
     def process_flow_upload(self, d):
         """Sends flows to the switch to update flow tables.

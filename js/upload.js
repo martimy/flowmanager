@@ -13,8 +13,8 @@
 // limitations under the License.
 
 $(function () {
-    var $form = $('#flowupload');
-    //function to validate file extension
+  //function to validate file extension
+  var request = {"meterupload":"meters", "groupupload":"groups", "flowupload":"flows"}
 
   // Display Snackbar
   // TODO: move it to a common file
@@ -25,20 +25,22 @@ $(function () {
     setTimeout(function(){ $x.toggleClass("show"); }, 3000);
   }
 
-
-  $('#chooseFile').bind('change', function () {
-    var filename = $("#chooseFile").val();
+  $('[name="chooseFile"]').bind('change', function () {
+    var $form = $(this).closest('form');
+    var filename = $(this).val();
     //if (/^\s*$/.test(filename)) {
     if(!/(\.json)$/i.test(filename)) { 
-      $(".file-upload").removeClass('active');
-      $("#noFile").text("No file chosen..."); 
+      $form.find(".file-upload").removeClass('active');
+      $form.find(".file-select-name").text("No file chosen...");
+      $form.find(".filecontent").val("No content...");
       displaySnackbar("Invalid Extension!")
     }
-    else {
-      $(".file-upload").addClass('active');
-      $("#noFile").text(filename.replace("C:\\fakepath\\", ""));
+    else {    
+      $form.find(".file-upload").addClass('active');
+      $form.find(".file-select-name").text(filename.replace("C:\\fakepath\\", ""));
 
-      var $input = $("#flowscontent");
+
+      var $input = $form.find(".filecontent");
       var inputFiles = this.files;
       var inputFile = inputFiles[0];
 
@@ -51,30 +53,30 @@ $(function () {
         displaySnackbar("Error "+event.target.error.code);
       };
       reader.readAsText(inputFile);
-      $(".file-submit").prop('disabled', false);
+      $form.find(".file-submit").prop('disabled', false);
     }
   });
 
-  
-
   // Handle form 'submit' events
-  $form.on('submit', function(e) {
+  $('form').on('submit', function(e) {
     e.preventDefault();
-
-    var $input = $("#flowscontent");
+    var $input = $(this).find(".filecontent");
     var data = $input.val();
     if(!data) {
         return;
     }
 
+    // construct a request
+    var req = JSON.stringify({"request": request[this.id], "data":JSON.parse(data)});
+
     //Send the data to the server
-    $.post("/flowupload", data)
+    $.post("/upload", req)
       .done( function(response) {
-        msg = response;
+        var msg = response;
         displaySnackbar(msg);
       })
       .fail( function() {
-        msg = "No response from controller.";
+        var msg = "No response from controller.";
         displaySnackbar(msg);
       })
 

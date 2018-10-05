@@ -111,14 +111,21 @@ class WebApi(ControllerBase):
             return res
         return Response(status=400)  # bad request
 
-    @route('monitor', '/flowupload', methods=['POST'])
-    def post_flow_upload(self, req, **_kwargs):
-        """Connect with flow upload form
+    @route('monitor', '/upload', methods=['POST'])
+    def post_config_upload(self, req, **_kwargs):
+        """Connect with configuration upload form
         """ 
         if req.POST:
+            req_type = req.json.get('request', None)
+            req_data = req.json.get('data', None)
+
+            uploadfn = {"meters": self.api.process_meter_upload,
+                        "groups": self.api.process_group_upload,
+                        "flows": self.api.process_flow_upload}
             res = Response()
-            res.body = self.api.process_flow_upload(req.json)
+            res.body = uploadfn.get(req_type, lambda x: "Invalid request.")(req_data)
             return res
+            
         return Response(status=400)  # bad request
 
     @route('monitor', '/flowdel', methods=['POST'])
