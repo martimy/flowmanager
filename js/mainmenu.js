@@ -26,7 +26,7 @@ $(function () {
   <a href="meterform.html">Meter Control</a> \
   <a href="topology.html">Topology</a> \
   <a href="messages.html">Messages</a> \
-  <a href="configupload.html">Configuration</a> \
+  <a href="config.html">Configuration</a> \
   <a href="about.html">About</a> \
   </div>'
 

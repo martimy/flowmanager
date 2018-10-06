@@ -113,36 +113,12 @@ $(function () {
             }
         );
     }
-
-    // Save flows
-    function saveMeters() {
-        getSwitchData(
-            "meters",
-            function () {
-                // do nothing
-            },
-            function (all_meters) {
-                var meters = [];
-                all_meters.forEach(function(meter) {
-                    meters.push(meter.desc)
-                })
-                data = fix_compatibility(JSON.stringify(meters, undefined, 2))
-                var filename = "meters_"+Date.now()+".json"
-                downloadFile(filename, data);
-            }
-        );
-    }
-        
+   
     // When the refresh button is clicked, clear the page and start over
     $("[name='refresh']").on('click', function() {
         loadMeters();
     })
     
-    // When the save  button is clicked, read the flows and save them in a file
-    $("[name='save']").on('click', function() {
-        saveMeters();
-    })
-
     loadMeters();
 
 

@@ -19,6 +19,11 @@
 	color: var(--pcolor-3);
 }
 
+/*:focus {
+	outline: 1px dashed gray;
+	background: yellow;
+}*/
+
 .license {
 	font-family: 'Courier New', monospace;	
 }

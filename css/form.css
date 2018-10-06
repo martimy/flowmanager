@@ -122,6 +122,13 @@ select {
   height: 24px;
 }
 
+select.multiple {
+  background-color: white;
+  cursor: pointer;
+  width: 179px;
+  height: 96px;
+}
+
 input[type=submit]:hover, input[type=reset]:hover {
   background-color: var(--scolor-0);
 }
@@ -139,19 +146,21 @@ input[type=button]:hover,  {
 }
 
 select option {
-  color: var(--white);  
+  color: var(--pcolor-0);  
 }
 
 select option:hover {
   background-color: var(--scolor-0);
+  color: white;
 }
+
 
 /* Configuration upload forms */
 /* Simplified version of https://codepen.io/sazzad/pen/antDJ */
 .file-upload {
   display:block;
   float: left;
-  text-align:center;
+  /*text-align:center;*/
   width: 400px;
   margin: 4px 8px;
 }
@@ -227,9 +236,9 @@ select option:hover {
 }
 
 .filecontent {
-  display: block;
-  float: left;
-  margin: 4px 8px;
+  display: none;
+
+  /*margin: 4px 8px;
   border: 2px solid var(--scolor-0);
-  border-radius: 4px;
+  border-radius: 4px;*/
 }

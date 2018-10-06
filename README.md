@@ -5,7 +5,7 @@ The FlowManager is a RYU controller application that gives the user manual contr
 ## Features
 * Add/modify/delete flow entries in flow tables.
 * Add/modify/delete group tables and meters.
-* Save/upload flow entries to/from local drive. **NEW!**
+* Backup/restore switch tables to/from local drive. **NEW!**
 * View flow tables, group tables, and meters.
 * View switch statistics.
 * View network topology.

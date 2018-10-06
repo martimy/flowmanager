@@ -106,34 +106,10 @@ $(function () {
             }
         );
     }
-
-    // Save flows
-    function saveGroups() {
-        getSwitchData(
-            "groups",
-            function () {
-                // do nothing
-            },
-            function (all_groups) {
-                var groups = [];
-                all_groups.forEach(function(group) {
-                    groups.push(group.desc)
-                })
-                data = fix_compatibility(JSON.stringify(groups, undefined, 2))
-                var filename = "groups_"+Date.now()+".json"
-                downloadFile(filename, data);
-            }
-        );
-    }
         
     // When the refresh button is clicked, clear the page and start over
     $("[name='refresh']").on('click', function() {
         loadGroups();
-    })
-    
-    // When the save  button is clicked, read the flows and save them in a file
-    $("[name='save']").on('click', function() {
-        saveGroups();
     })
 
     loadGroups();

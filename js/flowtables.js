@@ -84,30 +84,10 @@ $(function () {
             }
         );
     }
-
-    // Save flows
-    function saveFlows() {
-        getSwitchData(
-            "flows",
-            function () {
-                // do nothing
-            },
-            function (all_flows) {
-                data = fix_compatibility(JSON.stringify(all_flows, undefined, 2))
-                var filename = "flows_"+Date.now()+".json"
-                downloadFile(filename, data);
-            }
-        );
-    }
         
     // When the refresh button is clicked, clear the page and start over
     $("[name='refresh']").on('click', function() {
         loadFlows();
-    })
-    
-    // When the save  button is clicked, read the flows and save them in a file
-    $("[name='save']").on('click', function() {
-        saveFlows();
     })
 
     loadFlows();

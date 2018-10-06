@@ -116,14 +116,15 @@ class WebApi(ControllerBase):
         """Connect with configuration upload form
         """ 
         if req.POST:
-            req_type = req.json.get('request', None)
-            req_data = req.json.get('data', None)
+            meters = req.json.get('meters', None)
+            groups = req.json.get('groups', None)
+            flows = req.json.get('flows', None)
 
-            uploadfn = {"meters": self.api.process_meter_upload,
-                        "groups": self.api.process_group_upload,
-                        "flows": self.api.process_flow_upload}
+            rm = self.api.process_meter_upload(meters) if meters else ''
+            gm = self.api.process_group_upload(groups) if groups else ''
+            fm = self.api.process_flow_upload(flows) if flows else ''
             res = Response()
-            res.body = uploadfn.get(req_type, lambda x: "Invalid request.")(req_data)
+            res.body = "{}, {}, {}".format(rm, gm, fm)
             return res
             
         return Response(status=400)  # bad request

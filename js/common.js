@@ -382,7 +382,7 @@ function getSwitchData(request, f, g) {
         f(switches);
 
         var lst = [];
-        var all_data = []
+        var all_data = [];
 
         // Request flows from all switches
         for(var sw in switches) {
