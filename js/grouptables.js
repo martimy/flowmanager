@@ -115,7 +115,11 @@ $(function () {
                 // do nothing
             },
             function (all_groups) {
-                data = fix_compatibility(JSON.stringify(all_groups, undefined, 2))
+                var groups = [];
+                all_groups.forEach(function(group) {
+                    groups.push(group.desc)
+                })
+                data = fix_compatibility(JSON.stringify(groups, undefined, 2))
                 var filename = "groups_"+Date.now()+".json"
                 downloadFile(filename, data);
             }

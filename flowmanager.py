@@ -187,6 +187,49 @@ class FlowManager(app_manager.RyuApp):
                 raise Exception("Action {} not supported!".format(key))
         return actions
 
+    def _get_instructions(self, actions, ofproto, parser):
+        # instructions
+        inst = []
+        apply_actions = []
+        write_actions = []
+
+        for item in actions:
+            # Python 2 has both types
+            if isinstance(item, unicode) or isinstance(item, str):
+                if item.startswith('WRITE_METADATA'):
+                    metadata = item.split(':')[1].split('/')
+                    # expecting hex data
+                    inst += [parser.OFPInstructionWriteMetadata(int(metadata[0], 16), int(metadata[1], 16))]
+                elif item.startswith('GOTO_TABLE'):
+                    table_id = int(item.split(':')[1])
+                    inst += [parser.OFPInstructionGotoTable(table_id)]
+                elif item.startswith('METER_ID'):
+                    meter_id = int(item.split(':')[1])
+                    inst += [parser.OFPInstructionMeter(meter_id)]
+                elif item.startswith('CLEAR_ACTIONS'):
+                    inst += [parser.OFPInstructionActions(ofproto.OFPIT_CLEAR_ACTIONS, [])]
+                else:  # Apply Actions
+                    action = item.split(':')
+                    apply_actions += [{action[0]: action[1]}]
+
+            elif isinstance(item, dict): # WRITE ACTIONS
+                wractions = item["WRITE_ACTIONS"]
+                for witem in wractions:
+                    action = witem.split(':')
+                    write_actions += [{action[0]: action[1]}]                    
+        
+        if apply_actions:
+            applyActions = self.get_actions(parser, apply_actions)
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_APPLY_ACTIONS, applyActions)]                    
+
+        if write_actions:
+            writeActions = self.get_actions(parser, write_actions)
+            inst += [parser.OFPInstructionActions(
+                ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
+
+        return inst
+
     def process_flow_message(self, d):
         dpid = int(d.get("dpid", 0))
         dp = self.dpset.get(dpid)
@@ -240,35 +283,38 @@ class FlowManager(app_manager.RyuApp):
 
         # instructions
         inst = []
-        # Goto meter
-        if ("meter_id" in d) and d['meter_id']:
-            inst += [parser.OFPInstructionMeter(d["meter_id"])]
-        # Apply Actions
-        if ("apply" in d) and d["apply"]:
-            applyActions = self.get_actions(parser, d["apply"])
-            inst += [parser.OFPInstructionActions(
-                ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
-        # Clear Actions
-        if ("clearactions" in d) and d["clearactions"]:
-            inst += [parser.OFPInstructionActions(
-                ofproto.OFPIT_CLEAR_ACTIONS, [])]
-        # Write Actions
-        if ("write" in d) and d["write"]:
-            # bc actions must be unique they are in dict
-            # from dict to list
-            toList = [{k:d["write"][k]} for k in d["write"]]
-            #print(toList)
-            writeActions = self.get_actions(parser, toList)
-            inst += [parser.OFPInstructionActions(
-                ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
-        # Write Metadata
-        if ("metadata" in d) and d["metadata"]:
-            meta_mask = d.get("metadata_mask", 0)
-            inst += [parser.OFPInstructionWriteMetadata(
-                d["metadata"], meta_mask)]
-        # Goto Table Metadata
-        if ("goto" in d) and d["goto"]:
-            inst += [parser.OFPInstructionGotoTable(table_id=d["goto"])]
+        if "actions" in d: # Ryu's format
+            inst = self._get_instructions(d['actions'], ofproto, parser)
+        else:              # FlowManager's format
+            # Goto meter
+            if ("meter_id" in d) and d['meter_id']:
+                inst += [parser.OFPInstructionMeter(d["meter_id"])]
+            # Apply Actions
+            if ("apply" in d) and d["apply"]:
+                applyActions = self.get_actions(parser, d["apply"])
+                inst += [parser.OFPInstructionActions(
+                    ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
+            # Clear Actions
+            if ("clearactions" in d) and d["clearactions"]:
+                inst += [parser.OFPInstructionActions(
+                    ofproto.OFPIT_CLEAR_ACTIONS, [])]
+            # Write Actions
+            if ("write" in d) and d["write"]:
+                # bc actions must be unique they are in dict
+                # from dict to list
+                toList = [{k:d["write"][k]} for k in d["write"]]
+                #print(toList)
+                writeActions = self.get_actions(parser, toList)
+                inst += [parser.OFPInstructionActions(
+                    ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
+            # Write Metadata
+            if ("metadata" in d) and d["metadata"]:
+                meta_mask = d.get("metadata_mask", 0)
+                inst += [parser.OFPInstructionWriteMetadata(
+                    d["metadata"], meta_mask)]
+            # Goto Table Metadata
+            if ("goto" in d) and d["goto"]:
+                inst += [parser.OFPInstructionGotoTable(table_id=d["goto"])]
 
         msg_kwargs['instructions'] = inst
 
@@ -293,132 +339,13 @@ class FlowManager(app_manager.RyuApp):
 
         return "Message sent successfully."
 
-    def _prep_instructions(self, actions, ofproto, parser):
-        # instructions
-        inst = []
-        apply_actions = []
-        write_actions = []
-
-        for item in actions:
-            # Python 2 has both types
-            if isinstance(item, unicode) or isinstance(item, str):
-                if item.startswith('WRITE_METADATA'):
-                    metadata = item.split(':')[1].split('/')
-                    # expecting hex data
-                    inst += [parser.OFPInstructionWriteMetadata(int(metadata[0], 16), int(metadata[1], 16))]
-                elif item.startswith('GOTO_TABLE'):
-                    table_id = int(item.split(':')[1])
-                    inst += [parser.OFPInstructionGotoTable(table_id)]
-                elif item.startswith('METER_ID'):
-                    meter_id = int(item.split(':')[1])
-                    inst += [parser.OFPInstructionMeter(meter_id)]
-                elif item.startswith('CLEAR_ACTIONS'):
-                    inst += [parser.OFPInstructionActions(ofproto.OFPIT_CLEAR_ACTIONS, [])]
-                else:  # Apply Actions
-                    action = item.split(':')
-                    apply_actions += [{action[0]: action[1]}]
-
-            elif isinstance(item, dict): # WRITE ACTIONS
-                wractions = item["WRITE_ACTIONS"]
-                for witem in wractions:
-                    action = witem.split(':')
-                    write_actions += [{action[0]: action[1]}]                    
-        
-        if apply_actions:
-            applyActions = self.get_actions(parser, apply_actions)
-            inst += [parser.OFPInstructionActions(
-                ofproto.OFPIT_APPLY_ACTIONS, applyActions)]                    
-
-        if write_actions:
-            writeActions = self.get_actions(parser, write_actions)
-            inst += [parser.OFPInstructionActions(
-                ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
-
-        return inst
-
-    def process_meter_upload(self, d):
-        return "this feature is not supported yet."
-
-    def process_group_upload(self, d):
-        return "this feature is not supported yet."
-
-    def process_flow_upload(self, d):
-        """Sends flows to the switch to update flow tables.
-        """
-        switches = {str(t[0]):t[1] for t in self.get_switches()}
-        for item in d:    # for each switch
-            dpid = item.keys()[0]
-            if dpid in switches.keys():
-
-                dp = switches[dpid]
-                ofproto = dp.ofproto
-                parser = dp.ofproto_parser
-
-                msg = parser.OFPFlowMod(dp,
-                            table_id=ofproto.OFPTT_ALL,
-                            command=ofproto.OFPFC_DELETE,
-                            out_port=ofproto.OFPP_ANY,
-                            out_group=ofproto.OFPG_ANY)
-
-                dp.send_msg(msg)
-
-                for flowentry in item[dpid]:
-                    del flowentry['byte_count']
-                    del flowentry['duration_sec']
-                    del flowentry['duration_nsec']
-                    del flowentry['packet_count']
-                    del flowentry['length']
-
-
-                    flowentry['datapath'] = dp
-                    flowentry['command'] = ofproto.OFPFC_ADD
-                    
-                    mf = flowentry["match"]
-
-                    # Quick and ugly fixes
-                    # convert port names to numbers
-                    if "in_port" in mf:
-                        x = mf["in_port"]
-                        mf["in_port"] = self.port_id[x] if x in self.port_id else x
-                    # split address and mask
-                    if "eth_dst" in mf:
-                        if '/' in mf["eth_dst"]: # there is a mask
-                            x = mf["eth_dst"].split('/')
-                            mf["eth_dst"] = (x[0], x[1])
-                    if "eth_src" in mf:
-                        if '/' in mf["eth_src"]: # there is a mask
-                            x = mf["eth_src"].split('/')
-                            mf["eth_src"] = (x[0], x[1])
-
-
-                    flowentry['match'] = parser.OFPMatch(**mf)
-
-                    inst = self._prep_instructions(flowentry['actions'], ofproto, parser)
-                    del flowentry['actions']
-                    if inst:
-                        flowentry['instructions'] = inst
-
-                    try:
-                        msg = parser.OFPFlowMod(**flowentry)
-                    except Exception as e:
-                        return "Value for '{}' is not found!".format(e.message)
-                    
-                    try:
-                        dp.send_msg(msg)
-                    except KeyError as e:
-                        return e.__repr__()
-                    except Exception as e:
-                        return e.__repr__()
-
-        return "Flows updated successfully."
-
     def process_group_message(self, d):
         """Sends group form data to the switch to update group tables.
         """
-
-        dp = self.dpset.get(d["dpid"])
+        dpid = int(d.get("dpid", 0))
+        dp = self.dpset.get(dpid)
         if not dp:
-            return "Datapatch does not exist!"
+            return "Datapath does not exist!"
 
         ofproto = dp.ofproto
         parser = dp.ofproto_parser
@@ -442,13 +369,22 @@ class FlowManager(app_manager.RyuApp):
 
         buckets = []
         for bucket in  d["buckets"]:
-            #print("bucket", bucket)
             weight = bucket.get('weight', 0)
             watch_port = bucket.get('watch_port', ofproto.OFPP_ANY)
             watch_group = bucket.get('watch_group', dp.ofproto.OFPG_ANY)
             actions = []
             if bucket['actions']:
-                actions = self.get_actions(parser, bucket['actions'])
+                actions_list = []
+                if isinstance(bucket['actions'][0], unicode) or \
+                    isinstance(bucket['actions'][0], str): # Ryu's format
+                    for i in bucket['actions']:
+                        x = i.split(':', 1)
+                        y = x[1].replace('{', '').replace('}','').strip() if len(x) > 1 else ''
+                        y =  y.replace(':','=', 1) if x[0] == 'SET_FIELD' else y
+                        actions_list.append({x[0]: y})
+                else:  # FlowManager's format
+                    actions_list = bucket['actions']
+                actions = self.get_actions(parser, actions_list)
                 buckets.append(dp.ofproto_parser.OFPBucket(
                     weight, watch_port, watch_group, actions))
 
@@ -468,10 +404,10 @@ class FlowManager(app_manager.RyuApp):
     def process_meter_message(self, d):
         """Sends meter form data to the switch to update meter table.
         """
-
-        dp = self.dpset.get(d["dpid"])
+        dpid = int(d.get("dpid", 0))
+        dp = self.dpset.get(dpid)
         if not dp:
-            return "Datapatch does not exist!"
+            return "Datapath does not exist!"
 
         ofproto = dp.ofproto
         parser = dp.ofproto_parser
@@ -486,23 +422,40 @@ class FlowManager(app_manager.RyuApp):
         meter_id = d["meter_id"]
 
         flags = 0
-        flags += 0x01 if d['OFPMF_KBPS'] else 0
-        flags += 0x02 if d['OFPMF_PKTPS'] else 0
-        flags += 0x04 if d['OFPMF_BURST'] else 0
-        flags += 0x08 if d['OFPMF_STATS'] else 0
-
-        # Flags must have KBPS or PKTPS
-        flags = flags if (flags & 0x03) else (flags | 0x01)
-
         bands = []
-        for band in  d["bands"]:
-            #mtype = type_convert.get(band[0])
-            if band[0] == 'DROP':
-                bands += [parser.OFPMeterBandDrop(rate=band[1],
-                    burst_size=band[2])]
-            elif band[0] == 'DSCP_REMARK':
-                bands += [parser.OFPMeterBandDscpRemark(rate=band[1], 
-                    burst_size=band[2], prec_level=band[3])]
+        if "flags" in d: # Ryu's format
+            print(d['flags'])
+            for f in d['flags']:
+                flags += 0x01 if f == 'KBPS' else 0
+                flags += 0x02 if f == 'PKTPS' else 0
+                flags += 0x04 if f == 'BURST' else 0
+                flags += 0x08 if f == 'STATS' else 0
+
+            for band in  d["bands"]:
+                if band['type'] == 'DROP':
+                    bands += [parser.OFPMeterBandDrop(rate=band['rate'],
+                        burst_size=band['burst_size'])]
+                elif band['type'] == 'DSCP_REMARK':
+                    bands += [parser.OFPMeterBandDscpRemark(rate=band['rate'], 
+                        burst_size=band['burst_size'], prec_level=band['prec_level'])]                
+
+        else:           # FlowManager's format
+            flags += 0x01 if d['OFPMF_KBPS'] else 0
+            flags += 0x02 if d['OFPMF_PKTPS'] else 0
+            flags += 0x04 if d['OFPMF_BURST'] else 0
+            flags += 0x08 if d['OFPMF_STATS'] else 0
+
+            # Flags must have KBPS or PKTPS
+            flags = flags if (flags & 0x03) else (flags | 0x01)
+
+            for band in  d["bands"]:
+                #mtype = type_convert.get(band[0])
+                if band[0] == 'DROP':
+                    bands += [parser.OFPMeterBandDrop(rate=band[1],
+                        burst_size=band[2])]
+                elif band[0] == 'DSCP_REMARK':
+                    bands += [parser.OFPMeterBandDscpRemark(rate=band[1], 
+                        burst_size=band[2], prec_level=band[3])]
 
         # TODO: catch some errors
         meter_mod = parser.OFPMeterMod(dp, cmd, flags, meter_id, bands)
@@ -528,6 +481,67 @@ class FlowManager(app_manager.RyuApp):
         src = eth.src
 
         return '(src={}, dst={}, type=0x{:04x})'.format(src, dst, ethtype)
+
+    def process_meter_upload(self, configlist):
+        """Sends meters to the switch to update meter tables.
+        """
+        switches = [str(t[0]) for t in self.get_switches()]
+        for swconfig in configlist:    # for each 
+            dpid = swconfig.keys()[0]
+
+            if dpid not in switches:
+                break
+
+            for flow in swconfig[dpid]:
+                flow['dpid'] = dpid
+                flow['operation'] = 'add'
+                result = self.process_meter_message(flow)
+        return 'Meters added successfully!'
+
+    def process_group_upload(self, configlist):
+        """Sends groups to the switch to update group tables.
+        """
+        switches = [str(t[0]) for t in self.get_switches()]
+        for swconfig in configlist:    # for each 
+            dpid = swconfig.keys()[0]
+
+            if dpid not in switches:
+                break
+
+            for flow in swconfig[dpid]:
+                flow['dpid'] = dpid
+                flow['operation'] = 'add'
+                result = self.process_group_message(flow)
+                print(result)
+        return 'Groups added successfully!'
+
+    def process_flow_upload(self, configlist):
+        """Sends flows to the switch to update flow tables.
+        """
+
+        # config_tree = {}
+        switches = [str(t[0]) for t in self.get_switches()]
+        for swconfig in configlist:    # for each 
+            dpid = swconfig.keys()[0]
+            if dpid not in switches:
+                break
+            for flow in swconfig[dpid]:
+                flow['dpid'] = dpid
+                flow['operation'] = 'add'
+                result = self.process_flow_message(flow)
+        #         table_id  = flow['table_id']
+        #         tables = config_tree.setdefault(dpid, {})
+        #         table_flows = tables.setdefault(table_id, [])
+        #         table_flows.append(flow)
+
+        # for sw in config_tree:
+        #     sorted_tables = sorted(config_tree[sw].keys(), reverse=True)
+        #     for tpid in sorted_tables:
+        #         flows = config_tree[sw][tpid]
+        #         for flow in flows:
+        #             result = self.process_flow_message(flow)
+  
+        return 'Flows added successfully!'
 
     ##### Event Handlers #######################################
 
@@ -655,3 +669,74 @@ class FlowManager(app_manager.RyuApp):
         return 'Flows deleted successfully!'
 
 
+
+################ retired code
+    def process_flow_upload_old(self, d):
+        """Sends flows to the switch to update flow tables.
+        """
+        switches = {str(t[0]):t[1] for t in self.get_switches()}
+        for item in d:    # for each switch
+            dpid = item.keys()[0]
+            if dpid in switches.keys():
+
+                dp = switches[dpid]
+                ofproto = dp.ofproto
+                parser = dp.ofproto_parser
+
+                msg = parser.OFPFlowMod(dp,
+                            table_id=ofproto.OFPTT_ALL,
+                            command=ofproto.OFPFC_DELETE,
+                            out_port=ofproto.OFPP_ANY,
+                            out_group=ofproto.OFPG_ANY)
+
+                dp.send_msg(msg)
+
+                for flowentry in item[dpid]:
+                    del flowentry['byte_count']
+                    del flowentry['duration_sec']
+                    del flowentry['duration_nsec']
+                    del flowentry['packet_count']
+                    del flowentry['length']
+
+
+                    flowentry['datapath'] = dp
+                    flowentry['command'] = ofproto.OFPFC_ADD
+                    
+                    mf = flowentry["match"]
+
+                    # Quick and ugly fixes
+                    # convert port names to numbers
+                    if "in_port" in mf:
+                        x = mf["in_port"]
+                        mf["in_port"] = self.port_id[x] if x in self.port_id else x
+                    # split address and mask
+                    if "eth_dst" in mf:
+                        if '/' in mf["eth_dst"]: # there is a mask
+                            x = mf["eth_dst"].split('/')
+                            mf["eth_dst"] = (x[0], x[1])
+                    if "eth_src" in mf:
+                        if '/' in mf["eth_src"]: # there is a mask
+                            x = mf["eth_src"].split('/')
+                            mf["eth_src"] = (x[0], x[1])
+
+
+                    flowentry['match'] = parser.OFPMatch(**mf)
+
+                    inst = self._prep_instructions(flowentry['actions'], ofproto, parser)
+                    del flowentry['actions']
+                    if inst:
+                        flowentry['instructions'] = inst
+
+                    try:
+                        msg = parser.OFPFlowMod(**flowentry)
+                    except Exception as e:
+                        return "Value for '{}' is not found!".format(e.message)
+                    
+                    try:
+                        dp.send_msg(msg)
+                    except KeyError as e:
+                        return e.__repr__()
+                    except Exception as e:
+                        return e.__repr__()
+
+        return "Flows updated successfully."

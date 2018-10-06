@@ -13,6 +13,34 @@
 // limitations under the License.
 
 $(function () {
+
+  var $form = $('#backupform');
+
+  // When Enter is pressed, go to the next input instead of sumbitting
+  // the form.
+  $form.on('keypress', ':input', function (e) {
+    if(e.which == 13) {
+      e.preventDefault();
+      var $canfocus = $(':input');
+      console.log($canfocus.length);
+      var index = $canfocus.index(this) + 1;
+      console.log(this);
+      if (index >= $canfocus.length) index = 0;
+      if ($canfocus.eq(index).is(':disabled')) index++;
+      $canfocus.eq(index).focus();
+    }
+  });
+
+  // Handle 'change' events for the match checkbox
+  $('#matchcheckbox').on('change', function (e) {
+    if(this.checked) {
+      $('#matchdiv').slideUp(100); //addClass('hidden'); //fadeOut(250);
+    } else {
+      $('#matchdiv').slideDown(100); //removeClass('hidden'); //fadeIn(250);
+    }
+  });
+  
+  
   //function to validate file extension
   var request = {"meterupload":"meters", "groupupload":"groups", "flowupload":"flows"}
 
@@ -81,7 +109,24 @@ $(function () {
       })
 
   });
-}
-)
+
+    // Get information from datapaths
+  function getSwitchData(request, f, g) {
+    $.get("/data","list=switches")
+    .done( function(switches) {
+        if($.isEmptyObject(switches)) {
+            var msg = "No switches found!";
+            displayMessage(msg);
+            return
+        }
+
+    })
+    .fail( function() {
+        var msg = "No response from server!";
+        displayMessage(msg);
+    })
+  }
+
+})
 
   

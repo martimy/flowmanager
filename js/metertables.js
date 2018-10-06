@@ -122,7 +122,11 @@ $(function () {
                 // do nothing
             },
             function (all_meters) {
-                data = fix_compatibility(JSON.stringify(all_meters, undefined, 2))
+                var meters = [];
+                all_meters.forEach(function(meter) {
+                    meters.push(meter.desc)
+                })
+                data = fix_compatibility(JSON.stringify(meters, undefined, 2))
                 var filename = "meters_"+Date.now()+".json"
                 downloadFile(filename, data);
             }

@@ -17,6 +17,20 @@
 </div>
 <div id="menu" class="grid_2"></div>
 <div id="main" class="grid_14">
+
+<form  id="backupform" action="action" method="post">
+    <div class="formcontrol">
+        <input type="submit" value="Submit">
+        <input type="reset" value="Clear">
+    </div>
+
+    <div class="form">
+        <div class="fieldset">
+            <h1>Target:</h1>
+            <label for="dpid">Switch ID:</label><select type="number" id="dpid"></select><br>
+        </div>
+    </div>
+</form>
     <!--form method="post" enctype="multipart/form-data"-->
     <!--form  id="meterupload" action="action" method="post">
         <div class="file-upload">
@@ -40,7 +54,7 @@
             <input type="submit" value="Update Groups" name="submit" class="file-submit" disabled>
           </div>
         <textarea id="groupscontent" class="filecontent" rows="15" cols="50">No content...</textarea><br>
-    </form-->
+    </form>
 
     <form  id="flowupload" action="action" method="post">
         <div class="file-upload">
@@ -52,7 +66,7 @@
             <input type="submit" value="Update Flows" name="submit" class="file-submit" disabled>
           </div>
         <textarea id="flowscontent" class="filecontent" rows="15" cols="50">No content...</textarea><br>
-    </form>
+    </form-->
 
 <div id="output"></div>
 <div id="snackbar"></div>
