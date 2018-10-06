@@ -158,16 +158,17 @@ select option:hover {
 /* Configuration upload forms */
 /* Simplified version of https://codepen.io/sazzad/pen/antDJ */
 .file-upload {
-  display:block;
-  float: left;
+  /*display:block;
+  float: left;*/
   /*text-align:center;*/
   width: 400px;
   margin: 4px 8px;
+
 }
 
 .file-upload .file-select {
   display:block;
-  border: 2px solid var(--scolor-0);
+  border: 2px solid var(--scolor-3);
   border-radius: 4px;
   color: var(--scolor-3);
   cursor:pointer;
@@ -176,14 +177,16 @@ select option:hover {
   text-align:left;
   background:#FFFFFF;
   overflow:hidden;
-  position:relative;
+  margin-top: -1px;
+  position: relative;
 }
 
 .file-upload .file-select .file-select-button {
-  background:var(--scolor-0);
+  background: var(--scolor-3);
   padding:0 10px;
   display:inline-block;
-  height:30px;line-height:30px;
+  height:30px;
+  line-height:30px;
   color: white;
   font-weight: bold;
 }
@@ -195,11 +198,11 @@ select option:hover {
 }
 
 .file-upload .file-select:hover {
-  border-color:var(--scolor-3);
+  border-color:var(--scolor-0);
 }
 
 .file-upload .file-select:hover .file-select-button {
-  background:var(--scolor-3);
+  background:var(--scolor-0);
   color:#FFFFFF;
 }
 
@@ -232,8 +235,9 @@ select option:hover {
 
 .file-upload .file-submit:disabled,
 .file-upload .file-submit:disabled:hover {
-  background-color: gray;
+  background-color: lightgray;
 }
+
 
 .filecontent {
   display: none;
