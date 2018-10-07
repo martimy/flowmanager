@@ -1,9 +1,9 @@
 // Copyright (c) 2018 Maen Artimy
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
@@ -17,12 +17,13 @@
 $(function () {
     var tabsObj = new Tabs('switches');
     var tablesObj = new Tables('meter');
-   
+
     var header_of13 = {"band": ["Band", 'number'],
                         "type": ["Type", "number"],
                         "rate": ["Rate", "number"],
-                        "burst_size": ["Burst Size", "number"]};
-                        
+                        "burst_size": ["Burst Size", "number"],
+                        "prec_level": ["Prec Level", "number"]};
+
     // Table Header Mapping Function
     function headerMapping(orgstr) {
         var map = header_of13;
@@ -32,7 +33,7 @@ $(function () {
     };
 
     var footer = {"flow_count": "Flow Count", "packet_in_count": "Packets", "byte_in_count": "Bytes", "duration_sec": "Duration", "flags": "Flags"};
-    
+
     // Table Footer Mapping Function
     function footerMapping(orgstr) {
         var map = footer;
@@ -60,12 +61,12 @@ $(function () {
         thelist.forEach(function(meter) {
             var table_id = meter['meter_id'];
             // if table obj has not been created yet
-            if (!dp_tables[table_id]) { 
+            if (!dp_tables[table_id]) {
                 dp_tables[table_id] = new DPTable(table_id, "meters", "Meter", fields, [], {});
                 dp_tables[table_id].extra.labels = Object.keys(footer);
                 dp_tables[table_id].extra.data = meter;
             }
-                       
+
             for(i in meter.bands) {
                 var band = Object.assign(meter.bands[i], meter.band_stats[i]);
                 band.band = i;
@@ -75,7 +76,7 @@ $(function () {
             // delete group.buckets;
             // delete group.bucket_stats;
         });
-       
+
         var $html_code = $('<div></div>');
         for(var i in dp_tables) {
             var dp_table = dp_tables[i];
@@ -99,7 +100,7 @@ $(function () {
                     var stats = all_meters[i].stats;
                     var desc = all_meters[i].desc;
                     var sw = Object.keys(desc)[0] // the first key is the datapath id
-                    
+
                     var meters = [];
                     for(i in desc[sw]) {
                         meters.push(Object.assign(desc[sw][i], stats[sw][i]))
@@ -109,16 +110,16 @@ $(function () {
                         tabsObj.buildContent(sw, $html_code);
                     }
                 }
-                tabsObj.setActive();                
+                tabsObj.setActive();
             }
         );
     }
-   
+
     // When the refresh button is clicked, clear the page and start over
     $("[name='refresh']").on('click', function() {
         loadMeters();
     })
-    
+
     loadMeters();
 
 
