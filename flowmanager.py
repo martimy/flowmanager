@@ -42,6 +42,8 @@ from logging.handlers import WatchedFileHandler
 import datetime
 
 
+LOG_FILE_NAME = 'flwmgr.log'
+
 class FlowManager(app_manager.RyuApp):
     #OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
@@ -60,7 +62,6 @@ class FlowManager(app_manager.RyuApp):
     }
 
     logname = 'flwmgr'
-    logfile = 'flwmgr.log'
 
     def __init__(self, *args, **kwargs):
         super(FlowManager, self).__init__(*args, **kwargs)
@@ -88,6 +89,9 @@ class FlowManager(app_manager.RyuApp):
         }
 
         # Setup logging
+	# cwd = os.getcwd()
+	cfd = os.path.dirname(os.path.abspath(__file__))
+	self.logfile = os.path.join(cfd, LOG_FILE_NAME)
         self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
 
     def get_logger(self, logname, logfile, loglevel, propagate):
