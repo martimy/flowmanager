@@ -360,7 +360,9 @@ function DPTable(id, type, label, fields, data, extra) {
 function fix_compatibility(odata) {
     return odata.replace(/dl_/g,'eth_')
                 .replace(/nw_/g,'ipv4_')
-                .replace(/eth_vlan/g,'vlan_vid');
+                .replace(/eth_vlan/g,'vlan_vid')
+                .replace(/tp_dst/g,'udp_dst')
+                .replace(/ipv4_proto/g,'ip_proto');
 }
 
 // remove underscore and switch to uppercase
