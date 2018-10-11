@@ -89,9 +89,9 @@ class FlowManager(app_manager.RyuApp):
         }
 
         # Setup logging
-	# cwd = os.getcwd()
-	cfd = os.path.dirname(os.path.abspath(__file__))
-	self.logfile = os.path.join(cfd, LOG_FILE_NAME)
+        # cwd = os.getcwd()
+        cfd = os.path.dirname(os.path.abspath(__file__))
+        self.logfile = os.path.join(cfd, LOG_FILE_NAME)
         self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
 
     def get_logger(self, logname, logfile, loglevel, propagate):
