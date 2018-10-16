@@ -37,11 +37,12 @@ from ryu.lib.packet import ether_types
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
-import os, logging
+import os, sys, logging
 from logging.handlers import WatchedFileHandler
 import datetime
 
 
+PYTHON3 = sys.version_info > (3, 0)
 LOG_FILE_NAME = 'flwmgr.log'
 
 class FlowManager(app_manager.RyuApp):
@@ -69,7 +70,7 @@ class FlowManager(app_manager.RyuApp):
         self.dpset = kwargs['dpset']
         self.waiters = {}
         self.ofctl = ofctl_v1_3
-
+ 
         # Data exchanged with WebApi
         wsgi.register(WebApi,
                       {"webctl": self,
@@ -166,7 +167,7 @@ class FlowManager(app_manager.RyuApp):
         }
 
         for action in set:
-            key = action.keys()[0] #There should be only one key
+            key = list(action.keys())[0] #There should be only one key
             value = action[key]
             if key in aDict:
                 f = aDict[key][0]       # the action
@@ -199,7 +200,7 @@ class FlowManager(app_manager.RyuApp):
 
         for item in actions:
             # Python 2 has both types
-            if isinstance(item, unicode) or isinstance(item, str):
+            if type(item) is str or  (not PYTHON3 and type(item) is unicode):
                 if item.startswith('WRITE_METADATA'):
                     metadata = item.split(':')[1].split('/')
                     # expecting hex data
@@ -216,7 +217,7 @@ class FlowManager(app_manager.RyuApp):
                     action = item.split(':')
                     apply_actions += [{action[0]: action[1]}]
 
-            elif isinstance(item, dict): # WRITE ACTIONS
+            elif type(item) is dict: # WRITE ACTIONS
                 wractions = item["WRITE_ACTIONS"]
                 for witem in wractions:
                     action = witem.split(':')
@@ -379,8 +380,9 @@ class FlowManager(app_manager.RyuApp):
             actions = []
             if bucket['actions']:
                 actions_list = []
-                if isinstance(bucket['actions'][0], unicode) or \
-                    isinstance(bucket['actions'][0], str): # Ryu's format
+                if type(bucket['actions'][0]) is str or \
+                   (not PYTHON3 and type(bucket['actions'][0]) is unicode):
+                    # Ryu's format
                     for i in bucket['actions']:
                         x = i.split(':', 1)
                         y = x[1].replace('{', '').replace('}','').strip() if len(x) > 1 else ''
@@ -491,7 +493,7 @@ class FlowManager(app_manager.RyuApp):
         """
         switches = [str(t[0]) for t in self.get_switches()]
         for swconfig in configlist:    # for each
-            dpid = swconfig.keys()[0]
+            dpid = list(swconfig.keys())[0]
 
             if dpid not in switches:
                 break
@@ -507,7 +509,7 @@ class FlowManager(app_manager.RyuApp):
         """
         switches = [str(t[0]) for t in self.get_switches()]
         for swconfig in configlist:    # for each
-            dpid = swconfig.keys()[0]
+            dpid = list(swconfig.keys())[0]
 
             if dpid not in switches:
                 break
@@ -526,7 +528,7 @@ class FlowManager(app_manager.RyuApp):
         # config_tree = {}
         switches = [str(t[0]) for t in self.get_switches()]
         for swconfig in configlist:    # for each
-            dpid = swconfig.keys()[0]
+            dpid = list(swconfig.keys())[0]
             if dpid not in switches:
                 break
             for flow in swconfig[dpid]:
@@ -680,7 +682,7 @@ class FlowManager(app_manager.RyuApp):
         """
         switches = {str(t[0]):t[1] for t in self.get_switches()}
         for item in d:    # for each switch
-            dpid = item.keys()[0]
+            dpid = list(item.keys())[0]
             if dpid in switches.keys():
 
                 dp = switches[dpid]
