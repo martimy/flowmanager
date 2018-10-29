@@ -19,16 +19,18 @@ $(function () {
     var tablesObj = new Tables('flow');
 
     // Flow fields supported by OF1.3
-    var header_of13 = {"priority": ["Priority", "number"], 
-                        "match": ["Match Fields", "alphanum"], 
-                        "cookie": ["Cookie", "number"],
-                        "duration_sec": ["Duration", "number"],
-                        "idle_timeout": ["Idle\nTimeout", "number"], 
-                        "hard_timeout": ["Hard\nTimeout", "number"],
-                        "actions": ["Instructions", "alphanum"],
-                        "packet_count": ["Packet\nCount", "number"],
-                        "byte_count": ["Byte\nCount", "number"],
-                        "flags": ["Flags", "number"]}
+    var header_of13 = {
+        "priority": ["Priority", "number"],
+        "match": ["Match Fields", "alphanum"],
+        "cookie": ["Cookie", "number"],
+        "duration_sec": ["Duration", "number"],
+        "idle_timeout": ["Idle\nTimeout", "number"],
+        "hard_timeout": ["Hard\nTimeout", "number"],
+        "actions": ["Instructions", "alphanum"],
+        "packet_count": ["Packet\nCount", "number"],
+        "byte_count": ["Byte\nCount", "number"],
+        "flags": ["Flags", "number"]
+    }
 
     // Table Header Mapping Function
     function headerMapping(orgstr) {
@@ -41,21 +43,21 @@ $(function () {
     // Create Flow Table database
     function buildFlowTables(dpid, flwlist) {
         var thelist = JSON.parse(fix_compatibility(JSON.stringify(flwlist)));
-        
+
         var fields = Object.keys(header_of13);
         var dp_tables = {};
 
-        thelist.forEach(function(flow) {
+        thelist.forEach(function (flow) {
             var table_id = flow['table_id'];
-            if (!dp_tables[table_id]) { 
-                dp_tables[table_id] = new DPTable(table_id, "flows", "Flow Table", fields, []);
+            if (!dp_tables[table_id]) {
+                dp_tables[table_id] = new DPTable(table_id, "flows", "Flow Table", fields, [], dpid);
             }
             dp_tables[table_id].data.push(flow);
         });
 
         //console.log(db_tables)
         var $html_code = $('<div></div>');
-        for(var i in dp_tables) {
+        for (var i in dp_tables) {
             var dp_table = dp_tables[i]
             tablesObj.makeRows(dpid, dp_table, headerMapping, cellFormating);
             var $card = tablesObj.buildTableCard(dp_table);
@@ -72,10 +74,10 @@ $(function () {
                 tabsObj.buildTabs("#main", sw_list, "Not flows to show!");
             },
             function (all_flows) {
-                for(var i in all_flows) {
+                for (var i in all_flows) {
                     var sw = Object.keys(all_flows[i])[0] // the first key is the datapath id
                     var flows = all_flows[i][sw]
-                    if(flows.length > 0) {
+                    if (flows.length > 0) {
                         var $html_code = buildFlowTables(sw, flows);
                         tabsObj.buildContent(sw, $html_code);
                     }
@@ -84,9 +86,9 @@ $(function () {
             }
         );
     }
-        
+
     // When the refresh button is clicked, clear the page and start over
-    $("[name='refresh']").on('click', function() {
+    $("[name='refresh']").on('click', function () {
         loadFlows();
     })
 

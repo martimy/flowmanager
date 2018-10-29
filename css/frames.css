@@ -25,6 +25,19 @@
     width: 500px;
 }
 
+.tableframe .header .collapse {
+    float: right;
+    padding: 5px 15px;
+    margin: 5px 0px 5px 5px;
+	background-color: white;
+	border: none;
+	color: var(--tcolor-4);
+	cursor: pointer;
+	border-radius: 4px;
+    /*font-weight: bold;*/
+    width: 50px;
+}
+
 .tableframe .hiddenrow {
     display: none;
 }
@@ -90,3 +103,8 @@
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 /*.show {display:block;}*/
+
+
+/* .collapseble {
+	display: none;
+}  */

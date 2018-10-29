@@ -15,9 +15,14 @@
 $(function() {
     var header = '<thead><tr data-sort="number"> \
     <th data-sort="date">Time</th> \
-    <th data-sort="name">Level</th> \
-    <th data-sort="name">Type</th> \
-    <th data-sort="name">Message</th></tr></thead>';
+    <th data-sort="alphanum">Type</th> \
+    <th data-sort="number">Datapath</th> \
+    <th data-sort="number">Table</th> \
+    <th data-sort="alphanum">Reason</th> \
+    <th data-sort="alphanum">Match</th> \
+    <th data-sort="alphanum">Buffer ID</th> \
+    <th data-sort="number">Cookie</th> \
+    <th data-sort="alphanum">Content</th></tr></thead>';
 
     // Get logs
     function getLogs() {
@@ -30,9 +35,14 @@ $(function() {
                     var row = response[i];
                     body += "<tr>"
                     body += "<td>" + row[0] + "</td>";
-                    body += "<td>" + row[1] + "</td>";
                     body += "<td>" + row[2] + "</td>";
-                    body += "<td class=\"tooltip\"><span>" + row[3] + "</span>" + row[3] + "</td>";
+                    body += "<td>" + row[3] + "</td>";
+                    body += "<td>" + row[4] + "</td>";  
+                    body += "<td>" + row[5] + "</td>";
+                    body += "<td>" + row[6].replace('OFPMatch','') + "</td>";  
+                    body += "<td>" + row[7] + "</td>";                     
+                    body += "<td>" + row[8] + "</td>";                                    
+                    body += "<td class=\"tooltip\"><span>" + row[9] + "</span>" + row[9] + "</td>";
                     body += "</tr>";
                 }
                 body += "</tbody>";

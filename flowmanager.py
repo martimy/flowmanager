@@ -603,25 +603,27 @@ class FlowManager(app_manager.RyuApp):
             reason = 'GROUP DELETE'
         else:
             reason = 'unknown'
-
-        self.logger.info('FlowRemoved\t'
-                         'cookie=%d priority=%d reason=%s table_id=%d '
-                         'duration_sec=%d duration_nsec=%d '
-                         'idle_timeout=%d hard_timeout=%d '
-                         'packet_count=%d byte_count=%d match.fields=%s',
-                         msg.cookie, msg.priority, reason, msg.table_id,
-                         msg.duration_sec, msg.duration_nsec,
-                         msg.idle_timeout, msg.hard_timeout,
-                         msg.packet_count, msg.byte_count, msg.match)
+            
+        # TODO: needs to be of the same format as packet-in
+        # self.logger.info('FlowRemoved\t'
+        #                  'cookie=%d priority=%d reason=%s table_id=%d '
+        #                  'duration_sec=%d duration_nsec=%d '
+        #                  'idle_timeout=%d hard_timeout=%d '
+        #                  'packet_count=%d byte_count=%d match.fields=%s',
+        #                  msg.cookie, msg.priority, reason, msg.table_id,
+        #                  msg.duration_sec, msg.duration_nsec,
+        #                  msg.idle_timeout, msg.hard_timeout,
+        #                  msg.packet_count, msg.byte_count, msg.match)
 
     @set_ev_cls(ofp_event.EventOFPErrorMsg,
                 [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
     def error_msg_handler(self, ev):
         msg = ev.msg
-
-        self.logger.error('ErrorMsg\ttype=0x%02x code=0x%02x '
-                          'message=%s',
-                          msg.type, msg.code, utils.hex_array(msg.data))
+        
+        # TODO: needs to be of the same format as packet-in
+        # self.logger.error('ErrorMsg\ttype=0x%02x code=0x%02x '
+        #                   'message=%s',
+        #                   msg.type, msg.code, utils.hex_array(msg.data))
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
@@ -637,11 +639,8 @@ class FlowManager(app_manager.RyuApp):
         else:
             reason = 'UNKNOWN'
 
-        self.logger.info('PacketIn\t'
-                         'buffer_id=%x total_len=%d reason=%s '
-                         'table_id=%d cookie=%d match=%s summary=%s',
-                         msg.buffer_id, msg.total_len, reason,
-                         msg.table_id, msg.cookie, msg.match,
+        self.logger.info('PacketIn\t%d\t%d\t%s\t%s\t%x\t%d\t%s',
+                         dp.id, msg.table_id, reason, msg.match, msg.buffer_id, msg.cookie,
                          #utils.hex_array(msg.data))
                          self.get_packet_summary(msg.data))
 
