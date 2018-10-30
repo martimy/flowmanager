@@ -56,14 +56,14 @@ $(function () {
         });
 
         //console.log(db_tables)
-        var $html_code = $('<div></div>');
+        var $envelope = $('<div></div>');
         for (var i in dp_tables) {
             var dp_table = dp_tables[i]
             tablesObj.makeRows(dpid, dp_table, headerMapping, cellFormating);
             var $card = tablesObj.buildTableCard(dp_table);
-            $html_code.append($card);
+            $envelope.append($card);
         }
-        return $html_code;
+        return $envelope;
     }
 
     // Get flows data from swicthes
@@ -78,8 +78,8 @@ $(function () {
                     var sw = Object.keys(all_flows[i])[0] // the first key is the datapath id
                     var flows = all_flows[i][sw]
                     if (flows.length > 0) {
-                        var $html_code = buildFlowTables(sw, flows);
-                        tabsObj.buildContent(sw, $html_code);
+                        var $envelope = buildFlowTables(sw, flows);
+                        tabsObj.buildContent(sw, $envelope);
                     }
                 }
                 tabsObj.setActive();

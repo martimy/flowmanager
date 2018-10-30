@@ -603,7 +603,7 @@ class FlowManager(app_manager.RyuApp):
             reason = 'GROUP DELETE'
         else:
             reason = 'unknown'
-            
+
         # TODO: needs to be of the same format as packet-in
         # self.logger.info('FlowRemoved\t'
         #                  'cookie=%d priority=%d reason=%s table_id=%d '
@@ -672,76 +672,3 @@ class FlowManager(app_manager.RyuApp):
             result = self.process_flow_message(item)
 
         return 'Flows deleted successfully!'
-
-
-
-################ retired code
-    def process_flow_upload_old(self, d):
-        """Sends flows to the switch to update flow tables.
-        """
-        switches = {str(t[0]):t[1] for t in self.get_switches()}
-        for item in d:    # for each switch
-            dpid = list(item.keys())[0]
-            if dpid in switches.keys():
-
-                dp = switches[dpid]
-                ofproto = dp.ofproto
-                parser = dp.ofproto_parser
-
-                msg = parser.OFPFlowMod(dp,
-                            table_id=ofproto.OFPTT_ALL,
-                            command=ofproto.OFPFC_DELETE,
-                            out_port=ofproto.OFPP_ANY,
-                            out_group=ofproto.OFPG_ANY)
-
-                dp.send_msg(msg)
-
-                for flowentry in item[dpid]:
-                    del flowentry['byte_count']
-                    del flowentry['duration_sec']
-                    del flowentry['duration_nsec']
-                    del flowentry['packet_count']
-                    del flowentry['length']
-
-
-                    flowentry['datapath'] = dp
-                    flowentry['command'] = ofproto.OFPFC_ADD
-
-                    mf = flowentry["match"]
-
-                    # Quick and ugly fixes
-                    # convert port names to numbers
-                    if "in_port" in mf:
-                        x = mf["in_port"]
-                        mf["in_port"] = self.port_id[x] if x in self.port_id else x
-                    # split address and mask
-                    if "eth_dst" in mf:
-                        if '/' in mf["eth_dst"]: # there is a mask
-                            x = mf["eth_dst"].split('/')
-                            mf["eth_dst"] = (x[0], x[1])
-                    if "eth_src" in mf:
-                        if '/' in mf["eth_src"]: # there is a mask
-                            x = mf["eth_src"].split('/')
-                            mf["eth_src"] = (x[0], x[1])
-
-
-                    flowentry['match'] = parser.OFPMatch(**mf)
-
-                    inst = self._prep_instructions(flowentry['actions'], ofproto, parser)
-                    del flowentry['actions']
-                    if inst:
-                        flowentry['instructions'] = inst
-
-                    try:
-                        msg = parser.OFPFlowMod(**flowentry)
-                    except Exception as e:
-                        return "Value for '{}' is not found!".format(e.message)
-
-                    try:
-                        dp.send_msg(msg)
-                    except KeyError as e:
-                        return e.__repr__()
-                    except Exception as e:
-                        return e.__repr__()
-
-        return "Flows updated successfully."

@@ -81,7 +81,8 @@ function Tables(category) {
         table['rows'] = rows;
 
         // The row's checkbox value will match the header's checkbox value.
-        if (typeof ($checkbox) !== "undefined") {
+        //if (typeof ($checkbox) !== "undefined") {
+        if ($checkbox) {
             $checkbox.change(function () {
                 // Execlude hidden rows
                 //$(this).closest('table').find('tr').not('.hiddenrow').find('.rowbox').prop('checked', this.checked);
@@ -169,20 +170,51 @@ function Tables(category) {
             $container.attr('id', id)
 
             var $menu = getMenu(dp_table);
-            $close = $('<button type="button" class="collapse">Hide</button>');
-            $close.on('click', function () {      
+
+            // Add collapse button
+            $hide = $('<button type="button" class="collapse">Hide</button>');
+            $hide.on('click', function () {
                 $container.slideToggle('fast', function () {
                     $menu.toggle($container.is(':visible'))
                     saveInSession("hidden", id, !$container.is(':visible'));
                 });
             })
-
             if (getFromSession("hidden", id)) {
                 $menu.toggle(false);
                 $container.toggle(false);
             };
 
-            $header.append($close);
+            // Add move button
+            $move = $('<button type="button" class="collapse">Up</button>');
+            $move.on('click', function () {
+                var $prev = $card.prev();
+                console.log($prev)
+                if ($prev.length > 0) {
+                    // if the table card has a previous sibling
+                    // swap with animation.
+                    $prev.animate({
+                        opacity: 0.25,
+                        height: "toggle"
+                    }, 300, function () {
+                        $card.insertBefore($prev);
+                        $prev.animate({
+                            opacity: 1.0,
+                            height: "toggle"
+                        }, 300, function () {
+                            var order_list = [];
+                            $card.parent('div').children().each(function (idx, elem) {
+                                order_list.push($(elem).data('order'));
+                            });
+                            var tab_id = $card.closest('.tab-panel').attr('id');
+                            saveInSession("order", tab_id, order_list);
+                        });
+                    });
+                }
+
+            })
+
+            $header.append($move);
+            $header.append($hide);
             $header.append($menu);
         }
 
@@ -358,8 +390,26 @@ function Tabs(category) {
     }
 
     // Fill tab panel
-    function buildContent(id, element) {
-        $('#tab-' + id).empty().append(element);
+    function buildContent(id, envelope) {
+        envelope.children('.tableframe').each(function (i, v) {
+            $(v).data('order', i);
+        })
+        var order_list = getFromSession('order', 'tab-' + id);
+        if (order_list) {
+            var $cards = envelope.children('.tableframe');
+            if ($cards.length != order_list.length) {
+                // pass, a table added/removed so we cannot use the previous order
+                saveInSession("order", null);
+            } else {
+                //var $clone = envelope.clone().empty(); 
+                for (var i in order_list) {
+                    var $card = $cards.eq(order_list[i]).detach();
+                    envelope.append($card);
+                }
+                //envelope = $clone;
+            }
+        }
+        $('#tab-' + id).empty().append(envelope);
     }
 
     // Set active tab
@@ -368,17 +418,17 @@ function Tabs(category) {
         $('.tab-panel').removeClass('active');
 
         var tab_id = getFromSession('activetab', '');
-        if (tab_id == undefined) {
+        if (tab_id) {   // Active tab has been saved 
+            var $first = $('[data-tab=' + tab_id + ']')
+            $first.addClass('active');
+            $("#" + tab_id).addClass('active');
+        } else {        // No active tab saved
             var $first = $('.tab-control').first();
             //var tab_id = $first.attr('data-tab');
             var tab_id = $first.data('tab');
             $first.addClass('active');
             $("#" + tab_id).addClass('active');
             saveInSession('activetab', '', tab_id);
-        } else {
-            var $first = $('[data-tab=' + tab_id + ']')
-            $first.addClass('active');
-            $("#" + tab_id).addClass('active');
         }
     }
 
@@ -395,11 +445,15 @@ function Tabs(category) {
 function saveInSession(objname, id, value) {
     var page = $(document).find("title").text().replace(' ', '');
     if (objname === 'activetab') {
-        var key = objname + page + id;
-        sessionStorage.setItem(key, value);
+        sessionStorage.setItem(objname + page, value);
     } else if (objname === 'hidden') {
+        if (!sessionStorage.hidden) {
+            sessionStorage.hidden = '';
+        }
         var s = value ? sessionStorage.hidden + id : sessionStorage.hidden.replace(id, '');
         sessionStorage.hidden = s;
+    } else if (objname === 'order') {
+        sessionStorage.setItem(objname + page + id, JSON.stringify(value));
     }
 }
 
@@ -409,11 +463,15 @@ function saveInSession(objname, id, value) {
 function getFromSession(objname, id) {
     var page = $(document).find("title").text().replace(' ', '');
     if (objname === 'activetab') {
-        var key = objname + page + id;
-        return sessionStorage.getItem(key);
+        return sessionStorage.getItem(objname + page);
     } else if (objname === 'hidden') {
         if (sessionStorage.hidden) {
             return sessionStorage.hidden.indexOf(id) > -1
+        }
+    } else if (objname === 'order') {
+        var res = sessionStorage.getItem(objname + page + id);
+        if (res) {
+            return JSON.parse(res);
         }
     }
     return null;
