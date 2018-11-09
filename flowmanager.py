@@ -37,16 +37,20 @@ from ryu.lib.packet import ether_types
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
-import os, sys, logging
+import os
+import sys
+import logging
 from logging.handlers import WatchedFileHandler
 import datetime
 
 
 PYTHON3 = sys.version_info > (3, 0)
 LOG_FILE_NAME = 'flwmgr.log'
+print("You are using Python ", sys.version_info)
+
 
 class FlowManager(app_manager.RyuApp):
-    #OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     _CONTEXTS = {'wsgi': WSGIApplication,
                  'dpset': dpset.DPSet}
@@ -70,7 +74,7 @@ class FlowManager(app_manager.RyuApp):
         self.dpset = kwargs['dpset']
         self.waiters = {}
         self.ofctl = ofctl_v1_3
- 
+
         # Data exchanged with WebApi
         wsgi.register(WebApi,
                       {"webctl": self,
@@ -118,10 +122,10 @@ class FlowManager(app_manager.RyuApp):
         if req == "flows":
             return self.ofctl.get_flow_stats(dp, self.waiters)
         elif req == "groups":
-           return {"desc": self.ofctl.get_group_desc(dp, self.waiters),
-                     "stats": self.ofctl.get_group_stats(dp, self.waiters)}
+            return {"desc": self.ofctl.get_group_desc(dp, self.waiters),
+                    "stats": self.ofctl.get_group_stats(dp, self.waiters)}
         elif req == "meters":
-           return {"desc": self.ofctl.get_meter_config(dp, self.waiters),
+            return {"desc": self.ofctl.get_meter_config(dp, self.waiters),
                     "stats": self.ofctl.get_meter_stats(dp, self.waiters)}
 
     def get_stats_request(self, request, dpid):
@@ -142,7 +146,7 @@ class FlowManager(app_manager.RyuApp):
                     break
                 lst = line.split('\t')
                 items.append(lst)
-                #items.append(line)
+                # items.append(line)
         return items
 
     def get_actions(self, parser, set):
@@ -167,7 +171,7 @@ class FlowManager(app_manager.RyuApp):
         }
 
         for action in set:
-            key = list(action.keys())[0] #There should be only one key
+            key = list(action.keys())[0]  # There should be only one key
             value = action[key]
             if key in aDict:
                 f = aDict[key][0]       # the action
@@ -176,7 +180,7 @@ class FlowManager(app_manager.RyuApp):
                     if aDict[key][1] == 'field':
                         x = value.split('=')
                         val = 0
-                        if len(x)>1:
+                        if len(x) > 1:
                             val = int(x[1]) if x[1].isdigit() else x[1]
                         kwargs = {x[0]: val}
                     elif aDict[key][1] == 'port':
@@ -200,11 +204,12 @@ class FlowManager(app_manager.RyuApp):
 
         for item in actions:
             # Python 2 has both types
-            if type(item) is str or  (not PYTHON3 and type(item) is unicode):
+            if type(item) is str or (not PYTHON3 and type(item) is unicode):
                 if item.startswith('WRITE_METADATA'):
                     metadata = item.split(':')[1].split('/')
                     # expecting hex data
-                    inst += [parser.OFPInstructionWriteMetadata(int(metadata[0], 16), int(metadata[1], 16))]
+                    inst += [parser.OFPInstructionWriteMetadata(
+                        int(metadata[0], 16), int(metadata[1], 16))]
                 elif item.startswith('GOTO_TABLE'):
                     table_id = int(item.split(':')[1])
                     inst += [parser.OFPInstructionGotoTable(table_id)]
@@ -212,12 +217,13 @@ class FlowManager(app_manager.RyuApp):
                     meter_id = int(item.split(':')[1])
                     inst += [parser.OFPInstructionMeter(meter_id)]
                 elif item.startswith('CLEAR_ACTIONS'):
-                    inst += [parser.OFPInstructionActions(ofproto.OFPIT_CLEAR_ACTIONS, [])]
+                    inst += [parser.OFPInstructionActions(
+                        ofproto.OFPIT_CLEAR_ACTIONS, [])]
                 else:  # Apply Actions
                     action = item.split(':')
                     apply_actions += [{action[0]: action[1]}]
 
-            elif type(item) is dict: # WRITE ACTIONS
+            elif type(item) is dict:  # WRITE ACTIONS
                 wractions = item["WRITE_ACTIONS"]
                 for witem in wractions:
                     action = witem.split(':')
@@ -270,13 +276,13 @@ class FlowManager(app_manager.RyuApp):
         # convert masks to tuples
         for f in mf:
             mask_pos = str(mf[f]).find('/')
-            if mask_pos >=0:
+            if mask_pos >= 0:
                 parts = mf[f].split('/')
                 mf[f] = (parts[0], parts[1])
             if str(mf[f]).startswith('0x'):
-                mf[f] = int(mf[f],16)
+                mf[f] = int(mf[f], 16)
 
-        msg_kwargs['match'] =  parser.OFPMatch(**mf) if mf else None
+        msg_kwargs['match'] = parser.OFPMatch(**mf) if mf else None
 
         msg_kwargs['hard_timeout'] = d.get('hard_timeout', 0)
         msg_kwargs['idle_timeout'] = d.get('idle_timeout', 0)
@@ -288,7 +294,7 @@ class FlowManager(app_manager.RyuApp):
 
         # instructions
         inst = []
-        if "actions" in d: # Ryu's format
+        if "actions" in d:  # Ryu's format
             inst = self._get_instructions(d['actions'], ofproto, parser)
         else:              # FlowManager's format
             # Goto meter
@@ -307,8 +313,8 @@ class FlowManager(app_manager.RyuApp):
             if ("write" in d) and d["write"]:
                 # bc actions must be unique they are in dict
                 # from dict to list
-                toList = [{k:d["write"][k]} for k in d["write"]]
-                #print(toList)
+                toList = [{k: d["write"][k]} for k in d["write"]]
+                # print(toList)
                 writeActions = self.get_actions(parser, toList)
                 inst += [parser.OFPInstructionActions(
                     ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
@@ -373,7 +379,7 @@ class FlowManager(app_manager.RyuApp):
         group_id = d["group_id"]
 
         buckets = []
-        for bucket in  d["buckets"]:
+        for bucket in d["buckets"]:
             weight = bucket.get('weight', 0)
             watch_port = bucket.get('watch_port', ofproto.OFPP_ANY)
             watch_group = bucket.get('watch_group', dp.ofproto.OFPG_ANY)
@@ -385,8 +391,10 @@ class FlowManager(app_manager.RyuApp):
                     # Ryu's format
                     for i in bucket['actions']:
                         x = i.split(':', 1)
-                        y = x[1].replace('{', '').replace('}','').strip() if len(x) > 1 else ''
-                        y =  y.replace(':','=', 1) if x[0] == 'SET_FIELD' else y
+                        y = x[1].replace('{', '').replace(
+                            '}', '').strip() if len(x) > 1 else ''
+                        y = y.replace(
+                            ':', '=', 1) if x[0] == 'SET_FIELD' else y
                         actions_list.append({x[0]: y})
                 else:  # FlowManager's format
                     actions_list = bucket['actions']
@@ -429,7 +437,7 @@ class FlowManager(app_manager.RyuApp):
 
         flags = 0
         bands = []
-        if "flags" in d: # Ryu's format
+        if "flags" in d:  # Ryu's format
             print(d['flags'])
             for f in d['flags']:
                 flags += 0x01 if f == 'KBPS' else 0
@@ -437,13 +445,13 @@ class FlowManager(app_manager.RyuApp):
                 flags += 0x04 if f == 'BURST' else 0
                 flags += 0x08 if f == 'STATS' else 0
 
-            for band in  d["bands"]:
+            for band in d["bands"]:
                 if band['type'] == 'DROP':
                     bands += [parser.OFPMeterBandDrop(rate=band['rate'],
-                        burst_size=band['burst_size'])]
+                                                      burst_size=band['burst_size'])]
                 elif band['type'] == 'DSCP_REMARK':
                     bands += [parser.OFPMeterBandDscpRemark(rate=band['rate'],
-                        burst_size=band['burst_size'], prec_level=band['prec_level'])]
+                                                            burst_size=band['burst_size'], prec_level=band['prec_level'])]
 
         else:           # FlowManager's format
             flags += 0x01 if d['OFPMF_KBPS'] else 0
@@ -454,14 +462,14 @@ class FlowManager(app_manager.RyuApp):
             # Flags must have KBPS or PKTPS
             flags = flags if (flags & 0x03) else (flags | 0x01)
 
-            for band in  d["bands"]:
+            for band in d["bands"]:
                 #mtype = type_convert.get(band[0])
                 if band[0] == 'DROP':
                     bands += [parser.OFPMeterBandDrop(rate=band[1],
-                        burst_size=band[2])]
+                                                      burst_size=band[2])]
                 elif band[0] == 'DSCP_REMARK':
                     bands += [parser.OFPMeterBandDscpRemark(rate=band[1],
-                        burst_size=band[2], prec_level=band[3])]
+                                                            burst_size=band[2], prec_level=band[3])]
 
         # TODO: catch some errors
         meter_mod = parser.OFPMeterMod(dp, cmd, flags, meter_id, bands)
@@ -619,7 +627,7 @@ class FlowManager(app_manager.RyuApp):
                 [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
     def error_msg_handler(self, ev):
         msg = ev.msg
-        
+
         # TODO: needs to be of the same format as packet-in
         # self.logger.error('ErrorMsg\ttype=0x%02x code=0x%02x '
         #                   'message=%s',
@@ -640,9 +648,10 @@ class FlowManager(app_manager.RyuApp):
             reason = 'UNKNOWN'
 
         self.logger.info('PacketIn\t%d\t%d\t%s\t%s\t%x\t%d\t%s',
-                         dp.id, msg.table_id, reason, msg.match, msg.buffer_id, msg.cookie,
-                         #utils.hex_array(msg.data))
-                         self.get_packet_summary(msg.data))
+                            dp.id, msg.table_id, reason, msg.match, msg.buffer_id, msg.cookie,
+                            # utils.hex_array(msg.data))
+                            self.get_packet_summary(msg.data))
+
 
     # @set_ev_cls(event.EventSwitchEnter)
     def get_topology_data(self):
@@ -657,14 +666,13 @@ class FlowManager(app_manager.RyuApp):
         # To remove hosts that are not removed by controller
         ports = []
         for switch in switch_list:
-           ports += switch.ports
+            ports += switch.ports
         port_macs = [p.hw_addr for p in ports]
         n_host_list = [h for h in host_list if h.port.hw_addr in port_macs]
 
         hosts = [h.to_dict() for h in n_host_list]
 
-        return {"switches": switches, "links":links, "hosts": hosts}
-
+        return {"switches": switches, "links": links, "hosts": hosts}
 
     def delete_flow_list(self, flowlist):
         for item in flowlist:

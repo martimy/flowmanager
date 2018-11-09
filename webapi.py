@@ -15,12 +15,13 @@
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
-import os, sys
+import os
+import sys
 import mimetypes
 import time
 
 PYTHON3 = sys.version_info > (3, 0)
-LOG_FILE_NAME = 'flwmgr.log'
+
 
 class WebApi(ControllerBase):
     def __init__(self, req, link, data, **config):
