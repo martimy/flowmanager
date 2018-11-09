@@ -15,10 +15,12 @@
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
-import os
+import os, sys
 import mimetypes
 import time
 
+PYTHON3 = sys.version_info > (3, 0)
+LOG_FILE_NAME = 'flwmgr.log'
 
 class WebApi(ControllerBase):
     def __init__(self, req, link, data, **config):
@@ -79,7 +81,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.process_meter_message(req.json)
-            res.text = unicode(s, "utf-8")
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -90,7 +92,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.process_group_message(req.json)
-            res.text = unicode(s, "utf-8")
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -101,7 +103,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.process_flow_message(req.json)
-            res.text = unicode(s, "utf-8")
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -119,7 +121,7 @@ class WebApi(ControllerBase):
             fm = self.api.process_flow_upload(flows) if flows else ''
             res = Response()
             s = "{}, {}, {}".format(rm, gm, fm)
-            res.text = unicode(s, "utf-8")
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
             return res
 
         return Response(status=400)  # bad request
@@ -131,7 +133,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.delete_flow_list(req.json)
-            res.text = unicode(s, "utf-8")
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -183,7 +185,3 @@ class WebApi(ControllerBase):
     #     return res
 
     # messages = ["Hello,", "how", "are", "you?"]
-
-
-import sys
-print("You are running Python version %s" % sys.version)
