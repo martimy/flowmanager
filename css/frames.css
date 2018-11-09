@@ -23,20 +23,9 @@
 .tableframe .header h1 {
     display: inline-block;
     width: 500px;
+    margin-left: 25px;
 }
 
-.tableframe .header .collapse {
-    float: right;
-    padding: 5px 15px;
-    margin: 5px 0px 5px 5px;
-	background-color: white;
-	border: none;
-	color: var(--tcolor-4);
-	cursor: pointer;
-	border-radius: 4px;
-    /*font-weight: bold;*/
-    width: 50px;
-}
 
 .tableframe .hiddenrow {
     display: none;
@@ -44,6 +33,14 @@
 
 .header .alert {
     color: red;
+}
+
+.tableframe .header .tablebtn {
+	padding: 5px 0px;
+    margin: 5px 5px 5px 0px;
+    border: none;
+    background-color: inherit;
+    cursor: pointer;
 }
 
 /************ Dropdown menu for tables *********/
@@ -54,6 +51,14 @@
 }
 
 .dropdown button {
+	padding: 5px 0px;
+    margin: 5px 0px;
+    border: none;
+    background: inherit;
+	cursor: pointer;
+}
+
+/*.dropdown button {
 	padding: 5px 15px;
     margin: 5px 0px;
 	background-color: var(--tcolor-2);
@@ -61,25 +66,27 @@
 	color: var(--tcolor-4);
 	cursor: pointer;
 	border-radius: 4px;
-    /*font-weight: bold;*/
     width: 80px;
-}
+}*/
 
+/*
 .dropdown button:hover {
     background-color: var(--tcolor-0);
     color: white;
-}
+}*/
 
 /* Dropdown Content (Hidden by Default) */
 .dropdown-content {
     display: none;
     position: absolute;
-	background-color: var(--tcolor-2);
     min-width: 80px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
-    right: 0;
+    right: -15px;
+    top: 30px;
     border-radius: 4px;
+    border: 2px solid var(--tcolor-4);
+    background-color: white;
 }
 
 /* Links inside the dropdown */
@@ -93,7 +100,7 @@
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {
     background-color: var(--tcolor-0);
-    border-radius: 4px;
+    border-radius: 2px;
     color: white;
 }
 
@@ -101,10 +108,73 @@
     display: block;
 }
 
-/* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
-/*.show {display:block;}*/
+/* Dropdown Content (Hidden by Default) 
+.dropdown-content {
+    display: none;
+    position: absolute;
+	background-color: var(--tcolor-2);
+    min-width: 80px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    right: 0;
+    border-radius: 4px;
+}
 
+/* Links inside the dropdown 
+.dropdown-content a {
+    color: var(--tcolor-4);
+    padding: 5px 15px;
+    text-decoration: none;
+    display: block;
+}
 
-/* .collapseble {
-	display: none;
-}  */
+/* Change color of dropdown links on hover 
+.dropdown-content a:hover {
+    background-color: var(--tcolor-0);
+    border-radius: 4px;
+    color: white;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+*/
+
+/******************** icons ***********/
+.icon {
+    background: url('../img/all_icons.svg') no-repeat;
+}
+
+.icon-menu {
+    width: 16px; /* Icon width */
+    height: 16px; /* Icon height */
+    display: inline-block; /* Display icon as inline block */
+    background-position: -16px 0px; /* Icon background position in sprite */
+
+}
+
+.icon-move {
+    width: 16px; /* Icon width */
+    height: 16px; /* Icon height */
+    display: inline-block; /* Display icon as inline block */
+    background-position: 0px 0px; /* Icon background position in sprite */
+
+}
+
+.icon-minimize {
+    width: 16px; /* Icon width */
+    height: 16px; /* Icon height */
+    display: inline-block; /* Display icon as inline block */
+    background-position: -32px 0px; /* Icon background position in sprite */
+}
+
+.icon-maximize {
+    width: 16px; /* Icon width */
+    height: 16px; /* Icon height */
+    display: inline-block; /* Display icon as inline block */
+    background-position: -48px 0px; /* Icon background position in sprite */
+}
+
+.active-tab{
+    content: url('../img/all_icons.svg');
+}

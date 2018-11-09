@@ -49,19 +49,41 @@
 	float: right;
 	margin: 18px 24px 0 0;
 	padding: 5px 15px;
-	min-width: 90px;
+	/*min-width: 90px;*/
 	background-color: var(--tcolor-2);
 	border: none;
 	color: var(--white);
 	cursor: pointer;
 	border-radius: 4px;
 	font-weight: bold;
-  }
+}
 
 #header .refresh:hover {
 	background-color: var(--tcolor-0);
 }
 
+#header .reficon {
+	float: right;
+	margin: 18px 24px 0 0;
+	padding: 5px 5px;
+	background-color: var(--tcolor-2);
+	border: none;
+	color: var(--white);
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+#header .reficon:hover {
+	background-color: var(--tcolor-0);
+}
+
+#header i {
+	color: white;
+}
+
+#header i:hover {
+	cursor: pointer;
+}
 
 .frontleft,.frontright {
 	display: block;
@@ -149,13 +171,6 @@
 	width: 1130px;
 }
 
-i {
-	color: red;
-}
-
-i:hover {
-	cursor: pointer;
-}
 
 /****************************************************************************/
 /*                            Snack Bar                                     */

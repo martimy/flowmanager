@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#import json
-import os
-import mimetypes
-#import requests
-#import datetime as dt
-#import sys
-import time
-
-# from ryu.base import app_manager
 from ryu.app.wsgi import ControllerBase
-# from ryu.app.wsgi import WSGIApplication
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
-
-# ref: https://tools.itef.org/doc/python-routes/html
+import os
+import mimetypes
+import time
 
 
 class WebApi(ControllerBase):
@@ -52,16 +43,16 @@ class WebApi(ControllerBase):
             res = Response(content_type="application/json")
             res.json = self.api.get_stats(req.GET['status'], req.GET['dpid'])
             return res
-        return Response(status=404) # Resource does not exist
+        return Response(status=404)  # Resource does not exist
 
     @route('monitor', '/data', methods=['GET'])
     def get_switch_data(self, req, **_kwargs):
         """Get switch data
         """
-        if req.GET: # is this if needed?
-            lst = {} # the server always returns somthing??
+        if req.GET:  # is this if needed?
+            lst = {}  # the server always returns somthing??
             if req.GET.get("list") == "switches":
-                lst = {t[0]:t[0] for t in self.api.get_switches()}
+                lst = {t[0]: t[0] for t in self.api.get_switches()}
             else:
                 request = list(req.GET.keys())[0]
                 dpid = int(req.GET[request])
@@ -87,7 +78,8 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.body = self.api.process_meter_message(req.json)
+            s = self.api.process_meter_message(req.json)
+            res.text = unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -97,7 +89,8 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.body = self.api.process_group_message(req.json)
+            s = self.api.process_group_message(req.json)
+            res.text = unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -107,7 +100,8 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.body = self.api.process_flow_message(req.json)
+            s = self.api.process_flow_message(req.json)
+            res.text = unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -124,7 +118,8 @@ class WebApi(ControllerBase):
             gm = self.api.process_group_upload(groups) if groups else ''
             fm = self.api.process_flow_upload(flows) if flows else ''
             res = Response()
-            res.body = "{}, {}, {}".format(rm, gm, fm)
+            s = "{}, {}, {}".format(rm, gm, fm)
+            res.text = unicode(s, "utf-8")
             return res
 
         return Response(status=400)  # bad request
@@ -135,7 +130,8 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.body = self.api.delete_flow_list(req.json)
+            s = self.api.delete_flow_list(req.json)
+            res.text = unicode(s, "utf-8")
             return res
         return Response(status=400)  # bad request
 
@@ -187,3 +183,7 @@ class WebApi(ControllerBase):
     #     return res
 
     # messages = ["Hello,", "how", "are", "you?"]
+
+
+import sys
+print("You are running Python version %s" % sys.version)

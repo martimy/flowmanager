@@ -172,20 +172,27 @@ function Tables(category) {
             var $menu = getMenu(dp_table);
 
             // Add collapse button
-            $hide = $('<button type="button" class="collapse">Hide</button>');
+            $hide = $('<button type="button" class="tablebtn"></button>');
+            $icon = $('<span class="icon icon-minimize"></span>');
+            //$icon = $('<a href="#0" class="icon icon-minimize"></a>)');
+            $hide.append($icon);
             $hide.on('click', function () {
+                $icon.toggleClass("icon-minimize icon-maximize");
                 $container.slideToggle('fast', function () {
                     $menu.toggle($container.is(':visible'))
                     saveInSession("hidden", id, !$container.is(':visible'));
                 });
+                console.log($icon)
+
             })
             if (getFromSession("hidden", id)) {
                 $menu.toggle(false);
                 $container.toggle(false);
+                $icon.toggleClass("icon-minimize icon-maximize");
             };
 
             // Add move button
-            $move = $('<button type="button" class="collapse">Up</button>');
+            $move = $('<button type="button" class="tablebtn"><i class="icon icon-move"></i></button>');
             $move.on('click', function () {
                 var $prev = $card.prev();
                 console.log($prev)
@@ -213,8 +220,8 @@ function Tables(category) {
 
             })
 
-            $header.append($move);
-            $header.append($hide);
+            $header.prepend($move);
+            $header.prepend($hide);
             $header.append($menu);
         }
 
@@ -315,7 +322,7 @@ function Tables(category) {
     function getMenu(dp_table) {
 
         var $menu = $('<div></div>').addClass("dropdown");
-        var $button = $('<button>Options</button>');
+        var $button = $('<button><i class="icon icon-menu"></i></button>');
         //$button.html('Options');
 
         var $list = $('<div></div>').addClass("dropdown-content");
