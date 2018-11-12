@@ -289,8 +289,11 @@ class FlowManager(app_manager.RyuApp):
         msg_kwargs['priority'] = d.get('priority', 0)
         msg_kwargs['cookie'] = d.get('cookie', 0)
         msg_kwargs['cookie_mask'] = d.get('cookie_mask', 0)
-        msg_kwargs['out_port'] = d.get('out_port', ofproto.OFPP_ANY)
-        msg_kwargs['out_group'] = d.get('out_group', ofproto.OFPG_ANY)
+        op = d.get('out_port', -1) #make it 0
+        og = d.get('out_group', -1)
+        msg_kwargs['out_port'] = ofproto.OFPP_ANY if op <= 0 else op
+        msg_kwargs['out_group'] = ofproto.OFPG_ANY if og <= 0 else og
+        
 
         # instructions
         inst = []
@@ -346,6 +349,7 @@ class FlowManager(app_manager.RyuApp):
         except KeyError as e:
             return "Unrecognized field " + e.__repr__()
         except Exception as e:
+            print(msg)
             return "Error " + e.__repr__()
 
         return "Message sent successfully."
