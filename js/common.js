@@ -1,9 +1,9 @@
 // Copyright (c) 2018 Maen Artimy
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
@@ -30,7 +30,7 @@ function Tables(category) {
         var cols = [];
         var $col = $('<tr></tr>');
 
-        // The rows in flow tables have checkboxes 
+        // The rows in flow tables have checkboxes
         if (category === 'flow') {
             var $checkbox = $('<input type="checkbox" class="checkall"/>');
             var $checktr = $('<th></th>').attr('data-sort', "nosort");
@@ -115,7 +115,7 @@ function Tables(category) {
     // Attach event listener for rows
     // function eventListener(row) {
     //     $(row.$row).unbind('click');
-    //     $(row.$row).on('click', function(e) { 
+    //     $(row.$row).on('click', function(e) {
     //         e.preventDefault();
     //         sessionStorage.setItem(category, JSON.stringify(row.dataitem));
     //         var msg = "Table entry copied to session storage.";
@@ -147,7 +147,7 @@ function Tables(category) {
     }
 
     /**
-     * Build the card surrounding the table. The card 
+     * Build the card surrounding the table. The card
      * may have additional data, such as caption and stats
      */
     function buildTableCard(dp_table) {
@@ -165,7 +165,7 @@ function Tables(category) {
 
         // Apply only to flow tables
         if (dp_table.type === "flows") {
-            var dpid = dp_table.extra;      // Flow tables have dpid in the extra field 
+            var dpid = dp_table.extra;      // Flow tables have dpid in the extra field
             var id = 'C' + dpid + '-' + dp_table.table_id;
             $container.attr('id', id)
 
@@ -317,7 +317,7 @@ function Tables(category) {
 
     /**
      * Build the table's options menu
-     * @param {*} dp_table 
+     * @param {*} dp_table
      */
     function getMenu(dp_table) {
 
@@ -354,16 +354,18 @@ function Tabs(category) {
 
     // Create the tab structure
     function htmlCode(tab_labels, msg) {
+        var keys = Object.keys(tab_labels).sort();
         // Add tab buttons
         var tabs = '<ul class="tab-list">';
-        for (var d in tab_labels) {
+        for (var idx in keys) {
+            var d = keys[idx];
             var label = category === 'switches' ? 'SW_' + tab_labels[d] : tab_labels[d];
             tabs += '<li class="tab-control" data-tab="tab-' + tab_labels[d] + '">' + label + '</li>';
         }
         tabs += '</ul>';
 
-        for (var s in tab_labels) {
-            //var message = "contenet...";
+        for (var idx in keys) {
+            var s = keys[idx]
             tabs += '<div class="tab-panel" id="tab-' + tab_labels[s] + '"><h1>' + msg + '</h1></div>';
         }
         return tabs;
@@ -408,7 +410,7 @@ function Tabs(category) {
                 // pass, a table added/removed so we cannot use the previous order
                 saveInSession("order", null);
             } else {
-                //var $clone = envelope.clone().empty(); 
+                //var $clone = envelope.clone().empty();
                 for (var i in order_list) {
                     var $card = $cards.eq(order_list[i]).detach();
                     envelope.append($card);
@@ -425,7 +427,7 @@ function Tabs(category) {
         $('.tab-panel').removeClass('active');
 
         var tab_id = getFromSession('activetab', '');
-        if (tab_id) {   // Active tab has been saved 
+        if (tab_id) {   // Active tab has been saved
             var $first = $('[data-tab=' + tab_id + ']')
             $first.addClass('active');
             $("#" + tab_id).addClass('active');
@@ -505,7 +507,7 @@ function downloadFile(filename, data) {
 
 /**
  * A Datapath Table Object.
- * 
+ *
  */
 function DPTable(id, type, label, fields, data, extra) {
     this.table_id = id;
@@ -560,7 +562,7 @@ function getSwitchData(request, f, g) {
                 )
             }
 
-            // Wait for all switches to reply 
+            // Wait for all switches to reply
             $.when.apply(this, lst).then(function () {
                 // Process the flows
                 g(all_data);
