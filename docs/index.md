@@ -1,7 +1,5 @@
-# FlowManager
-
-## Introduction
-Welcome to the FlowManager wiki!
+# Introduction
+Welcome to the FlowManager documentation.
 
 Here are some quick notes about using the app:
 * The home page shows general information about the active switches in the topology. More details will be added.
@@ -16,5 +14,12 @@ Here are some quick notes about using the app:
 ## Components
 ![Components](http://adhocnode.com/wp-content/uploads/2018/06/FlowManager.png)
 
-## Recommended Usage
+## Recommended Environment
 This application is recommended for use in a lab environment similar to the one described in this [post](http://adhocnode.com/building-openflow-lab/).
+
+## Applications
+The FlowManager has many applications including the following:
+
+* [Implementing a Hub](Implementing-a-Hub.md)
+* [Implementing a Switch](Implementing-a-L2-Switch.md)
+* [Port Mirroring](Port-mirroring.md)
