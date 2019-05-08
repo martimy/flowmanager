@@ -138,6 +138,17 @@ class WebApi(ControllerBase):
             return res
         return Response(status=400)  # bad request
 
+    @route('monitor', '/flowmonitor', methods=['POST'])
+    def post_flow_monitor(self, req, **_kwargs):
+        """Receive flows monitor request
+        """
+        if req.POST:
+            res = Response()
+            s = self.api.monitor_flow_list(req.json)
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            return res
+        return Response(status=400)  # bad request
+
     @route('monitor', '/logs', methods=['GET'])
     def get_logs(self, req, **_kwargs):
         """Get log mesages

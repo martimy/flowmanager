@@ -258,6 +258,7 @@ function Tables(category) {
      */
     function setMenuEvents($list, dp_table) {
 
+        // Hide a row
         $list.on('click', 'a[href=hide]', function (e) {
             e.preventDefault();
             var selected = getSelectedRows(dp_table);
@@ -269,6 +270,7 @@ function Tables(category) {
             }
         });
 
+        // Unhide all hidden rows
         $list.on('click', 'a[href=unhide]', function (e) {
             e.preventDefault();
             dp_table.rows.forEach(function (row) {
@@ -277,6 +279,9 @@ function Tables(category) {
             $(this).closest('.header').find('.alert').empty();
         });
 
+        // Delete a row.
+        // Sends a request to delete flows and hides the rows until table is refreshed.
+        // The drawback is that the entry will be hiddeneven if delete is not successful.
         $list.on('click', 'a[href=delete]', function (e) {
             e.preventDefault();
             var selected = getSelectedRows(dp_table);
@@ -299,6 +304,30 @@ function Tables(category) {
             }
         });
 
+        // Sends a request to monitor flows.
+        $list.on('click', 'a[href=monitor]', function (e) {
+            e.preventDefault();
+            var selected = getSelectedRows(dp_table);
+            var flows = [];
+            selected.forEach(function (row) {
+                flows.push(row.dataitem)
+            });
+            if (flows.length > 0) {
+                $.post("/flowmonitor", JSON.stringify(flows))
+                    .done(function (response) {
+                        displayMessage(response);
+                        selected.forEach(function (row) {
+                            row.$row.addClass("monitorrow"); //temp
+                        })
+                    })
+                    .fail(function () {
+                        var msg = "No response from controller.";
+                        displayMessage(msg);
+                    })
+            }
+        });
+
+        // Saves the row to session storage
         $list.on('click', 'a[href=edit]', function (e) {
             e.preventDefault();
             var selected = getSelectedRows(dp_table);
@@ -329,6 +358,7 @@ function Tables(category) {
         $list.html('<a href="delete">Delete</a> \
             <a href="edit" disabled>Edit</a> \
             <a href="hide">Hide</a> \
+            <a href="monitor">Monitor</a> \
             <a href="unhide">Unhide</a>');
 
         setMenuEvents($list, dp_table);

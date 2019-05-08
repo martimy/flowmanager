@@ -25,6 +25,7 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
 from ryu.lib import ofctl_utils
+from ryu.lib import pcaplib
 from ryu import utils
 
 # for packet content
@@ -66,6 +67,7 @@ class FlowManager(app_manager.RyuApp):
         "ANY": 0xffffffff
     }
 
+    MAGIC_COOKIE = 0x7ab7000000000000
     logname = 'flwmgr'
 
     def __init__(self, *args, **kwargs):
@@ -245,7 +247,7 @@ class FlowManager(app_manager.RyuApp):
         dpid = int(d.get("dpid", 0))
         dp = self.dpset.get(dpid)
         if not dp:
-            return "Datapatch does not exist!"
+            return "Datapath does not exist!"
 
         ofproto = dp.ofproto
         parser = dp.ofproto_parser
@@ -289,11 +291,10 @@ class FlowManager(app_manager.RyuApp):
         msg_kwargs['priority'] = d.get('priority', 0)
         msg_kwargs['cookie'] = d.get('cookie', 0)
         msg_kwargs['cookie_mask'] = d.get('cookie_mask', 0)
-        op = d.get('out_port', -1) #make it 0
+        op = d.get('out_port', -1)  # make it 0
         og = d.get('out_group', -1)
         msg_kwargs['out_port'] = ofproto.OFPP_ANY if op <= 0 else op
         msg_kwargs['out_group'] = ofproto.OFPG_ANY if og <= 0 else og
-        
 
         # instructions
         inst = []
@@ -642,22 +643,26 @@ class FlowManager(app_manager.RyuApp):
         msg = ev.msg
         dp = msg.datapath
         ofp = dp.ofproto
-        if msg.reason == ofp.OFPR_NO_MATCH:
-            reason = 'NO MATCH'
-        elif msg.reason == ofp.OFPR_ACTION:
-            reason = 'ACTION'
-        elif msg.reason == ofp.OFPR_INVALID_TTL:
-            reason = 'INVALID TTL'
-        else:
-            reason = 'UNKNOWN'
 
-        self.logger.info('PacketIn\t%d\t%d\t%s\t%s\t%x\t%d\t%s',
-                            dp.id, msg.table_id, reason, msg.match, msg.buffer_id, msg.cookie,
-                            # utils.hex_array(msg.data))
-                            self.get_packet_summary(msg.data))
+        reason_msg = {ofp.OFPR_NO_MATCH: "NO MATCH",
+                      ofp.OFPR_ACTION: "ACTION",
+                      ofp.OFPR_INVALID_TTL: "INVALID TTL"
+                      }
+        reason = reason_msg.get(msg.reason, 'UNKNOWN')
 
+        self.logger.debug('PacketIn\t%d\t%d\t%s\t%s\t%x\t%d\t%s',
+                          dp.id, msg.table_id, reason, msg.match, msg.buffer_id, msg.cookie,
+                          # utils.hex_array(msg.data))
+                          self.get_packet_summary(msg.data))
+
+        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+            fileObj = open("fm_"+str(msg.cookie)+".pcap", 'ab+')
+            writer = pcaplib.Writer(fileObj)
+            writer.write_pkt(msg.data)
+            fileObj.close()
 
     # @set_ev_cls(event.EventSwitchEnter)
+
     def get_topology_data(self):
         """Get Topology Data
         """
@@ -684,3 +689,19 @@ class FlowManager(app_manager.RyuApp):
             result = self.process_flow_message(item)
 
         return 'Flows deleted successfully!'
+
+    def monitor_flow_list(self, flowlist):
+        # Here we need to update the flow entries by adding a magic cookie
+        # and adding Apply Action: "OUTPUT:CONTROLLER" to the instructions
+
+        for item in flowlist:
+            item['operation'] = 'add'
+            item['cookie'] |= self.MAGIC_COOKIE
+            item['priority'] += 1
+            item['idle_timeout'] = 0
+            item['hard_timeout'] = 0
+            if("OUTPUT:CONTROLLER" not in item['actions']):
+                item['actions'] += ["OUTPUT:CONTROLLER"]
+            result = self.process_flow_message(item)
+
+        return 'Flows are monitored!'
