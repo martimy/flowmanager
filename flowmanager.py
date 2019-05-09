@@ -47,7 +47,7 @@ import datetime
 
 PYTHON3 = sys.version_info > (3, 0)
 LOG_FILE_NAME = 'flwmgr.log'
-print("You are using Python ", sys.version_info)
+print("You are using Python v" + '.'.join(map(str,sys.version_info)))
 
 
 class FlowManager(app_manager.RyuApp):
@@ -75,6 +75,8 @@ class FlowManager(app_manager.RyuApp):
         wsgi = kwargs['wsgi']
         self.dpset = kwargs['dpset']
         self.waiters = {}
+        self.pcap_writers = {}
+        self.writer = None
         self.ofctl = ofctl_v1_3
 
         # Data exchanged with WebApi
@@ -656,10 +658,11 @@ class FlowManager(app_manager.RyuApp):
                           self.get_packet_summary(msg.data))
 
         if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
-            fileObj = open("fm_"+str(msg.cookie)+".pcap", 'ab+')
-            writer = pcaplib.Writer(fileObj)
-            writer.write_pkt(msg.data)
-            fileObj.close()
+            if not self.writer:
+                aFile = open("fm_fixed.pcap", 'wb')
+                self.writer = Writer2(aFile)
+            self.writer.write_pkt(msg.data)
+
 
     # @set_ev_cls(event.EventSwitchEnter)
 
@@ -705,3 +708,12 @@ class FlowManager(app_manager.RyuApp):
             result = self.process_flow_message(item)
 
         return 'Flows are monitored!'
+
+class Writer2(pcaplib.Writer):
+
+    def __init__(self, file_obj, snaplen=65535, network=1):
+        super(Writer2, self).__init__(file_obj, snaplen=snaplen, network=network)
+
+    def write_pkt(self, buf, ts=None):
+        super(Writer2, self).write_pkt(buf, ts=ts)
+        self._f.flush()

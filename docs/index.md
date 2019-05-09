@@ -14,11 +14,14 @@ Here are some quick notes about using the app:
 ## Components
 ![Components](http://adhocnode.com/wp-content/uploads/2018/06/FlowManager.png)
 
-## Recommended Environment
-This application is recommended for use in a lab environment similar to the one described in this [post](http://adhocnode.com/building-openflow-lab/).
+## Recommended Environments
+This application is recommended for use in a lab environment similar to the following:
+
+- [Creating an SDN testbed](Testbed.md) by Diarmuid O Briain
+- [Building an OpenFlow Lab](http://adhocnode.com/building-openflow-lab/) by Maen Artimy.
 
 ## Applications
-The FlowManager has many applications including the following:
+The FlowManager can be used for many applications including the following:
 
 * [Implementing a Hub](Implementing-a-Hub.md)
 * [Implementing a Switch](Implementing-a-L2-Switch.md)
