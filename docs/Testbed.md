@@ -1,5 +1,5 @@
 
-# Creating a SDN testbed
+# Creating an SDN testbed
 ***Based on [RYU SDN Testbed Manual Version 1.6](http://www.obriain.com/training/sdn/RYU_Soft_Testbed_v1.6_odt.pdf) by Diarmuid O Briain*** 
 
 Here is how you can create an SDN testbed using Mininet, Ryu controller, and FlowManager in a Linux (Ubuntu 18.04) machine.
@@ -111,7 +111,7 @@ ryu@ryu-mn:~$ sudo ovs-ofctl --protocols OpenFlow13 dump-flows s1
 
 If you have wireshark running pointed to 127.0.0.1 you should see something like this
 
-@import "image.png"
+![](image.png)
 
 Now quit mininet and cleanup
 
