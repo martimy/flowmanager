@@ -128,6 +128,9 @@ s1
 h1 h2 h3 h4
 *** Done
 completed in 6.658 seconds
+```
+
+```
 ryu@ryu-mn:~$ sudo mn --clean
 *** Removing excess controllers/ofprotocols/ofdatapaths/pings/noxes
 killall controller ofprotocol ofdatapath ping nox_corelt-nox_core ovs-openflowd ovs-controllerovs-testcontroller udpbwtest mnexec ivs ryu-manager 2> /dev/null
