@@ -1,27 +1,51 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <html>
+
 <head>
 	<title>Messages</title>
 	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
 	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
 	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
 	<link rel="stylesheet" type="text/css" href="css\table.css?v3">
+	<link rel="stylesheet" type="text/css" href="css\tabs.css?v1">		
 	<script src="js\jquery-3.3.1.min.js"></script>
+	<script src="js/d3/d3.min.js"></script>
+
+	<style>
+
+		.node circle {
+		  fill: #fff;
+		  stroke: steelblue;
+		  stroke-width: 3px;
+		}
+	
+		.node text { font: 12px sans-serif; }
+	
+		.link {
+		  fill: none;
+		  stroke: #ccc;
+		  stroke-width: 2px;
+		}
+		
+		</style>
+
 </head>
+
 <body>
-<div class="container_16">
-<div id="header" class="grid_16">
-	<h1>Messages</h1>
-	<button type="button" class="refresh">Refresh</button>
-</div>
-<div id="menu" class="grid_2"></div>
-<div id="main" class="grid_14"></div>
-<!--div id="footer" class="grid_16">Footer</div-->
-</div>
-</div>
-<script src="js\mainmenu.js"></script>
-<script src="js\messages.js"></script>
-<script src="js\common.js?v2"></script>
+	<div class="container_16">
+		<div id="header" class="grid_16">
+			<h1>Messages</h1>
+			<!--button type="button" class="refresh">Refresh</button-->
+		</div>
+		<div id="menu" class="grid_2"></div>
+		<div id="main" class="grid_14"></div>
+		<div id="main2" class="grid_14"></div>
+	</div>
+	<script src="js\mainmenu.js"></script>
+	<script src="js\common.js?v2"></script>
+	<script src="js\tree.js?v1"></script>
+	<script src="js\messages.js?v1"></script>
 </body>
+
 </html>

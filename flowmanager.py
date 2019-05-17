@@ -25,7 +25,6 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
 from ryu.lib import ofctl_utils
-from ryu.lib import pcaplib
 from ryu import utils
 
 # for packet content
@@ -42,12 +41,16 @@ import os
 import sys
 import logging
 from logging.handlers import WatchedFileHandler
-import datetime
-
+import time
+import random
+import json
 
 PYTHON3 = sys.version_info > (3, 0)
 LOG_FILE_NAME = 'flwmgr.log'
-print("You are using Python v" + '.'.join(map(str,sys.version_info)))
+print("You are using Python v" + '.'.join(map(str, sys.version_info)))
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+from flow_monitor import Tracker
 
 
 class FlowManager(app_manager.RyuApp):
@@ -67,7 +70,7 @@ class FlowManager(app_manager.RyuApp):
         "ANY": 0xffffffff
     }
 
-    MAGIC_COOKIE = 0x7ab7000000000000
+    MAGIC_COOKIE = 0x00007ab700000000
     logname = 'flwmgr'
 
     def __init__(self, *args, **kwargs):
@@ -75,15 +78,15 @@ class FlowManager(app_manager.RyuApp):
         wsgi = kwargs['wsgi']
         self.dpset = kwargs['dpset']
         self.waiters = {}
-        self.pcap_writers = {}
-        self.writer = None
+        #self.writer = None
         self.ofctl = ofctl_v1_3
+        self.rpc_clients = []
+        self.tracker = Tracker()
 
         # Data exchanged with WebApi
         wsgi.register(WebApi,
                       {"webctl": self,
-                       "dpset": self.dpset,
-                       "waiters": self.waiters})
+                       "rpc_clients": self.rpc_clients})
 
         self.reqfunction = {
             "switchdesc": self.ofctl.get_desc_stats,
@@ -646,23 +649,52 @@ class FlowManager(app_manager.RyuApp):
         dp = msg.datapath
         ofp = dp.ofproto
 
+        pkt = packet.Packet(msg.data)
+
+        # Monitored flows are analyzed
+        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+            tracked_msg = self.tracker.track(msg.cookie, pkt)
+            if tracked_msg:
+                self.rpc_broadcall("update", tracked_msg)
+
+        # All packet-in messages are looged except LLDP packets
+        eth = pkt.get_protocol(ethernet.ethernet)
+        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            # ignore lldp packet
+            return
+
+        # The reason for packet_in
         reason_msg = {ofp.OFPR_NO_MATCH: "NO MATCH",
                       ofp.OFPR_ACTION: "ACTION",
                       ofp.OFPR_INVALID_TTL: "INVALID TTL"
                       }
         reason = reason_msg.get(msg.reason, 'UNKNOWN')
 
-        self.logger.debug('PacketIn\t%d\t%d\t%s\t%s\t%x\t%d\t%s',
-                          dp.id, msg.table_id, reason, msg.match, msg.buffer_id, msg.cookie,
-                          # utils.hex_array(msg.data))
-                          self.get_packet_summary(msg.data))
+        now = time.strftime('%b %d %H:%M:%S')
+        match = msg.match.items() #['OFPMatch']['oxm_fields']
+        log = map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
+                        hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)])
+        self.logger.info('\t'.join(log))
 
-        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
-            if not self.writer:
-                aFile = open("fm_fixed.pcap", 'wb')
-                self.writer = Writer2(aFile)
-            self.writer.write_pkt(msg.data)
+        self.rpc_broadcall("log", json.dumps(log))
 
+    def rpc_broadcall(self, func_name, msg):
+        from socket import error as SocketError
+        from tinyrpc.exc import InvalidReplyError
+
+        disconnected_clients = []
+        for rpc_client in self.rpc_clients:
+            rpc_server = rpc_client.get_proxy()
+            try:
+                getattr(rpc_server, func_name)(msg)
+            except SocketError:
+                self.logger.debug('WebSocket disconnected: %s', rpc_client.ws)
+                disconnected_clients.append(rpc_client)
+            except InvalidReplyError as e:
+                self.logger.error(e)
+
+        for client in disconnected_clients:
+            self.rpc_clients.remove(client)
 
     # @set_ev_cls(event.EventSwitchEnter)
 
@@ -691,6 +723,10 @@ class FlowManager(app_manager.RyuApp):
             item['operation'] = 'delst'
             result = self.process_flow_message(item)
 
+            # if the flow was monitored
+            if item['cookie'] & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+                self.tracker.untrack(item['cookie'])
+
         return 'Flows deleted successfully!'
 
     def monitor_flow_list(self, flowlist):
@@ -699,7 +735,7 @@ class FlowManager(app_manager.RyuApp):
 
         for item in flowlist:
             item['operation'] = 'add'
-            item['cookie'] |= self.MAGIC_COOKIE
+            item['cookie'] = self.MAGIC_COOKIE | random.randint(1, 0xffffffff)
             item['priority'] += 1
             item['idle_timeout'] = 0
             item['hard_timeout'] = 0
@@ -708,12 +744,3 @@ class FlowManager(app_manager.RyuApp):
             result = self.process_flow_message(item)
 
         return 'Flows are monitored!'
-
-class Writer2(pcaplib.Writer):
-
-    def __init__(self, file_obj, snaplen=65535, network=1):
-        super(Writer2, self).__init__(file_obj, snaplen=snaplen, network=network)
-
-    def write_pkt(self, buf, ts=None):
-        super(Writer2, self).write_pkt(buf, ts=ts)
-        self._f.flush()

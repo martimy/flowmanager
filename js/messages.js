@@ -12,55 +12,91 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-$(function() {
-    var header = '<thead><tr data-sort="number"> \
-    <th data-sort="date">Time</th> \
-    <th data-sort="alphanum">Type</th> \
-    <th data-sort="number">Datapath</th> \
-    <th data-sort="number">Table</th> \
-    <th data-sort="alphanum">Reason</th> \
-    <th data-sort="alphanum">Match</th> \
-    <th data-sort="alphanum">Buffer ID</th> \
-    <th data-sort="number">Cookie</th> \
-    <th data-sort="alphanum">Content</th></tr></thead>';
+$(function () {
+    var tabObj = Tabs('monitor');
+    var bigTree = BigTree();
 
-    // Get logs
-    function getLogs() {
-        $.get("/logs", {request:"logs"})
-        .done( function(response) {
-            if(response !== []) {
-                var body = "<tbody>";
-                var start = Math.max(0, response.length-25);
-                for(var i=start; i<response.length; i++) {
-                    var row = response[i];
-                    body += "<tr>"
-                    body += "<td>" + row[0] + "</td>";
-                    body += "<td>" + row[2] + "</td>";
-                    body += "<td>" + row[3] + "</td>";
-                    body += "<td>" + row[4] + "</td>";  
-                    body += "<td>" + row[5] + "</td>";
-                    body += "<td>" + row[6].replace('OFPMatch','') + "</td>";  
-                    body += "<td>" + row[7] + "</td>";                     
-                    body += "<td>" + row[8] + "</td>";                                    
-                    body += "<td class=\"tooltip\"><span>" + row[9] + "</span>" + row[9] + "</td>";
-                    body += "</tr>";
-                }
-                body += "</tbody>";
-                var content = '<table class="logtable sortable">' + header + body + '</table>'   
-                $m = $('#main');
-                $m.html(content);
-            }
-        })
-        .fail( function() {
-            //$('#error').text("Cannot read logs!");
-        });
+
+    var header = '<thead> \
+    <th>Time</th> \
+    <th>Type</th> \
+    <th>Datapath</th> \
+    <th>Table</th> \
+    <th>Reason</th> \
+    <th>Match</th> \
+    <th>Buffer ID</th> \
+    <th>Cookie</th> \
+    <th>Content</th></tr></thead>';
+
+    function build_table() {
+        var body = "<tbody></tbody>";
+        var content = '<table id="logs" class="logtable sortable">' + header + body + '</table>'
+        $('#messages').html(content);
+    }
+
+    function add_row(row) {
+        if ($('#logs tr').length > 25) {
+            $("#logs > tbody tr:first").remove();
+        }
+        var body = "<tr>"
+        body += "<td>" + row[0] + "</td>";
+        body += "<td>" + row[1] + "</td>";
+        body += "<td>" + row[2] + "</td>";
+        body += "<td>" + row[3] + "</td>";
+        body += "<td>" + row[4] + "</td>";
+        body += "<td>" + row[5].replace('OFPMatch', '') + "</td>";
+        body += "<td>" + row[6] + "</td>";
+        body += "<td>" + row[7] + "</td>";
+        body += "<td class=\"tooltip\"><span>" + row[8] + "</span>" + row[8] + "</td>";
+        body += "</tr>";
+        $('#logs').append(body);
+    }
+
+    var update_stats = {
+        update: function (params) {
+            j = JSON.parse(params);
+            var body = "<div>" + JSON.stringify(j, undefined, 2) + "</div";
+            $('#main2').html(body);
+            return "";
+        },
+        log: function (params) {
+            row = JSON.parse(params);
+            add_row(row)
+            return "";
+        },
+    }
+
+    function receiveMessages() {
+        var ws = new WebSocket("ws://" + location.host + "/ws");
+        ws.onmessage = function (event) {
+            var data = JSON.parse(event.data);
+
+            var result = update_stats[data.method](data.params);
+
+            var ret = { "id": data.id, "jsonrpc": "2.0", "result": result };
+            this.send(JSON.stringify(ret));
+        }
+    }
+
+
+    function startMonitor() {
+        tabObj.buildTabs("#main", ["Messages", "Stats"], "Nothing to show!");
+        var $svg = $('<svg width="1116" height="600"></svg>');
+        var $messages = $('<div id="messages"></div>');
+        tabObj.buildContent('Messages', $messages);
+        tabObj.buildContent('Stats', $svg);
+        build_table();
+
+        //bigTree.start($svg);
+        receiveMessages();
+        tabObj.setActive();
     }
 
     // When the refresh button is clicked, clear the page and start over
-    $('.refresh').on('click', function() {
+    $('.refresh').on('click', function () {
         $('#main').html("");
-        getLogs();
+        startMonitor();
     });
 
-    getLogs();
+    startMonitor();
 });

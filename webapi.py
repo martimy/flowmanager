@@ -15,6 +15,8 @@
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
+from ryu.app.wsgi import websocket
+from ryu.app.wsgi import WebSocketRPCClient
 import os
 import sys
 import mimetypes
@@ -27,11 +29,11 @@ class WebApi(ControllerBase):
     def __init__(self, req, link, data, **config):
         super(WebApi, self).__init__(req, link, data, **config)
         self.api = data["webctl"]
-        #self.lists = data["lists"]
+        self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
 
     def make_response(self, filename):
-        filetype, encoding = mimetypes.guess_type(filename)
+        filetype, _ = mimetypes.guess_type(filename)
         if not filetype:
             filetype = 'application/octet-stream'
         res = Response(content_type=filetype)
@@ -75,6 +77,7 @@ class WebApi(ControllerBase):
         res.json = reply
         return res
 
+    # merge the thre form methods
     @route('monitor', '/meterform', methods=['POST'])
     def post_meter_form(self, req, **_kwargs):
         """Connect with meter form
@@ -127,6 +130,7 @@ class WebApi(ControllerBase):
 
         return Response(status=400)  # bad request
 
+    # TODO: merge the next two methods
     @route('monitor', '/flowdel', methods=['POST'])
     def post_flow_delete(self, req, **_kwargs):
         """Receive flows delete request
@@ -171,6 +175,12 @@ class WebApi(ControllerBase):
             return self.make_response(filename)
         except IOError:
             return Response(status=400)
+
+    @websocket('monitor', '/ws')
+    def websocket_handler(self, ws):
+        rpc_client = WebSocketRPCClient(ws)
+        self.rpc_clients.append(rpc_client)
+        rpc_client.serve_forever()
 
     # @route('monitor', '/add', methods=['GET'])
     # def add_item(self, req, **_kwargs):
