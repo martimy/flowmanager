@@ -14,8 +14,9 @@
 
 $(function () {
     var tabObj = Tabs('monitor');
-    var bigTree = BigTree();
-
+    var bigTree;
+    var maxRows = 10;
+    var pause = false
 
     var header = '<thead> \
     <th>Time</th> \
@@ -35,8 +36,9 @@ $(function () {
     }
 
     function add_row(row) {
-        if ($('#logs tr').length > 25) {
-            $("#logs > tbody tr:first").remove();
+        if(pause) return;
+        if ($('#logs tr').length > maxRows) {
+            $("#logs > tbody tr:last").remove();
         }
         var body = "<tr>"
         body += "<td>" + row[0] + "</td>";
@@ -49,14 +51,21 @@ $(function () {
         body += "<td>" + row[7] + "</td>";
         body += "<td class=\"tooltip\"><span>" + row[8] + "</span>" + row[8] + "</td>";
         body += "</tr>";
-        $('#logs').append(body);
+        // Add the row at the top
+        $('#logs').prepend(body);
     }
 
     var update_stats = {
         update: function (params) {
             j = JSON.parse(params);
-            var body = "<div>" + JSON.stringify(j, undefined, 2) + "</div";
-            $('#main2').html(body);
+            var body = "<div>" + params + "</div>";
+
+            // var $dropdown = $("#dropdown");
+            // $.each(result, function () {
+            //     $dropdown.append($("<option />").val(this.ImageFolderID).text(this.Name));
+            // });
+
+            bigTree.draw(j[0]);
             return "";
         },
         log: function (params) {
@@ -78,25 +87,44 @@ $(function () {
         }
     }
 
-
     function startMonitor() {
         tabObj.buildTabs("#main", ["Messages", "Stats"], "Nothing to show!");
-        var $svg = $('<svg width="1116" height="600"></svg>');
-        var $messages = $('<div id="messages"></div>');
+        
+        var $svg = $('<div class="msgoptions"> \
+        Select cookie: <select id="cookieoption"></select></div><svg width="1116" height="600"></svg>');
+        
+        var $messages = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
+        Show <div class="cselect"><select id="rowoption"> \
+        <option value="10" selected>10</option><option value="25">25</option> \
+        <option value="50">50</option></select></div> rows</div> \
+        <div id="messages"></div>');
+
         tabObj.buildContent('Messages', $messages);
         tabObj.buildContent('Stats', $svg);
         build_table();
-
-        //bigTree.start($svg);
+        bigTree = BigTree();
         receiveMessages();
         tabObj.setActive();
     }
 
     // When the refresh button is clicked, clear the page and start over
-    $('.refresh').on('click', function () {
-        $('#main').html("");
-        startMonitor();
-    });
+    // $('.refresh').on('click', function () {
+    //     $('#main').html("");
+    //     startMonitor();
+    // });
 
     startMonitor();
+
+    $('#rowoption').change(function () {
+        maxRows = $(this).val();
+        while (maxRows < $('#logs > tbody tr').length) {
+            $("#logs > tbody tr:last").remove();
+        }
+    });
+
+    $('#pause').on("click", function () {
+        pause = !pause;
+        $(this).html(pause ? "Resume" : "Pause");
+    });
+
 });

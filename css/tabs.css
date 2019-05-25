@@ -43,3 +43,43 @@
 .tab-panel.active {
     display: inherit;
 }
+
+.msgoptions {
+    margin: 0 0 10px 10px;
+}
+
+.msgoptions button {
+    width: 80px;
+    padding: 5px 0px;
+    margin-right: 20px;
+	background-color: var(--scolor-2);
+	border: none;
+	color: var(--white);
+	cursor: pointer;
+	border-radius: 4px;
+    font-weight: bold;    
+}
+
+/* The container must be positioned relative: */
+
+.cselect {
+    position: relative;
+    display: inline;
+    border: 1px solid var(--scolor-2);
+    border-radius: 4px;
+    overflow: hidden;
+    padding: 2px 2px;
+}
+
+.cselect select {
+    padding: 5px 5px;
+    border: none;
+    width: 60px;
+    box-shadow: none;
+    background: transparent;
+    background-image: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+ 

@@ -39,61 +39,51 @@ class Tracker():
     all_stats = []
 
     def untrack(self, id):
-        try:
-            del self.all_stats[id]
-        except KeyError:
-            pass  # It doesn't exist
-
-    def track_old(self, id, pkt):
-        header_list = dict((p.protocol_name, p)
-                           for p in pkt.protocols if isinstance(p, packet_base.PacketBase))
-        if header_list:
-            stats = self.all_stats.setdefault(id, {})
-            for k in header_list:
-                c = stats.setdefault(k, {"count": 0})
-                stats[k]["count"] = c["count"] + 1
-                if k in [ETHERNET, IPV4, IPV6]:
-                    a = header_list[k]
-                    s = stats[k].setdefault("src", {})
-                    c1 = s.setdefault(a.src, 0)
-                    s[a.src] = c1 + 1
-                    d = stats[k].setdefault("dst", {})
-                    c2 = d.setdefault(a.dst, 0)
-                    d[a.dst] = c2 + 1
-                if k in [TCP, UDP]:
-                    a = header_list[k]
-                    s = stats[k].setdefault("src_port", {})
-                    c1 = s.setdefault(a.src_port, 0)
-                    s[a.src_port] = c1 + 1
-                    d = stats[k].setdefault("dst_port", {})
-                    c2 = d.setdefault(a.dst_port, 0)
-                    d[a.dst_port] = c2 + 1
-
-            return json.dumps(self.all_stats)
-        return None
+        if id in self.existing_name(self.all_stats):
+            root = self.get_name(id, self.all_stats)
+            self.all_stats.remove(root)
 
     def track(self, id, pkt):
+        # Find if a tree has been created for this ID,
+        # Otherwise, create a new one
         if id in self.existing_name(self.all_stats):
             root = self.get_name(id, self.all_stats)
         else:
             root = {"name": id, "children": []}
             self.all_stats.append(root)
 
-        header_list = [p.protocol_name  for p in pkt.protocols if isinstance(p, packet_base.PacketBase)]
+        # Get all protocols in a packet
+        header_list = [(p.protocol_name, p) for p in pkt.protocols if isinstance(
+            p, packet_base.PacketBase)]
 
         for k in header_list:
-            if k in self.existing_name(root['children']):
-                root = self.get_name(k, root['children'])
+            name = self.getName(k, header_list)
+            if name in self.existing_name(root['children']):
+                # If the protcol is found in the tree, make it root
+                # for the next protocol
+                root = self.get_name(name, root['children'])
             else:
-                new_root = {"name": k, "children": []}
+                # If the protcol is not found in the tree, create a new node
+                # and make it root for the next protocol
+                new_root = {"name": name, "children": []}
                 root['children'].append(new_root)
                 root = new_root
-        
+
         c = root.setdefault('count', 0)
         root['count'] = c + 1
 
+        return self.all_stats
 
-        return json.dumps(self.all_stats)
+    def getName(self, k, header_list):
+        if k[0] in [ETHERNET, IPV4, IPV6]:
+            s = k[1].src
+            d = k[1].dst
+            return "{} [{}, {}]".format(k[0], s, d)
+        if k[0] in [TCP, UDP]:
+            #s = k[1].src_port
+            d = k[1].dst_port
+            return "{} [{}]".format(k[0], d)
+        return k[0]
 
     def existing_name(self, lst):
         for n in lst:

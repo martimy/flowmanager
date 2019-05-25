@@ -38,3 +38,19 @@ text.start, text.end {
   alignment-baseline: middle;
   font-size: 0.75em;
 }
+
+
+.node circle {
+  fill: #fff;
+  stroke: var(--scolor-3);
+  stroke-width: 2px;
+}
+
+.node text { font: 12px sans-serif; }
+
+.link {
+  fill: none;
+  stroke: var(--scolor-3);
+  stroke-width: 1px;
+}
+

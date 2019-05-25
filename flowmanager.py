@@ -70,6 +70,7 @@ class FlowManager(app_manager.RyuApp):
         "ANY": 0xffffffff
     }
 
+    MONITOR_PKTIN = False
     MAGIC_COOKIE = 0x00007ab700000000
     logname = 'flwmgr'
 
@@ -651,17 +652,20 @@ class FlowManager(app_manager.RyuApp):
 
         pkt = packet.Packet(msg.data)
 
-        # Monitored flows are analyzed
-        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
-            tracked_msg = self.tracker.track(msg.cookie, pkt)
-            if tracked_msg:
-                self.rpc_broadcall("update", tracked_msg)
-
         # All packet-in messages are looged except LLDP packets
         eth = pkt.get_protocol(ethernet.ethernet)
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
+
+        # Monitor packets. Flow entries with cookies take precedance 
+        tracked_msg = None
+        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+            tracked_msg = self.tracker.track(msg.cookie, pkt)
+        elif not self.MONITOR_PKTIN:
+            tracked_msg = self.tracker.track(self.MAGIC_COOKIE, pkt)
+        if tracked_msg:
+            self.rpc_broadcall("update", json.dumps(tracked_msg))
 
         # The reason for packet_in
         reason_msg = {ofp.OFPR_NO_MATCH: "NO MATCH",
@@ -674,7 +678,7 @@ class FlowManager(app_manager.RyuApp):
         match = msg.match.items() #['OFPMatch']['oxm_fields']
         log = map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                         hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)])
-        self.logger.info('\t'.join(log))
+        #self.logger.info('\t'.join(log))
 
         self.rpc_broadcall("log", json.dumps(log))
 
@@ -725,6 +729,7 @@ class FlowManager(app_manager.RyuApp):
 
             # if the flow was monitored
             if item['cookie'] & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+                print(item['cookie'])
                 self.tracker.untrack(item['cookie'])
 
         return 'Flows deleted successfully!'
