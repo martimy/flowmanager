@@ -661,12 +661,18 @@ class FlowManager(app_manager.RyuApp):
         # Monitor packets. Flow entries with cookies take precedance 
         tracked_msg = None
         if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+            # track the packet if it has a magic cookie
             tracked_msg = self.tracker.track(msg.cookie, pkt)
         elif not self.MONITOR_PKTIN:
+            # track the packet the global tracking option is enabled
             tracked_msg = self.tracker.track(self.MAGIC_COOKIE, pkt)
+
+        # Send the tracked message to the interface
         if tracked_msg:
             self.rpc_broadcall("update", json.dumps(tracked_msg))
 
+        # Continue the normal processing of Packet_In
+        
         # The reason for packet_in
         reason_msg = {ofp.OFPR_NO_MATCH: "NO MATCH",
                       ofp.OFPR_ACTION: "ACTION",

@@ -17,6 +17,8 @@ $(function () {
     var bigTree;
     var maxRows = 10;
     var pause = false
+    const cookie_list = [];
+    var selectedCookie = "default";
 
     var header = '<thead> \
     <th>Time</th> \
@@ -29,6 +31,16 @@ $(function () {
     <th>Cookie</th> \
     <th>Content</th></tr></thead>';
 
+    // var bfs = function (tree, key, collection) {
+    //     if (!tree[key] || tree[key].length === 0) return;
+    //     for (var i = 0; i < tree[key].length; i++) {
+    //         var child = tree[key][i]
+    //         collection[child.id] = child;
+    //         bfs(child, key, collection);
+    //     }
+    //     return;
+    // }
+
     function build_table() {
         var body = "<tbody></tbody>";
         var content = '<table id="logs" class="logtable sortable">' + header + body + '</table>'
@@ -36,7 +48,7 @@ $(function () {
     }
 
     function add_row(row) {
-        if(pause) return;
+        if (pause) return;
         if ($('#logs tr').length > maxRows) {
             $("#logs > tbody tr:last").remove();
         }
@@ -60,12 +72,28 @@ $(function () {
             j = JSON.parse(params);
             var body = "<div>" + params + "</div>";
 
-            // var $dropdown = $("#dropdown");
-            // $.each(result, function () {
-            //     $dropdown.append($("<option />").val(this.ImageFolderID).text(this.Name));
-            // });
+            var $dropdown = $("#cookieoption");
 
-            bigTree.draw(j[0]);
+            j.forEach(element => {
+                let x = element.name.toString();
+                if (cookie_list.indexOf(x) < 0) {
+                    cookie_list.push(x);
+                    $dropdown.append(new Option(x, x));
+                }
+            });
+
+            // Flatten Tree
+            // var flattenedCollection = {};
+            // bfs(j, "name", flattenedCollection);
+
+            var idx = cookie_list.indexOf(selectedCookie);
+            console.log(idx);
+            if (idx >= 0) {
+                bigTree.draw(j[idx]);
+            } else {
+                bigTree.draw(j[0])
+            }
+            
             return "";
         },
         log: function (params) {
@@ -89,10 +117,10 @@ $(function () {
 
     function startMonitor() {
         tabObj.buildTabs("#main", ["Messages", "Stats"], "Nothing to show!");
-        
+
         var $svg = $('<div class="msgoptions"> \
-        Select cookie: <select id="cookieoption"></select></div><svg width="1116" height="600"></svg>');
-        
+        Select cookie: <select id="cookieoption"><option>--Select--</option></select></div><svg width="1116" height="600" margins="50"></svg>');
+
         var $messages = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
         Show <div class="cselect"><select id="rowoption"> \
         <option value="10" selected>10</option><option value="25">25</option> \
@@ -105,6 +133,7 @@ $(function () {
         bigTree = BigTree();
         receiveMessages();
         tabObj.setActive();
+
     }
 
     // When the refresh button is clicked, clear the page and start over
@@ -113,7 +142,11 @@ $(function () {
     //     startMonitor();
     // });
 
+
+
     startMonitor();
+
+    // the following may go inside startMonitor
 
     $('#rowoption').change(function () {
         maxRows = $(this).val();
@@ -125,6 +158,11 @@ $(function () {
     $('#pause').on("click", function () {
         pause = !pause;
         $(this).html(pause ? "Resume" : "Pause");
+    });
+
+    $('#cookieoption').on('change', function () {
+        //console.log($(this).children("option:selected").val());
+        selectedCookie = $(this).val();
     });
 
 });
