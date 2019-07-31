@@ -1,4 +1,4 @@
-// Copyright (c) 2018 Maen Artimy
+// Copyright (c) 2018-2019 Maen Artimy
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,12 +15,12 @@
 $(function () {
     var tabObj = Tabs('monitor');
     var bigTree;
-    var maxRows = 10;
-    var pause = false
+    let maxRows = 10;
+    let pause = false
     const cookie_list = [];
-    var selectedCookie = "default";
+    let selectedCookie = "default";
 
-    var header = '<thead> \
+    const header = '<thead> \
     <th>Time</th> \
     <th>Type</th> \
     <th>Datapath</th> \
@@ -67,7 +67,7 @@ $(function () {
         $('#logs').prepend(body);
     }
 
-    var update_stats = {
+    const update_stats = {
         update: function (params) {
             j = JSON.parse(params);
             var body = "<div>" + params + "</div>";
@@ -85,15 +85,16 @@ $(function () {
             // Flatten Tree
             // var flattenedCollection = {};
             // bfs(j, "name", flattenedCollection);
-
-            var idx = cookie_list.indexOf(selectedCookie);
-            console.log(idx);
+            let cookie = sessionStorage.getItem('selectedCookie');
+            var idx = cookie_list.indexOf(cookie);
             if (idx >= 0) {
+                $('#cookieoption').val(cookie);
                 bigTree.draw(j[idx]);
             } else {
                 bigTree.draw(j[0])
             }
-            
+
+            // sessionStorage.setItem('trees', params);
             return "";
         },
         log: function (params) {
@@ -119,7 +120,9 @@ $(function () {
         tabObj.buildTabs("#main", ["Messages", "Stats"], "Nothing to show!");
 
         var $svg = $('<div class="msgoptions"> \
-        Select cookie: <select id="cookieoption"><option>--Select--</option></select></div><svg width="1116" height="600" margins="50"></svg>');
+        <button id="reset" type="button">Reset</button> Select cookie: <select id="cookieoption"> \
+        <option>Default</option></select></div> \
+        <svg width="1116" height="700"></svg>');
 
         var $messages = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
         Show <div class="cselect"><select id="rowoption"> \
@@ -131,8 +134,42 @@ $(function () {
         tabObj.buildContent('Stats', $svg);
         build_table();
         bigTree = BigTree();
+
+        // let trees = sessionStorage.getItem('trees');
+        // if (trees) {
+        //     update_stats.update(trees)
+        // }
+
         receiveMessages();
         tabObj.setActive();
+
+        $('#rowoption').change(function () {
+            maxRows = $(this).val();
+            while (maxRows < $('#logs > tbody tr').length) {
+                $("#logs > tbody tr:last").remove();
+            }
+        });
+
+        $('#pause').on("click", function () {
+            pause = !pause;
+            $(this).html(pause ? "Resume" : "Pause");
+        });
+
+        $('#reset').on("click", function () {
+            // get selected cookie
+
+            $.post("/resetmonitor", JSON.stringify({ "cookie": selectedCookie }))
+                .done(function (response) {
+                    //$('svg').empty();
+                })
+                .fail(function () {
+                })
+        });
+
+        $('#cookieoption').on('change', function () {
+            selectedCookie = $(this).val();
+            sessionStorage.setItem('selectedCookie', selectedCookie);
+        });
 
     }
 
@@ -142,27 +179,6 @@ $(function () {
     //     startMonitor();
     // });
 
-
-
     startMonitor();
-
-    // the following may go inside startMonitor
-
-    $('#rowoption').change(function () {
-        maxRows = $(this).val();
-        while (maxRows < $('#logs > tbody tr').length) {
-            $("#logs > tbody tr:last").remove();
-        }
-    });
-
-    $('#pause').on("click", function () {
-        pause = !pause;
-        $(this).html(pause ? "Resume" : "Pause");
-    });
-
-    $('#cookieoption').on('change', function () {
-        //console.log($(this).children("option:selected").val());
-        selectedCookie = $(this).val();
-    });
 
 });

@@ -1,20 +1,26 @@
-
-// http://bl.ocks.org/d3noob/8323795
-
-// some explination http://www.d3noob.org/2014/01/tree-diagrams-in-d3js_11.html
-// part of a book https://leanpub.com/d3-t-and-t-v4
-// https://leanpub.com/D3-Tips-and-Tricks/read
-// https://observablehq.com/@d3/collapsible-tree
+// Copyright (c) 2019 Maen Artimy
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 function BigTree() {
     const svg = d3.select("svg");
 
 
-    let margin = { top: 20, right: 90, bottom: 30, left: 90 }
+    let margin = { top: 50, right: 50, bottom: 50, left: 75 }
     let width = +svg.attr("width") - margin.left - margin.right
     let height = +svg.attr("height") - margin.top - margin.bottom;
 
-    dx = 20;            // distance between branches
+    dx = 40;            // distance between branches
     dy = width / 5;    // distance between levels
 
     diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
@@ -61,8 +67,8 @@ function BigTree() {
         //Constructs a root node from the specified hierarchical data. 
         const root = d3.hierarchy(data);
 
-        root.x0 = height / 2;
-        root.y0 = 0;
+        root.y0 = height / 2;
+        root.x0 = 0;
         // Returns the array of descendant nodes, starting with the root, then followed by each child in topological order.
         // then assign an id to each node, save a copy of children, and remove the children if condition matched
         root.descendants().forEach((d, i) => {
@@ -73,12 +79,10 @@ function BigTree() {
         });
 
         function update(source) {
-            const duration = d3.event && d3.event.altKey ? 2500 : 250;
+            // const duration = d3.event && d3.event.altKey ? 2500 : 250;
+            const duration = 750;
             const nodes = root.descendants().reverse();		// reverse the array order
-            const links = root.links();						// Returns an array of links for this node, where 
-            // each link is an object that defines source and 
-            // target properties. The source of each link is 
-            // the parent node, and the target is a child node.
+            const links = root.links();						// Returns an array of links for this node
 
             // Compute the new tree layout.
             tree(root);
@@ -100,21 +104,18 @@ function BigTree() {
             // Update the nodes…
             const node = gNode.selectAll("g")
                 .data(nodes, function (d) { return d.id = getID(d); });				// bind data or select by ID?
-            //.data(nodes, d => d.id);
 
             // Enter any new nodes at the parent's previous position.
             const nodeEnter = node.enter().append("g")
                 .attr('class', 'node')
                 .attr("transform", d => `translate(${source.y0},${source.x0})`)
-                // .attr("fill-opacity", 0)
-                // .attr("stroke-opacity", 0)
-                .on("click", d => { 				// toggle the display of children
-                    d.children = d.children ? null : d._children;
-                    update(d);
-                });
+                // .on("click", d => { 				// toggle the display of children
+                //     d.children = d.children ? null : d._children;
+                //     update(d);
+                // });
 
             nodeEnter.append("circle")
-                .attr("r", 2.5)
+                .attr("r", 5)
                 .attr("fill", d => d._children ? "#246767" : "#fff")
                 .attr("stroke-width", 2);
 
@@ -129,14 +130,29 @@ function BigTree() {
             //     .attr("stroke", "white");
 
             nodeEnter.append('text')
-                .attr("dy", function (d) { return `-${d.depth % 2}em` })
-                .attr("dx", function (d) {
-                    return d.children || d._children ? -13 : 13;
+                .attr("dy", function (d) { 
+                    return `${d.depth % 2 == 0 ? 1.5 : -0.5}em` 
                 })
                 .attr("text-anchor", function (d) {
-                    return d.children || d._children ? "middle" : "start";
+                    return d.children ? "middle" : "start";
                 })
                 .text(function (d) { return d.data.name; });
+
+            // Get the nodes that have count property
+            const leaves = node.filter(function (d) {
+                return d.data.count !== undefined;
+            });
+
+            // Replace the leaves text 
+            leaves.select('text').remove()
+            leaves.append('text')
+                .attr("dy", ".35em")
+                .attr("x", function (d) {
+                    return d.children ? -10 : 10;
+                })
+                .text(function (d) {
+                    return d.data.name + ` (${d.data.count})`;
+                });
 
             // Transition nodes to their new position.
             const nodeUpdate = node.merge(nodeEnter).transition(transition)
@@ -180,8 +196,6 @@ function BigTree() {
         }
 
         update(root);
-
-        //return svg.node();
     }
 
     return {

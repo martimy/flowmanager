@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Maen Artimy
+# Copyright (c) 2018-2019 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -182,12 +182,16 @@ class WebApi(ControllerBase):
         self.rpc_clients.append(rpc_client)
         rpc_client.serve_forever()
 
-    # @route('monitor', '/add', methods=['GET'])
-    # def add_item(self, req, **_kwargs):
-    #     if req.GET:
-    #         v = req.GET.get("item")
-    #         self.messages.append(v)
-    #     return Response(status=200)
+    @route('monitor', '/resetmonitor', methods=['POST'])
+    def post_reset_flow_monitor(self, req, **_kwargs):
+        """Reset flows monitoring data
+        """
+        if req.POST:
+            res = Response()
+            s = self.api.rest_flow_monitoring(req.json)
+            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            return res
+        return Response(status=400)  # bad request
 
     # @route('monitor', '/stream', methods=['GET'])
     # def get_log_SSE(self, req, **_kwargs):

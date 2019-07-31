@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Maen Artimy
+# Copyright (c) 2018-2019 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -658,7 +658,7 @@ class FlowManager(app_manager.RyuApp):
             # ignore lldp packet
             return
 
-        # Monitor packets. Flow entries with cookies take precedance 
+        # Monitor packets. Flow entries with cookies take precedance
         tracked_msg = None
         if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
             # track the packet if it has a magic cookie
@@ -672,7 +672,7 @@ class FlowManager(app_manager.RyuApp):
             self.rpc_broadcall("update", json.dumps(tracked_msg))
 
         # Continue the normal processing of Packet_In
-        
+
         # The reason for packet_in
         reason_msg = {ofp.OFPR_NO_MATCH: "NO MATCH",
                       ofp.OFPR_ACTION: "ACTION",
@@ -681,10 +681,10 @@ class FlowManager(app_manager.RyuApp):
         reason = reason_msg.get(msg.reason, 'UNKNOWN')
 
         now = time.strftime('%b %d %H:%M:%S')
-        match = msg.match.items() #['OFPMatch']['oxm_fields']
+        match = msg.match.items()  # ['OFPMatch']['oxm_fields']
         log = map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                         hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)])
-        #self.logger.info('\t'.join(log))
+        # self.logger.info('\t'.join(log))
 
         self.rpc_broadcall("log", json.dumps(log))
 
@@ -755,3 +755,12 @@ class FlowManager(app_manager.RyuApp):
             result = self.process_flow_message(item)
 
         return 'Flows are monitored!'
+
+    def rest_flow_monitoring(self, req):
+        id = req["cookie"]
+        if id == "default":
+            self.tracker.reset(self.MAGIC_COOKIE)
+        else:
+            self.tracker.reset(int(id))
+
+        return ''

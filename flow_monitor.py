@@ -1,4 +1,16 @@
-# Copright (C) 2019  Maen Artimy
+# Copyright (c) 2019 Maen Artimy
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 from ryu.lib import pcaplib
 from ryu.lib.packet import arp
@@ -23,15 +35,15 @@ TCP = tcp.tcp.__name__
 UDP = udp.udp.__name__
 
 
-class Writer2(pcaplib.Writer):
+# class Writer2(pcaplib.Writer):
 
-    def __init__(self, file_obj, snaplen=65535, network=1):
-        super(Writer2, self).__init__(
-            file_obj, snaplen=snaplen, network=network)
+#     def __init__(self, file_obj, snaplen=65535, network=1):
+#         super(Writer2, self).__init__(
+#             file_obj, snaplen=snaplen, network=network)
 
-    def write_pkt(self, buf, ts=None):
-        super(Writer2, self).write_pkt(buf, ts=ts)
-        self._f.flush()
+#     def write_pkt(self, buf, ts=None):
+#         super(Writer2, self).write_pkt(buf, ts=ts)
+#         self._f.flush()
 
 
 class Tracker():
@@ -42,6 +54,11 @@ class Tracker():
         if id in self.existing_name(self.all_stats):
             root = self.get_name(id, self.all_stats)
             self.all_stats.remove(root)
+
+    def reset(self, id):
+        if id in self.existing_name(self.all_stats):
+            root = self.get_name(id, self.all_stats)
+            root["children"] = []
 
     def track(self, id, pkt):
         # Find if a tree has been created for this ID,
