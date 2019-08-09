@@ -1,222 +1,512 @@
-{
-    "tcp_flags": [
-        "tcp_flags", 
-        "TCP flags (int) (Openflow1.5+)", 
-        "{\"tcp_flags\": 2, \"ip_proto\": 6, \"eth_type\": 2048}\n"
-    ], 
-    "ipv6_flabel": [
-        "ipv6_flabel", 
-        "IPv6 Flow Label (int)", 
-        "{\"ipv6_flabel\": 2, \"eth_type\": 34525}\n"
-    ], 
-    "arp_sha": [
-        "arp_sha", 
-        "ARP source hardware address (string)", 
-        "{\"arp_sha\": \"aa:bb:cc:11:22:33\", \"eth_type\": 2054}\n"
-    ], 
-    "vlan_pcp": [
-        "vlan_pcp", 
-        "VLAN priority (int)", 
-        "{\"vlan_pcp\": 3, \"vlan_vid\": 3}\n"
-    ], 
-    "ipv6_exthdr": [
-        "ipv6_exthdr", 
-        "IPv6 Extension Header pseudo-field (int/string) (Openflow1.3+)", 
-        "{\"ipv6_exthdr\": 3, \"eth_type\": 34525} or {\"ipv6_exthdr\": \"0x40/0x1F0\", \"eth_type\": 34525}\n"
-    ], 
-    "ipv4_src": [
-        "ipv4_src", 
-        "IPv4 source address (string)", 
-        "{\"ipv4_src\": \"192.168.0.1\", \"eth_type\": 2048}\n"
-    ], 
-    "ipv6_dst": [
-        "ipv6_dst", 
-        "IPv6 destination address (string)", 
-        "{\"ipv6_dst\": \"2001::ffff:cccc:bbbb:1111/64\", \"eth_type\": 34525}\n"
-    ], 
-    "arp_tpa": [
-        "arp_tpa", 
-        "ARP target IPv4 address (string)", 
-        "{\"arp_tpa\": \"192.168.0.44/24\", \"eth_type\": 2054}\n"
-    ], 
-    "icmpv6_type": [
-        "icmpv6_type", 
-        "ICMPv6 type (int)", 
-        "{\"icmpv6_type\": 3, \"ip_proto\": 58, \"eth_type\": 34525}\n"
-    ], 
-    "actset_output": [
-        "actset_output", 
-        "Output port from action set metadata (int) (Openflow1.5+)", 
-        "{\"actset_output\": 3}\n"
-    ], 
-    "sctp_src": [
-        "sctp_src", 
-        "SCTP source port (int)", 
-        "{\"sctp_src\": 99, \"ip_proto\": 132, \"eth_type\": 2048}\n"
-    ], 
-    "ipv6_src": [
-        "ipv6_src", 
-        "IPv6 source address (string)", 
-        "{\"ipv6_src\": \"2001::aaaa:bbbb:cccc:1111\", \"eth_type\": 34525}\n"
-    ], 
-    "eth_src": [
-        "eth_src", 
-        "Ethernet source address (string)", 
-        "{\"eth_src\": \"aa:bb:cc:11:22:33\"}\n"
-    ], 
-    "icmpv6_code": [
-        "icmpv6_code", 
-        "ICMPv6 code (int)", 
-        "{\"icmpv6_code\": 4, \"ip_proto\": 58, \"eth_type\": 34525}\n"
-    ], 
-    "eth_dst": [
-        "eth_dst", 
-        "Ethernet destination address (string)", 
-        "{\"eth_dst\": \"aa:bb:cc:11:22:33/00:00:00:00:ff:ff\"}\n"
-    ], 
-    "pbb_uca": [
-        "pbb_uca", 
-        "PBB UCA hander field (int) (Openflow1.4+)", 
-        "{\"pbb_uca\": 1, \"eth_type\": 35047}\n"
-    ], 
-    "ipv4_dst": [
-        "ipv4_dst", 
-        "IPv4 destination address (string)", 
-        "{\"ipv4_dst\": \"192.168.10.10/255.255.255.0\", \"eth_type\": 2048}\n"
-    ], 
-    "udp_src": [
-        "udp_src", 
-        "UDP source port (int)", 
-        "{\"udp_src\": 2, \"ip_proto\": 17, \"eth_type\": 2048}\n"
-    ], 
-    "tunnel_id": [
-        "tunnel_id", 
-        "Logical Port Metadata (int/string) (Openflow1.3+)", 
-        "{\"tunnel_id\": 7} or {\"tunnel_id\": \"0x07/0xff\"}\n"
-    ], 
-    "arp_op": [
-        "arp_op", 
-        "ARP opcode (int)", 
-        "{\"arp_op\": 3, \"eth_type\": 2054}\n"
-    ], 
-    "eth_type": [
-        "eth_type", 
-        "Ethernet frame type (int)", 
-        "{\"eth_type\": 2048}\n"
-    ], 
-    "ipv6_nd_target": [
-        "ipv6_nd_target", 
-        "Target address for Neighbor Discovery (string)", 
-        "{\"ipv6_nd_target\": \"2001::ffff:cccc:bbbb:1111\", \"icmpv6_type\": 135, \"ip_proto\": 58, \"eth_type\": 34525}\n"
-    ], 
-    "vlan_vid": [
-        "vlan_vid", 
-        "VLAN id (int/string)", 
-        "See Example of VLAN ID match field\n"
-    ], 
-    "arp_tha": [
-        "arp_tha", 
-        "ARP target hardware address (string)", 
-        "{\"arp_tha\": \"aa:bb:cc:11:22:33/00:00:00:00:ff:ff\", \"eth_type\": 2054}\n"
-    ], 
-    "in_port": [
-        "in_port", 
-        "Switch input port (int)", 
-        "{\"in_port\": 7}\n"
-    ], 
-    "ip_dscp": [
-        "ip_dscp", 
-        "IP DSCP (6 bits in ToS) (int)", 
-        "{\"ip_dscp\": 3, \"eth_type\": 2048}\n"
-    ], 
-    "mpls_bos": [
-        "mpls_bos", 
-        "MPLS BoS bit (int) (Openflow1.3+)", 
-        "{\"mpls_bos\": 1, \"eth_type\": 34888}\n"
-    ], 
-    "sctp_dst": [
-        "sctp_dst", 
-        "SCTP destination port (int)", 
-        "{\"sctp_dst\": 99, \"ip_proto\": 132, \"eth_type\": 2048}\n"
-    ], 
-    "icmpv4_code": [
-        "icmpv4_code", 
-        "ICMP code (int)", 
-        "{\"icmpv4_code\": 6, \"ip_proto\": 1, \"eth_type\": 2048}\n"
-    ], 
-    "tcp_src": [
-        "tcp_src", 
-        "TCP source port (int)", 
-        "{\"tcp_src\": 3, \"ip_proto\": 6, \"eth_type\": 2048}\n"
-    ], 
-    "arp_spa": [
-        "arp_spa", 
-        "ARP source IPv4 address (string)", 
-        "{\"arp_spa\": \"192.168.0.11\", \"eth_type\": 2054}\n"
-    ], 
-    "ip_ecn": [
-        "ip_ecn", 
-        "IP ECN (2 bits in ToS) (int)", 
-        "{\"ip_ecn\": 0, \"eth_type\": 34525}\n"
-    ], 
-    "packet_type": [
-        "packet_type", 
-        "Packet type value (int) (Openflow1.5+)", 
-        "{\"packet_type\": [1, 2048]}\n"
-    ], 
-    "udp_dst": [
-        "udp_dst", 
-        "UDP destination port (int)", 
-        "{\"udp_dst\": 6, \"ip_proto\": 17, \"eth_type\": 2048}\n"
-    ], 
-    "pbb_isid": [
-        "pbb_isid", 
-        "PBB I-SID (int/string) (Openflow1.3+)", 
-        "{\"pbb_isid\": 5, \"eth_type\": 35047} or{\"pbb_isid\": \"0x05/0xff\", \"eth_type\": 35047}\n"
-    ], 
-    "in_phy_port": [
-        "in_phy_port", 
-        "Switch physical input port (int)", 
-        "{\"in_phy_port\": 5, \"in_port\": 3}\n"
-    ], 
-    "ipv6_nd_sll": [
-        "ipv6_nd_sll", 
-        "Source link-layer for Neighbor Discovery (string)", 
-        "{\"ipv6_nd_sll\": \"aa:bb:cc:11:22:33\", \"icmpv6_type\": 135, \"ip_proto\": 58, \"eth_type\": 34525}\n"
-    ], 
-    "mpls_tc": [
-        "mpls_tc", 
-        "MPLS Traffic Class (int)", 
-        "{\"mpls_tc\": 2, \"eth_type\": 34888}\n"
-    ], 
-    "ipv6_nd_tll": [
-        "ipv6_nd_tll", 
-        "Target link-layer for Neighbor Discovery (string)", 
-        "{\"ipv6_nd_tll\": \"aa:bb:cc:11:22:33\", \"icmpv6_type\": 136, \"ip_proto\": 58, \"eth_type\": 34525}\n"
-    ], 
-    "icmpv4_type": [
-        "icmpv4_type", 
-        "ICMP type (int)", 
-        "{\"icmpv4_type\": 5, \"ip_proto\": 1, \"eth_type\": 2048}\n"
-    ], 
-    "mpls_label": [
-        "mpls_label", 
-        "MPLS label (int)", 
-        "{\"mpls_label\": 3, \"eth_type\": 34888}\n"
-    ], 
-    "tcp_dst": [
-        "tcp_dst", 
-        "TCP destination port (int)", 
-        "{\"tcp_dst\": 5, \"ip_proto\": 6, \"eth_type\": 2048}\n"
-    ], 
-    "ip_proto": [
-        "ip_proto", 
-        "IP protocol (int)", 
-        "{\"ip_proto\": 5, \"eth_type\": 34525}\n"
-    ], 
-    "metadata": [
-        "metadata", 
-        "Metadata passed between tables (int/string)", 
-        "{\"metadata\": 12345} or {\"metadata\": \"0x1212/0xffff\"}\n"
+{  
+    "tcp_flags":[  
+      "tcp_flags",
+      "TCP flags (int) (Openflow1.5+)",
+      "{\"tcp_flags\": 2, \"ip_proto\": 6, \"eth_type\": 2048}\n"
+    ],
+    "ipv6_flabel":[  
+      "ipv6_flabel",
+      "IPv6 Flow Label (int)",
+      "{\"ipv6_flabel\": 2, \"eth_type\": 34525}\n"
+    ],
+    "arp_sha":[  
+      "arp_sha",
+      "ARP source hardware address (string)",
+      "{\"arp_sha\": \"aa:bb:cc:11:22:33\", \"eth_type\": 2054}\n"
+    ],
+    "vlan_pcp":[  
+      "vlan_pcp",
+      "VLAN priority (int)",
+      "{\"vlan_pcp\": 3, \"vlan_vid\": 3}\n"
+    ],
+    "ipv6_exthdr":[  
+      "ipv6_exthdr",
+      "IPv6 Extension Header pseudo-field (int/string) (Openflow1.3+)",
+      "{\"ipv6_exthdr\": 3, \"eth_type\": 34525} or {\"ipv6_exthdr\": \"0x40/0x1F0\", \"eth_type\": 34525}\n"
+    ],
+    "ipv4_src":[  
+      "ipv4_src",
+      "IPv4 source address (string)",
+      "{\"ipv4_src\": \"192.168.0.1\", \"eth_type\": 2048}\n"
+    ],
+    "ipv6_dst":[  
+      "ipv6_dst",
+      "IPv6 destination address (string)",
+      "{\"ipv6_dst\": \"2001::ffff:cccc:bbbb:1111/64\", \"eth_type\": 34525}\n"
+    ],
+    "arp_tpa":[  
+      "arp_tpa",
+      "ARP target IPv4 address (string)",
+      "{\"arp_tpa\": \"192.168.0.44/24\", \"eth_type\": 2054}\n"
+    ],
+    "icmpv6_type":[  
+      "icmpv6_type",
+      "ICMPv6 type (int)",
+      "{\"icmpv6_type\": 3, \"ip_proto\": 58, \"eth_type\": 34525}\n"
+    ],
+    "actset_output":[  
+      "actset_output",
+      "Output port from action set metadata (int) (Openflow1.5+)",
+      "{\"actset_output\": 3}\n"
+    ],
+    "sctp_src":[  
+      "sctp_src",
+      "SCTP source port (int)",
+      "{\"sctp_src\": 99, \"ip_proto\": 132, \"eth_type\": 2048}\n"
+    ],
+    "ipv6_src":[  
+      "ipv6_src",
+      "IPv6 source address (string)",
+      "{\"ipv6_src\": \"2001::aaaa:bbbb:cccc:1111\", \"eth_type\": 34525}\n"
+    ],
+    "eth_src":[  
+      "eth_src",
+      "Ethernet source address (string)",
+      "{\"eth_src\": \"aa:bb:cc:11:22:33\"}\n"
+    ],
+    "icmpv6_code":[  
+      "icmpv6_code",
+      "ICMPv6 code (int)",
+      "{\"icmpv6_code\": 4, \"ip_proto\": 58, \"eth_type\": 34525}\n"
+    ],
+    "eth_dst":[  
+      "eth_dst",
+      "Ethernet destination address (string)",
+      "{\"eth_dst\": \"aa:bb:cc:11:22:33/00:00:00:00:ff:ff\"}\n"
+    ],
+    "pbb_uca":[  
+      "pbb_uca",
+      "PBB UCA hander field (int) (Openflow1.4+)",
+      "{\"pbb_uca\": 1, \"eth_type\": 35047}\n"
+    ],
+    "ipv4_dst":[  
+      "ipv4_dst",
+      "IPv4 destination address (string)",
+      "{\"ipv4_dst\": \"192.168.10.10/255.255.255.0\", \"eth_type\": 2048}\n"
+    ],
+    "udp_src":[  
+      "udp_src",
+      "UDP source port (int)",
+      "{\"udp_src\": 2, \"ip_proto\": 17, \"eth_type\": 2048}\n"
+    ],
+    "tunnel_id":[  
+      "tunnel_id",
+      "Logical Port Metadata (int/string) (Openflow1.3+)",
+      "{\"tunnel_id\": 7} or {\"tunnel_id\": \"0x07/0xff\"}\n"
+    ],
+    "arp_op":[  
+      "arp_op",
+      "ARP opcode (int)",
+      "{\"arp_op\": 3, \"eth_type\": 2054}\n"
+    ],
+    "eth_type":[  
+      "eth_type",
+      "Ethernet frame type (int)",
+      "{\"eth_type\": 2048}\n"
+    ],
+    "ipv6_nd_target":[  
+      "ipv6_nd_target",
+      "Target address for Neighbor Discovery (string)",
+      "{\"ipv6_nd_target\": \"2001::ffff:cccc:bbbb:1111\", \"icmpv6_type\": 135, \"ip_proto\": 58, \"eth_type\": 34525}\n"
+    ],
+    "vlan_vid":[  
+      "vlan_vid",
+      "VLAN id (int/string)",
+      "See Example of VLAN ID match field\n"
+    ],
+    "arp_tha":[  
+      "arp_tha",
+      "ARP target hardware address (string)",
+      "{\"arp_tha\": \"aa:bb:cc:11:22:33/00:00:00:00:ff:ff\", \"eth_type\": 2054}\n"
+    ],
+    "in_port":[  
+      "in_port",
+      "Switch input port (int)",
+      "{\"in_port\": 7}\n"
+    ],
+    "ip_dscp":[  
+      "ip_dscp",
+      "IP DSCP (6 bits in ToS) (int)",
+      "{\"ip_dscp\": 3, \"eth_type\": 2048}\n"
+    ],
+    "mpls_bos":[  
+      "mpls_bos",
+      "MPLS BoS bit (int) (Openflow1.3+)",
+      "{\"mpls_bos\": 1, \"eth_type\": 34888}\n"
+    ],
+    "sctp_dst":[  
+      "sctp_dst",
+      "SCTP destination port (int)",
+      "{\"sctp_dst\": 99, \"ip_proto\": 132, \"eth_type\": 2048}\n"
+    ],
+    "icmpv4_code":[  
+      "icmpv4_code",
+      "ICMP code (int)",
+      "{\"icmpv4_code\": 6, \"ip_proto\": 1, \"eth_type\": 2048}\n"
+    ],
+    "tcp_src":[  
+      "tcp_src",
+      "TCP source port (int)",
+      "{\"tcp_src\": 3, \"ip_proto\": 6, \"eth_type\": 2048}\n"
+    ],
+    "arp_spa":[  
+      "arp_spa",
+      "ARP source IPv4 address (string)",
+      "{\"arp_spa\": \"192.168.0.11\", \"eth_type\": 2054}\n"
+    ],
+    "ip_ecn":[  
+      "ip_ecn",
+      "IP ECN (2 bits in ToS) (int)",
+      "{\"ip_ecn\": 0, \"eth_type\": 34525}\n"
+    ],
+    "packet_type":[  
+      "packet_type",
+      "Packet type value (int) (Openflow1.5+)",
+      "{\"packet_type\": [1, 2048]}\n"
+    ],
+    "udp_dst":[  
+      "udp_dst",
+      "UDP destination port (int)",
+      "{\"udp_dst\": 6, \"ip_proto\": 17, \"eth_type\": 2048}\n"
+    ],
+    "pbb_isid":[  
+      "pbb_isid",
+      "PBB I-SID (int/string) (Openflow1.3+)",
+      "{\"pbb_isid\": 5, \"eth_type\": 35047} or{\"pbb_isid\": \"0x05/0xff\", \"eth_type\": 35047}\n"
+    ],
+    "in_phy_port":[  
+      "in_phy_port",
+      "Switch physical input port (int)",
+      "{\"in_phy_port\": 5, \"in_port\": 3}\n"
+    ],
+    "ipv6_nd_sll":[  
+      "ipv6_nd_sll",
+      "Source link-layer for Neighbor Discovery (string)",
+      "{\"ipv6_nd_sll\": \"aa:bb:cc:11:22:33\", \"icmpv6_type\": 135, \"ip_proto\": 58, \"eth_type\": 34525}\n"
+    ],
+    "mpls_tc":[  
+      "mpls_tc",
+      "MPLS Traffic Class (int)",
+      "{\"mpls_tc\": 2, \"eth_type\": 34888}\n"
+    ],
+    "ipv6_nd_tll":[  
+      "ipv6_nd_tll",
+      "Target link-layer for Neighbor Discovery (string)",
+      "{\"ipv6_nd_tll\": \"aa:bb:cc:11:22:33\", \"icmpv6_type\": 136, \"ip_proto\": 58, \"eth_type\": 34525}\n"
+    ],
+    "icmpv4_type":[  
+      "icmpv4_type",
+      "ICMP type (int)",
+      "{\"icmpv4_type\": 5, \"ip_proto\": 1, \"eth_type\": 2048}\n"
+    ],
+    "mpls_label":[  
+      "mpls_label",
+      "MPLS label (int)",
+      "{\"mpls_label\": 3, \"eth_type\": 34888}\n"
+    ],
+    "tcp_dst":[  
+      "tcp_dst",
+      "TCP destination port (int)",
+      "{\"tcp_dst\": 5, \"ip_proto\": 6, \"eth_type\": 2048}\n"
+    ],
+    "ip_proto":[  
+      "ip_proto",
+      "IP protocol (int)",
+      "{\"ip_proto\": 5, \"eth_type\": 34525}\n"
+    ],
+    "metadata":[  
+      "metadata",
+      "Metadata passed between tables (int/string)",
+      "{\"metadata\": 12345} or {\"metadata\": \"0x1212/0xffff\"}\n"
+    ],
+    "in_port_nxm":[  
+      "in_port_nxm",
+      "(int) 16bit",
+      "OpenFlow port number."
+    ],
+    "eth_dst_nxm":[  
+      "eth_dst_nxm",
+      "MAC address",
+      "Ethernet destination address."
+    ],
+    "eth_src_nxm":[  
+      "eth_src_nxm",
+      "MAC address",
+      "Ethernet source address."
+    ],
+    "eth_type_nxm":[  
+      "eth_type_nxm",
+      "(int) 16bit",
+      "Ethernet type. Needed to support Nicira extensions that require the eth_type to be set. (i.e. tcp_flags_nxm)"
+    ],
+    "vlan_tci":[  
+      "vlan_tci",
+      "(int) 16bit",
+      "VLAN TCI. Basically same as vlan_vid plus vlan_pcp."
+    ],
+    "nw_tos":[  
+      "nw_tos",
+      "(int) 8bit",
+      "IP ToS or IPv6 traffic class field dscp. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)]"
+    ],
+    "ip_proto_nxm":[  
+      "ip_proto_nxm",
+      "(int) 8bit",
+      "IP protocol. Needed to support Nicira extensions that require the ip_proto to be set. (i.e. tcp_flags_nxm) Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)]"
+    ],
+    "ipv4_src_nxm":[  
+      "ipv4_src_nxm",
+      "IPv4 address",
+      "IPv4 source address. Requires setting fields: eth_type_nxm = 0x0800 (IPv4)"
+    ],
+    "ipv4_dst_nxm":[  
+      "ipv4_dst_nxm",
+      "IPv4 address",
+      "IPv4 destination address. Requires setting fields: eth_type_nxm = 0x0800 (IPv4)"
+    ],
+    "tcp_src_nxm":[  
+      "tcp_src_nxm",
+      "(int) 16bit",
+      "TCP source port. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)] and ip_proto_nxm = 6 (TCP)"
+    ],
+    "tcp_dst_nxm":[  
+      "tcp_dst_nxm",
+      "(int) 16bit",
+      "TCP destination port. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)] and ip_proto_nxm = 6 (TCP)"
+    ],
+    "udp_src_nxm":[  
+      "udp_src_nxm",
+      "(int) 16bit",
+      "UDP source port. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)] and ip_proto_nxm = 17 (UDP)"
+    ],
+    "udp_dst_nxm":[  
+      "udp_dst_nxm",
+      "(int) 16bit",
+      "UDP destination port. eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)] and ip_proto_nxm = 17 (UDP)"
+    ],
+    "icmpv4_type_nxm":[  
+      "icmpv4_type_nxm",
+      "(int) 8bit",
+      "Type matches the ICMP type and code matches the ICMP code. Requires setting fields: eth_type_nxm = 0x0800 (IPv4) and ip_proto_nxm = 1 (ICMP)"
+    ],
+    "icmpv4_code_nxm":[  
+      "icmpv4_code_nxm",
+      "(int) 8bit",
+      "Type matches the ICMP type and code matches the ICMP code. Requires setting fields: eth_type_nxm = 0x0800 (IPv4) and ip_proto_nxm = 1 (ICMP)"
+    ],
+    "arp_op_nxm":[  
+      "arp_op_nxm",
+      "(int) 16bit",
+      "Only ARP opcodes between 1 and 255 should be specified for matching. Requires setting fields: eth_type_nxm = 0x0806 (ARP)"
+    ],
+    "arp_spa_nxm":[  
+      "arp_spa_nxm",
+      "IPv4 address",
+      "An address may be specified as an IP address or host name. Requires setting fields: eth_type_nxm = 0x0806 (ARP)"
+    ],
+    "arp_tpa_nxm":[  
+      "arp_tpa_nxm",
+      "IPv4 address",
+      "An address may be specified as an IP address or host name. Requires setting fields: eth_type_nxm = 0x0806 (ARP)"
+    ],
+    "tunnel_id_nxm":[  
+      "tunnel_id_nxm",
+      "(int) 64bit",
+      "Tunnel identifier."
+    ],
+    "arp_sha_nxm":[  
+      "arp_sha_nxm",
+      "MAC address",
+      "An address is specified as 6 pairs of hexadecimal digits delimited by colons. Requires setting fields: eth_type_nxm = 0x0806 (ARP)"
+    ],
+    "arp_tha_nxm":[  
+      "arp_tha_nxm",
+      "MAC address",
+      "An address is specified as 6 pairs of hexadecimal digits delimited by colons. Requires setting fields: eth_type_nxm = 0x0806 (ARP)"
+    ],
+    "ipv6_src_nxm":[  
+      "ipv6_src_nxm",
+      "IPv6 address",
+      "IPv6 source address. Requires setting fields: eth_type_nxm = 0x86dd (IPv6)"
+    ],
+    "ipv6_dst_nxm":[  
+      "ipv6_dst_nxm",
+      "IPv6 address",
+      "IPv6 destination address. Requires setting fields: eth_type_nxm = 0x86dd (IPv6)"
+    ],
+    "icmpv6_type_nxm":[  
+      "icmpv6_type_nxm",
+      "(int) 8bit",
+      "Type matches the ICMP type and code matches the ICMP code. Requires setting fields: eth_type_nxm = 0x86dd (IPv6) and ip_proto_nxm = 58 (ICMP for IPv6)"
+    ],
+    "icmpv6_code_nxm":[  
+      "icmpv6_code_nxm",
+      "(int) 8bit",
+      "Type matches the ICMP type and code matches the ICMP code. Requires setting fields: eth_type_nxm = 0x86dd (IPv6) and ip_proto_nxm = 58 (ICMP for IPv6)"
+    ],
+    "nd_target":[  
+      "nd_target",
+      "IPv6 address",
+      "The target address ipv6. Requires setting fields: eth_type_nxm = 0x86dd (IPv6) and ip_proto_nxm = 58 (ICMP for IPv6)"
+    ],
+    "nd_sll":[  
+      "nd_sll",
+      "MAC address",
+      "The source link-layer address option. Requires setting fields: eth_type_nxm = 0x86dd (IPv6) and ip_proto_nxm = 58 (ICMP for IPv6) and icmpv6_type_nxm = 135 (Neighbor solicitation)"
+    ],
+    "nd_tll":[  
+      "nd_tll",
+      "MAC address",
+      "The target link-layer address option. Requires setting fields: eth_type_nxm = 0x86dd (IPv6) and ip_proto_nxm = 58 (ICMP for IPv6) and icmpv6_type_nxm = 136 (Neighbor advertisement)"
+    ],
+    "ip_frag":[  
+      "ip_frag",
+      "(int) 8bit",
+      "frag_type specifies what kind of IP fragments or non-fragments to match. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)]"
+    ],
+    "ipv6_label":[  
+      "ipv6_label",
+      "(int) 32bit",
+      "Matches IPv6 flow label. Requires setting fields: eth_type_nxm = 0x86dd (IPv6)"
+    ],
+    "ip_ecn_nxm":[  
+      "ip_ecn_nxm",
+      "(int) 8bit",
+      "Matches ecn bits in IP ToS or IPv6 traffic class fields. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)]"
+    ],
+    "nw_ttl":[  
+      "nw_ttl",
+      "(int) 8bit",
+      "IP TTL or IPv6 hop limit value ttl. Requires setting fields: eth_type_nxm = [0x0800 (IPv4)|0x86dd (IPv6)]"
+    ],
+    "mpls_ttl":[  
+      "mpls_ttl",
+      "(int) 8bit",
+      "The TTL of the outer MPLS label stack entry of a packet. Requires setting fields: eth_type_nxm = 0x8847 (MPLS Unicast)"
+    ],
+    "tun_ipv4_src":[  
+      "tun_ipv4_src",
+      "IPv4 address",
+      "Tunnel IPv4 source address. Requires setting fields: eth_type_nxm = 0x0800 (IPv4)"
+    ],
+    "tun_ipv4_dst":[  
+      "tun_ipv4_dst",
+      "IPv4 address",
+      "Tunnel IPv4 destination address. Requires setting fields: eth_type_nxm = 0x0800 (IPv4)"
+    ],
+    "pkt_mark":[  
+      "pkt_mark",
+      "(int) 32bit",
+      "Packet metadata mark."
+    ],
+    "tcp_flags_nxm":[  
+      "tcp_flags_nxm",
+      "(int) 16bit",
+      "TCP Flags. Requires setting fields: eth_type_nxm = [0x0800 (IP)|0x86dd (IPv6)] and ip_proto_nxm = 6 (TCP)"
+    ],
+    "conj_id":[  
+      "conj_id",
+      "(int) 32bit",
+      "Conjunction ID used only with the conjunction action"
+    ],
+    "tun_gbp_id":[  
+      "tun_gbp_id",
+      "(int) 16bit",
+      "The group policy identifier in the VXLAN header."
+    ],
+    "tun_gbp_flags":[  
+      "tun_gbp_flags",
+      "(int) 8bit",
+      "The group policy flags in the VXLAN header."
+    ],
+    "tun_flags":[  
+      "tun_flags",
+      "(int) 16bit",
+      "Flags indicating various aspects of the tunnel encapsulation."
+    ],
+    "ct_state":[  
+      "ct_state",
+      "(int) 32bit",
+      "Conntrack state."
+    ],
+    "ct_zone":[  
+      "ct_zone",
+      "(int) 16bit",
+      "Conntrack zone."
+    ],
+    "ct_mark":[  
+      "ct_mark",
+      "(int) 32bit",
+      "Conntrack mark."
+    ],
+    "ct_label":[  
+      "ct_label",
+      "(int) 128bit",
+      "Conntrack label."
+    ],
+    "tun_ipv6_src":[  
+      "tun_ipv6_src",
+      "IPv6 address",
+      "Tunnel IPv6 source address. Requires setting fields: eth_type_nxm = 0x86dd (IPv6)"
+    ],
+    "tun_ipv6_dst":[  
+      "tun_ipv6_dst",
+      "IPv6 address",
+      "Tunnel IPv6 destination address. Requires setting fields: eth_type_nxm = 0x86dd (IPv6)"
+    ],
+    "_recirc_id":[  
+      "_recirc_id",
+      "(int) 32bit",
+      "ID for recirculation."
+    ],
+    "_dp_hash":[  
+      "_dp_hash",
+      "(int) 32bit",
+      "Flow hash computed in Datapath."
+    ],
+    "nsh_flags":[  
+      "nsh_flags",
+      "(int) 8bit",
+      "Flags field in NSH Base Header. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.8."
+    ],
+    "nsh_mdtype":[  
+      "nsh_mdtype",
+      "(int) 8bit",
+      "Metadata Type in NSH Base Header. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.8."
+    ],
+    "nsh_np":[  
+      "nsh_np",
+      "(int) 8bit",
+      "Next Protocol type in NSH Base Header. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.8."
+    ],
+    "nsh_spi":[  
+      "nsh_spi",
+      "(int) 32bit",
+      "Service Path Identifier in NSH Service Path Header. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.8."
+    ],
+    "nsh_si":[  
+      "nsh_si",
+      "(int) 8bit",
+      "Service Index in NSH Service Path Header. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.8."
+    ],
+    "nsh_c<N>":[  
+      "nsh_c<N>",
+      "(int) 32bit",
+      "Context fields in NSH Context Header. <N> is a number of 1-4. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.8."
+    ],
+    "nsh_ttl":[  
+      "nsh_ttl",
+      "(int) 8bit",
+      "TTL field in NSH Base Header. Requires eth_type_nxm = 0x894f (NSH). Since OpenFlow 1.3 and OVS v2.9."
+    ],
+    "reg<idx>":[  
+      "reg<idx>",
+      "(int) 32bit",
+      "Packet register. <idx> is register number 0-15."
+    ],
+    "xxreg<idx>":[  
+      "xxreg<idx>",
+      "(int) 128bit",
+      "Packet extended-extended register. <idx> is register number 0-3."
     ]
-}
+  }
