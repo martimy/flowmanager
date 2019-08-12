@@ -685,8 +685,10 @@ class FlowManager(app_manager.RyuApp):
         log = map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                         hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)])
         # self.logger.info('\t'.join(log))
-
-        self.rpc_broadcall("log", json.dumps(log))
+        try:
+            self.rpc_broadcall("log", json.dumps(log))
+        except:
+            pass # avoiding not-serializable objects
 
     def rpc_broadcall(self, func_name, msg):
         from socket import error as SocketError
