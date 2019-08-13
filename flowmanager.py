@@ -127,6 +127,8 @@ class FlowManager(app_manager.RyuApp):
 
     def get_stats(self, req, dpid):
         dp = self.dpset.get(int(str(dpid), 0))
+        if not dp:
+            return
         if req == "flows":
             return self.ofctl.get_flow_stats(dp, self.waiters)
         elif req == "groups":
@@ -682,8 +684,8 @@ class FlowManager(app_manager.RyuApp):
 
         now = time.strftime('%b %d %H:%M:%S')
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
-        log = map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
-                        hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)])
+        log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
+                        hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
         # self.logger.info('\t'.join(log))
         try:
             self.rpc_broadcall("log", json.dumps(log))
