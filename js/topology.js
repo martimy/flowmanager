@@ -13,9 +13,14 @@
 // limitations under the License.
 
 $(function () {
-    var tabObj = Tabs('topology');
-    var size = 60;
-    var radius = 8;
+    const tabObj = Tabs('topology');
+    const size = 60;
+    const radius = 8;
+
+    // Define the div for the tooltip
+    const div = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
     function add_prefix(obj) {
         return String(obj).replace(/^0+/, "Switch_");
@@ -127,6 +132,7 @@ $(function () {
             .selectAll(".node")
             .data(graph.nodes)
             .enter().append("g")
+            // .attr("id", function (d) { return "N" + d.id; })
             .attr("class", "node");
 
         node.append("image")
@@ -145,7 +151,8 @@ $(function () {
         node.append("text")
             .attr("class", "label")
             .attr("dy", size + 14)
-            .text(function (d) { return d.id; });
+            .text(function (d) { return d.id.replace(/^0+/, ''); });
+
 
         // Create links with lines, circles, and text
         var link = svg.append("g")
@@ -212,10 +219,10 @@ $(function () {
         }
 
         // Handling mouse drag
-        var drag_handler = d3.drag()
+        node.call(d3.drag()
             .on("start", drag_start)
             .on("drag", drag_drag)
-            .on("end", drag_end);
+            .on("end", drag_end));
 
         function drag_start(d) {
             if (!d3.event.active) simulation.alphaTarget(0.3).restart();
@@ -230,30 +237,34 @@ $(function () {
 
         function drag_end(d) {
             if (!d3.event.active) simulation.alphaTarget(0);
-            d.fx = null; //d.x;
-            d.fy = null; //d.y;
+            d.fx = null;
+            d.fy = null;
         }
 
         // Handling mouse over
-        function handleMouseOver(d, i) {
-            d3.select(this)
-            // .attr("width", 2*size)
-            // .attr("height", 2*size);
+        function handleMouseOver(d) {
+            div.transition()
+                .duration(200)
+                .style("opacity", .9);
+            div.html(d.type + ": " + d.id.replace(/^0+/, ''))
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
         }
 
-        function handleMouseOut(d, i) {
-            d3.select(this)
-            // .attr("width", size)
-            // .attr("height", size);
+        function handleMouseOut(d) {
+            div.transition()
+                .duration(500)
+                .style("opacity", 0);
         }
 
-        drag_handler(node);
+        // drag_handler(node);
 
         // run tickActions in every simulation step
         simulation.on("tick", tickActions);
+
     }
 
-    // Display the raw topology data at the bottom of the window
+    // Display the raw topology data 
     function listTopology(network) {
         data = "<h1>Switches</h1>" + JSON.stringify(network.switches) + "<br>";
         data += "<h1>Links</h1>" + JSON.stringify(network.links) + "<br>";
