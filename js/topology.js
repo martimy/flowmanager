@@ -151,7 +151,8 @@ $(function () {
         node.append("text")
             .attr("class", "label")
             .attr("dy", size + 14)
-            .text(function (d) { return d.id.replace(/^0+/, ''); });
+            .text(function (d) { return d.id; });
+            // .text(function (d) { return d.id.replace(/^0+/, ''); });
 
 
         // Create links with lines, circles, and text
@@ -246,7 +247,7 @@ $(function () {
             div.transition()
                 .duration(200)
                 .style("opacity", .9);
-            div.html(d.type + ": " + d.id.replace(/^0+/, ''))
+            div.html(d.type + ": " + d.id)
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
         }
