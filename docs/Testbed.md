@@ -1,6 +1,7 @@
 
 # Creating an SDN testbed
 ***Based on [RYU SDN Testbed Manual Version 1.6](http://www.obriain.com/training/sdn/RYU_Soft_Testbed_v1.6_odt.pdf) by Diarmuid O Briain*** 
+
 (A newer version of the O Briain's Manual is [available here](http://www.obriain.com/training/sdn/RYU_Soft_Testbed_v2.0.pdf))
 
 Here is how you can create an SDN testbed using Mininet, Ryu controller, and FlowManager in a Linux (Ubuntu 18.04) machine.
