@@ -267,9 +267,9 @@ $(function () {
 
     // Display the raw topology data 
     function listTopology(network) {
-        data = "<h1>Switches</h1>" + JSON.stringify(network.switches) + "<br>";
-        data += "<h1>Links</h1>" + JSON.stringify(network.links) + "<br>";
-        data += "<h1>Hosts</h1>" + JSON.stringify(network.hosts) + "<br>";
+        data = "<h1>Switches</h1><textarea rows="16" cols="60" style="resize:none" readonly>" + JSON.stringify(network.switches,null,4) + "</textarea><br><br>";
+        data += "<h1>Links</h1><textarea rows="16" cols="60" style="resize:none" readonly>" + JSON.stringify(network.links,null,4) + "</textarea><br><br>";
+        data += "<h1>Hosts</h1><textarea rows="16" cols="60" style="resize:none" readonly>" + JSON.stringify(network.hosts,null,4) + "</textarea><br>";
         $('#data').html(data);
     }
 
