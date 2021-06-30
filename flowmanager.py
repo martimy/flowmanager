@@ -33,7 +33,7 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
 # for topology discovery
-#from ryu.topology import event
+from ryu.topology import event
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
