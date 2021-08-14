@@ -86,12 +86,6 @@ $(function () {
         var body = "<tr>"
         body += "<td>" + row[0] + "</td>";
         body += "<td>" + row[1] + "</td>";
-        // body += "<td>" + row[2] + "</td>";
-        // body += "<td>" + row[3] + "</td>";
-        // body += "<td>" + row[4] + "</td>";
-        // body += "<td>" + row[5].replace('OFPMatch', '') + "</td>";
-        // body += "<td>" + row[6] + "</td>";
-        // body += "<td>" + row[7] + "</td>";
         body += "<td class=\"tooltip\"><span>" + row[2] + "</span>" + row[2] + "</td>";
         body += "</tr>";
         // Add the row at the top
@@ -144,7 +138,6 @@ $(function () {
         var ws = new WebSocket("ws://" + location.host + "/ws");
         ws.onmessage = function (event) {
             var data = JSON.parse(event.data);
-            console.log('line 147')
             console.log(event.data)
             console.log(data)
 
@@ -170,19 +163,19 @@ $(function () {
 
         var $messages = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
         Show <div class="cselect"><select id="rowoption"> \
-        <option value="10">10</option><option value="25">25</option> \
+        <option value="10" selected>10</option><option value="25">25</option> \
         <option value="50">50</option></select></div> rows</div> \
         <div id="messages"></div>');
 
         var $snort = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
         Show <div class="cselect"><select id="rowoption2"> \
-        <option value="10">10</option><option value="25">25</option> \
+        <option value="10" selected>10</option><option value="25">25</option> \
         <option value="50">50</option></select></div> rows</div> \
         <div id="snortmessages"></div>');
 
         tabObj.buildContent('Messages', $messages);
-        tabObj.buildContent('Stats', $svg);
         tabObj.buildContent('Snort', $snort);
+        tabObj.buildContent('Stats', $svg);
         build_table();
         build_snort_table();
         bigTree = BigTree();
