@@ -1,0 +1,145 @@
+#=ICMP RULES===========
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Packet found"; classtype:icmp-event; sid:9000000; rev:001; metadata:personal_ruleset;)
+
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Echo Reply"; itype: 0; classtype:icmp-event; sid:9000001; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Destination Unreachable"; itype: 3; classtype:icmp-event; sid:9000002; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Source Quench Message received"; itype: 4; classtype:icmp-event; sid:9000003; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Redirect message"; itype: 5; classtype:icmp-event; sid:9000004; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Echo Request"; itype: 8; classtype:icmp-event; sid:9000005; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Time Exceeded"; itype: 11; classtype:icmp-event; sid:9000006; rev:001; metadata:personal_ruleset;)
+
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP_Flood - 1"; itype: 8; classtype:bad-unknown; sid:9000007; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP_Flood - 2"; itype: 8; classtype:bad-unknown; sid:9000008; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP_Flood - 3"; itype: 8; classtype:bad-unknown; sid:9000009; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1;)
+
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP Flood - 1"; itype: 8; classtype:bad-unknown; sid:9000007; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 45000, seconds 30;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP Flood - 2"; itype: 8; classtype:bad-unknown; sid:9000008; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 30;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP Flood - 3"; itype: 8; classtype:bad-unknown; sid:9000009; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 135000, seconds 30;)
+
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP Flood - 1"; itype: 8; classtype:bad-unknown; sid:9000007; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 60;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP Flood - 2"; itype: 8; classtype:bad-unknown; sid:9000008; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 180000, seconds 60;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP Flood - 3"; itype: 8; classtype:bad-unknown; sid:9000009; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 270000, seconds 60;)
+
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(1300) - 1"; itype: 8; dsize: > 1300; classtype:denial-of-service; sid:9000013; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath (65536) - 1"; itype: 8; dsize: > 65536; classtype:denial-of-service; sid:9000013; rev:001; metadata:personal_ruleset;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 2"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000014; rev:001; metadata:personal_ruleset;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 3"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000015; rev:001; metadata:personal_ruleset;)
+
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 1"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000013; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 2"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000014; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 3"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000015; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1;)
+
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 1"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000013; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 45000, seconds 30;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 2"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000014; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 30;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 3"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000015; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 135000, seconds 30;)
+
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 1"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000010; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 60;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 2"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000011; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 180000, seconds 60;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65535) - 3"; itype: 8; dsize: > 65535; classtype:denial-of-service; sid:9000012; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 270000, seconds 60;)
+
+#=TCP RULES===========
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP Packet found"; classtype:tcp-connection; sid:8000000; rev:002; metadata:personal_ruleset;)
+
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN Packet found"; flags:S; classtype:tcp-connection; sid:8000001; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP ACK Packet found"; flags:A; classtype:tcp-connection; sid:8000002; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP FIN Packet found"; flags:F; classtype:tcp-connection; sid:8000003; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP RST Packet found"; flags:R; classtype:tcp-connection; sid:8000004; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP PSH Packet found"; flags:P; classtype:tcp-connection; sid:8000005; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP URG Packet found"; flags:U; classtype:tcp-connection; sid:8000006; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN-ACK Packet found"; flags:SA; classtype:tcp-connection; sid:8000007; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN-FIN Packet found"; flags:SF; classtype:tcp-connection; sid:8000008; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN-RST Packet found"; flags:SR; classtype:tcp-connection; sid:8000009; rev:002; metadata:personal_ruleset;)
+
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 1"; flags:S; classtype:bad-unknown; sid:8000010; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 2500, seconds 1; flow:stateless)
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 2"; flags:S; classtype:bad-unknown; sid:8000011; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 5000, seconds 1; flow:stateless)
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 3"; flags:S; classtype:bad-unknown; sid:8000012; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 7500, seconds 1; flow:stateless)
+
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN_Flood - 1"; flags:S; classtype:bad-unknown; sid:8000010; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 2500, seconds 1;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN _Flood - 2"; flags:S; classtype:bad-unknown; sid:8000011; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 5000, seconds 1;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN _Flood - 3"; flags:S; classtype:bad-unknown; sid:8000012; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 7500, seconds 1;)
+
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 1"; flags:S; classtype:bad-unknown; sid:8000010; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 75000, seconds 30; flow:stateless)
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 2"; flags:S; classtype:bad-unknown; sid:8000011; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 150000, seconds 30; flow:stateless)
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 3"; flags:S; classtype:bad-unknown; sid:8000012; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 225000, seconds 30; flow:stateless)
+
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 1"; flags:S; classtype:bad-unknown; sid:8000010; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 150000, seconds 60; flow:stateless)
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 2"; flags:S; classtype:bad-unknown; sid:8000011; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 300000, seconds 60; flow:stateless)
+#alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN Flood - 3"; flags:S; classtype:bad-unknown; sid:8000012; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 450000, seconds 60; flow:stateless)
+
+#=(SSH)==========
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP SYN Packet found"; flags:S; classtype:tcp-connection; sid:8000013; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP ACK Packet found"; flags:A; classtype:tcp-connection; sid:8000014; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP FIN Packet found"; flags:F; classtype:tcp-connection; sid:8000015; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP RST Packet found"; flags:R; classtype:tcp-connection; sid:8000016; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP PSH Packet found"; flags:P; classtype:tcp-connection; sid:8000017; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP URG Packet found"; flags:U; classtype:tcp-connection; sid:8000018; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP SYN-ACK Packet found"; flags:SA; classtype:tcp-connection; sid:8000019; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP SYN-FIN Packet found"; flags:SF; classtype:tcp-connection; sid:8000020; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 22 (msg: "[Ryu][TCP] SSH TCP SYN-RST Packet found"; flags:SR; classtype:tcp-connection; sid:8000021; rev:002; metadata:personal_ruleset;)
+
+#=(Telnet)==========
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP SYN Packet found"; flags:S; classtype:tcp-connection; sid:8000022; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP ACK Packet found"; flags:A; classtype:tcp-connection; sid:8000023; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP FIN Packet found"; flags:F; classtype:tcp-connection; sid:8000024; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP RST Packet found"; flags:R; classtype:tcp-connection; sid:8000025; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP PSH Packet found"; flags:P; classtype:tcp-connection; sid:8000026; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP URG Packet found"; flags:U; classtype:tcp-connection; sid:8000027; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP SYN-ACK Packet found"; flags:SA; classtype:tcp-connection; sid:8000028; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP SYN-FIN Packet found"; flags:SF; classtype:tcp-connection; sid:8000029; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 23 (msg: "[Ryu][TCP] Telnet TCP SYN-RST Packet found"; flags:SR; classtype:tcp-connection; sid:8000030; rev:002; metadata:personal_ruleset;)
+
+#=(FTP)==========
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP SYN Packet found"; flags:S; classtype:tcp-connection; sid:8000031; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP ACK Packet found"; flags:A; classtype:tcp-connection; sid:8000032; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP FIN Packet found"; flags:F; classtype:tcp-connection; sid:8000033; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP RST Packet found"; flags:R; classtype:tcp-connection; sid:8000034; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP PSH Packet found"; flags:P; classtype:tcp-connection; sid:8000035; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP URG Packet found"; flags:U; classtype:tcp-connection; sid:8000036; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP SYN-ACK Packet found"; flags:SA; classtype:tcp-connection; sid:8000037; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP SYN-FIN Packet found"; flags:SF; classtype:tcp-connection; sid:8000038; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET [20,21] (msg: "[Ryu][TCP] FTP TCP SYN-RST Packet found"; flags:SR; classtype:tcp-connection; sid:8000039; rev:002; metadata:personal_ruleset;)
+
+#=(Controller)==========
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP SYN Packet found"; flags:S; classtype:tcp-connection; sid:8000040; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP ACK Packet found"; flags:A; classtype:tcp-connection; sid:8000041; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP FIN Packet found"; flags:F; classtype:tcp-connection; sid:8000042; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP RST Packet found"; flags:R; classtype:tcp-connection; sid:8000043; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP PSH Packet found"; flags:P; classtype:tcp-connection; sid:8000044; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP URG Packet found"; flags:U; classtype:tcp-connection; sid:8000045; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP SYN-ACK Packet found"; flags:SA; classtype:tcp-connection; sid:8000046; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP SYN-FIN Packet found"; flags:SF; classtype:tcp-connection; sid:8000047; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET 8080 (msg: "[Ryu][TCP] Controller TCP SYN-RST Packet found"; flags:SR; classtype:tcp-connection; sid:8000048; rev:002; metadata:personal_ruleset;)
+
+alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP_Flood (GET) - 1"; classtype:bad-unknown; sid:8000049; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1; content:"GET"; nocase; http_method;)
+alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP_Flood (GET) - 2"; classtype:bad-unknown; sid:8000050; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1; content:"GET"; nocase; http_method;)
+alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP_Flood (GET) - 3"; classtype:bad-unknown; sid:8000051; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1; content:"GET"; nocase; http_method;)
+
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 1"; classtype:bad-unknown; sid:8000049; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1; flow:established; content:"GET"; nocase; http_method;)
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 2"; classtype:bad-unknown; sid:8000050; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1; flow:established; content:"GET"; nocase; http_method;)
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 3"; classtype:bad-unknown; sid:8000051; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1; flow:established; content:"GET"; nocase; http_method;)
+
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 1"; classtype:bad-unknown; sid:8000049; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 45000, seconds 30; flow:established; content:"GET"; nocase; http_method;)
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 2"; classtype:bad-unknown; sid:8000050; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 30; flow:established; content:"GET"; nocase; http_method;)
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 3"; classtype:bad-unknown; sid:8000051; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 135000, seconds 30; flow:established; content:"GET"; nocase; http_method;)
+
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 1"; classtype:bad-unknown; sid:8000049; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 60; flow:established; content:"GET"; nocase; http_method;)
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 2"; classtype:bad-unknown; sid:8000050; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 180000, seconds 60; flow:established; content:"GET"; nocase; http_method;)
+#alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP Flood (GET) - 3"; classtype:bad-unknown; sid:8000051; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 270000, seconds 60; flow:established; content:"GET"; nocase; http_method;)
+
+#=UDP RULES===========
+
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 1"; classtype:bad-unknown; sid:7000001; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1; flow:stateless)
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 2"; classtype:bad-unknown; sid:7000002; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1; flow:stateless)
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 3"; classtype:bad-unknown; sid:7000003; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1; flow:stateless)
+
+alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP_Flood - 1"; classtype:bad-unknown; sid:7000001; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1;)
+alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP_Flood - 2"; classtype:bad-unknown; sid:7000002; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1;)
+alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP_Flood - 3"; classtype:bad-unknown; sid:7000003; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1;)
+
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 1"; classtype:bad-unknown; sid:7000001; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 45000, seconds 30; flow:stateless)
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 2"; classtype:bad-unknown; sid:7000002; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 30; flow:stateless)
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 3"; classtype:bad-unknown; sid:7000003; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 130500, seconds 30; flow:stateless)
+
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 1"; classtype:bad-unknown; sid:7000001; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 90000, seconds 60; flow:stateless)
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 2"; classtype:bad-unknown; sid:7000002; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 180000, seconds 60; flow:stateless)
+#alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP Flood - 3"; classtype:bad-unknown; sid:7000003; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 270000, seconds 60; flow:stateless)
