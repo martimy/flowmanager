@@ -1,0 +1,58 @@
+# Copyright 2001-2021 Sourcefire, Inc. All Rights Reserved.
+#
+# This file contains (i) proprietary rules that were created, tested and certified by
+# Sourcefire, Inc. (the "VRT Certified Rules") that are distributed under the VRT
+# Certified Rules License Agreement (v 2.0), and (ii) rules that were created by
+# Sourcefire and other third parties (the "GPL Rules") that are distributed under the
+# GNU General Public License (GPL), v2.
+# 
+# The VRT Certified Rules are owned by Sourcefire, Inc. The GPL Rules were created
+# by Sourcefire and other third parties. The GPL Rules created by Sourcefire are
+# owned by Sourcefire, Inc., and the GPL Rules not created by Sourcefire are owned by
+# their respective creators. Please see http://www.snort.org/snort/snort-team/ for a
+# list of third party owners and their respective copyrights.
+# 
+# In order to determine what rules are VRT Certified Rules or GPL Rules, please refer
+# to the VRT Certified Rules License Agreement (v2.0).
+#
+#-------------
+# LOCAL RULES
+#-------------
+
+#=ICMP RULES===========
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Echo Reply"; itype: 0; classtype:icmp-event; sid:9000001; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Destination Unreachable"; itype: 3; classtype:icmp-event; sid:9000002; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Source Quench Message received"; itype: 4; classtype:icmp-event; sid:9000003; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Redirect message"; itype: 5; classtype:icmp-event; sid:9000004; rev:001; metadata:personal_ruleset;)
+#alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Echo Request"; itype: 8; classtype:icmp-event; sid:9000005; rev:001; metadata:personal_ruleset;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] ICMP Time Exceeded"; itype: 11; classtype:icmp-event; sid:9000006; rev:001; metadata:personal_ruleset;)
+
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP_Flood - 1"; itype: 8; classtype:bad-unknown; sid:9000007; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP_Flood - 2"; itype: 8; classtype:bad-unknown; sid:9000008; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1;)
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible ICMP_Flood - 3"; itype: 8; classtype:bad-unknown; sid:9000009; rev:001; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1;)
+
+alert icmp any any -> $HOME_NET any (msg: "[Ryu][ICMP] Posible PingOfDeath(65536) - 1"; itype: 8; dsize: > 65536; classtype:denial-of-service; sid:9000010; rev:001; metadata:personal_ruleset;)
+
+#=TCP RULES===========
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN Packet found"; flags:S; classtype:tcp-connection; sid:8000001; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP ACK Packet found"; flags:A; classtype:tcp-connection; sid:8000002; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP FIN Packet found"; flags:F; classtype:tcp-connection; sid:8000003; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP RST Packet found"; flags:R; classtype:tcp-connection; sid:8000004; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP PSH Packet found"; flags:P; classtype:tcp-connection; sid:8000005; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP URG Packet found"; flags:U; classtype:tcp-connection; sid:8000006; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN-ACK Packet found"; flags:SA; classtype:tcp-connection; sid:8000007; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN-FIN Packet found"; flags:SF; classtype:tcp-connection; sid:8000008; rev:002; metadata:personal_ruleset;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] TCP SYN-RST Packet found"; flags:SR; classtype:tcp-connection; sid:8000009; rev:002; metadata:personal_ruleset;)
+
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN_Flood - 1"; flags:S; classtype:bad-unknown; sid:8000010; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 2500, seconds 1;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN_Flood - 2"; flags:S; classtype:bad-unknown; sid:8000011; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 5000, seconds 1;)
+alert tcp any any -> $HOME_NET any (msg: "[Ryu][TCP] Posible SYN_Flood - 3"; flags:S; classtype:bad-unknown; sid:8000012; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 7500, seconds 1;)
+
+alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP_Flood (GET) - 1"; classtype:bad-unknown; sid:8000013; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1; content:"GET"; nocase; http_method;)
+alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP_Flood (GET) - 2"; classtype:bad-unknown; sid:8000014; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1; content:"GET"; nocase; http_method;)
+alert tcp any any -> $HOME_NET 80 (msg: "[Ryu][TCP] Posible HTTP_Flood (GET) - 3"; classtype:bad-unknown; sid:8000015; rev:002; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1; content:"GET"; nocase; http_method;)
+
+#=UDP RULES===========
+alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP_Flood - 1"; classtype:bad-unknown; sid:7000001; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 1500, seconds 1;)
+alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP_Flood - 2"; classtype:bad-unknown; sid:7000002; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 3000, seconds 1;)
+alert udp any any -> $HOME_NET any (msg: "[Ryu][UDP] Posible UDP_Flood - 3"; classtype:bad-unknown; sid:7000003; rev:003; metadata:personal_ruleset; detection_filter: track by_dst, count 4500, seconds 1;)
