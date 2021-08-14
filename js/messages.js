@@ -31,6 +31,11 @@ $(function () {
     <th>Cookie</th> \
     <th>Content</th></tr></thead>';
 
+    const snortheader = '<thead> \
+    <th>Time</th> \
+    <th>Type</th> \
+    <th>Content</th></tr></thead>';
+
     // var bfs = function (tree, key, collection) {
     //     if (!tree[key] || tree[key].length === 0) return;
     //     for (var i = 0; i < tree[key].length; i++) {
@@ -45,6 +50,12 @@ $(function () {
         var body = "<tbody></tbody>";
         var content = '<table id="logs" class="logtable sortable">' + header + body + '</table>'
         $('#messages').html(content);
+    }
+
+    function build_snort_table() {
+        var body = "<tbody></tbody>";
+        var content = '<table id="snortlogs" class="logtable sortable">' + snortheader + body + '</table>'
+        $('#snortmessages').html(content);
     }
 
     function add_row(row) {
@@ -65,6 +76,26 @@ $(function () {
         body += "</tr>";
         // Add the row at the top
         $('#logs').prepend(body);
+    }
+
+    function add_snort_row(row) {
+        if (pause) return;
+        if ($('#snortlogs tr').length > maxRows) {
+            $("#snortlogs > tbody tr:last").remove();
+        }
+        var body = "<tr>"
+        body += "<td>" + row[0] + "</td>";
+        body += "<td>" + row[1] + "</td>";
+        // body += "<td>" + row[2] + "</td>";
+        // body += "<td>" + row[3] + "</td>";
+        // body += "<td>" + row[4] + "</td>";
+        // body += "<td>" + row[5].replace('OFPMatch', '') + "</td>";
+        // body += "<td>" + row[6] + "</td>";
+        // body += "<td>" + row[7] + "</td>";
+        body += "<td class=\"tooltip\"><span>" + row[2] + "</span>" + row[2] + "</td>";
+        body += "</tr>";
+        // Add the row at the top
+        $('#snortlogs').prepend(body);
     }
 
     const update_stats = {
@@ -99,7 +130,12 @@ $(function () {
         },
         log: function (params) {
             row = JSON.parse(params);
-            add_row(row)
+            add_row(row);
+            return "";
+        },
+        snort: function (params) {
+            row = JSON.parse(params);
+            add_snort_row(row);
             return "";
         },
     }
@@ -108,16 +144,24 @@ $(function () {
         var ws = new WebSocket("ws://" + location.host + "/ws");
         ws.onmessage = function (event) {
             var data = JSON.parse(event.data);
+            console.log('line 147')
+            console.log(event.data)
+            console.log(data)
 
             var result = update_stats[data.method](data.params);
+            console.log(data.method)
+            console.log(data.params)
+            console.log(result)
 
             var ret = { "id": data.id, "jsonrpc": "2.0", "result": result };
+            console.log(ret)
+
             this.send(JSON.stringify(ret));
         }
     }
 
     function startMonitor() {
-        tabObj.buildTabs("#main", ["Messages", "Stats"], "Nothing to show!");
+        tabObj.buildTabs("#main", ["Messages", "Snort", "Stats"], "Nothing to show!");
 
         var $svg = $('<div class="msgoptions"> \
         <button id="reset" type="button">Reset</button> Select cookie: <select id="cookieoption"> \
@@ -126,13 +170,21 @@ $(function () {
 
         var $messages = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
         Show <div class="cselect"><select id="rowoption"> \
-        <option value="10" selected>10</option><option value="25">25</option> \
+        <option value="10">10</option><option value="25">25</option> \
         <option value="50">50</option></select></div> rows</div> \
         <div id="messages"></div>');
 
+        var $snort = $('<div class="msgoptions"><button id="pause" type="button">Pause</button> \
+        Show <div class="cselect"><select id="rowoption2"> \
+        <option value="10">10</option><option value="25">25</option> \
+        <option value="50">50</option></select></div> rows</div> \
+        <div id="snortmessages"></div>');
+
         tabObj.buildContent('Messages', $messages);
         tabObj.buildContent('Stats', $svg);
+        tabObj.buildContent('Snort', $snort);
         build_table();
+        build_snort_table();
         bigTree = BigTree();
 
         // let trees = sessionStorage.getItem('trees');
@@ -147,6 +199,13 @@ $(function () {
             maxRows = $(this).val();
             while (maxRows < $('#logs > tbody tr').length) {
                 $("#logs > tbody tr:last").remove();
+            }
+        });
+
+        $('#rowoption2').change(function () {
+            maxRows = $(this).val();
+            while (maxRows < $('#snortlogs > tbody tr').length) {
+                $("#snortlogs > tbody tr:last").remove();
             }
         });
 
