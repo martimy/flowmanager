@@ -32,6 +32,13 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
+from ryu.lib.packet import in_proto
+from ryu.lib.packet import ipv4
+from ryu.lib.packet import icmp
+from ryu.lib.packet import tcp
+from ryu.lib.packet import udp
+from ryu.lib.packet import arp
+
 # for topology discovery
 #from ryu.topology import event
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
@@ -120,6 +127,10 @@ class FlowManager(app_manager.RyuApp):
         logger.propagate = propagate
         logger.setLevel(loglevel)
         return logger
+    
+    # ================================================================================
+    #  Utility Method ================================================================
+    # ================================================================================
 
     def get_switches(self):
         """Return switches."""
@@ -506,8 +517,53 @@ class FlowManager(app_manager.RyuApp):
         ethtype = eth.ethertype
         dst = eth.dst
         src = eth.src
+        message = '(src_mac={}, dst_mac={}, type=0x{:04x})'.format(src, dst, ethtype)
 
-        return '(src={}, dst={}, type=0x{:04x})'.format(src, dst, ethtype)
+        try:
+            _ipv4 = pkt.get_protocols(ipv4.ipv4)
+            # self.logger.info(_ipv4)
+            try:
+                _icmp = pkt.get_protocols(icmp.icmp)
+                # self.logger.info(_icmp)
+            except Exception as error1:
+                print(error1)
+            
+            try:
+                _tcp = pkt.get_protocols(tcp.tcp)
+                # self.logger.info(_tcp)
+            except Exception as error2:
+                print(error2)
+            
+            try:
+                _udp = pkt.get_protocols(udp.udp)
+                self.logger.info(_udp)
+            except Exception as error3:
+                print(error3)
+        except Exception as error:
+            print(error)
+        finally:
+            return message
+
+        if _ipv4:
+            src = _ipv4.src
+            dst = _ipv4.dst
+            proto = _ipv4.proto
+            message += '\n(ip_src={}, ip_dst={}, ip_proto={})'.format(src,dst, proto)
+        if _icmp:
+            type = _icmp.type
+            code = _icmp.code
+            message += '\n(icmp_code={}, icmp_type={})'.format(type,code)
+        if _tcp:
+            # tcp = pkt.get_protocols(tcp.tcp)
+            sport = _tcp.src_port
+            dport = _tcp.dst_port
+            message += '\n(tcp_sport={}, tcp_dport={})'.format(sport,dport)
+        if _udp:
+            # udp = pkt.get_protocols(udp.udp)
+            sport = _udp.src_port
+            dport = _udp.dst_port
+            message += '\n(udp_sport={}, udp_dport={})'.format(sport,dport)
+        return message
 
     def process_meter_upload(self, configlist):
         """Sends meters to the switch to update meter tables.
@@ -570,7 +626,9 @@ class FlowManager(app_manager.RyuApp):
 
         return 'Flows added successfully!'
 
-    ##### Event Handlers #######################################
+    # ================================================================================
+    #  Event Handlers ================================================================
+    # ================================================================================
 
     @set_ev_cls([  # ofp_event.EventOFPStatsReply,
         ofp_event.EventOFPDescStatsReply,
@@ -659,6 +717,11 @@ class FlowManager(app_manager.RyuApp):
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
+        # All packet-in messages are looged except IPV6 packets
+        eth = pkt.get_protocol(ethernet.ethernet)
+        if eth.ethertype == ether_types.ETH_TYPE_IPV6:
+            # ignore ipv6 packet
+            return
 
         # Monitor packets. Flow entries with cookies take precedance
         tracked_msg = None
@@ -686,7 +749,7 @@ class FlowManager(app_manager.RyuApp):
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                         hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
-        # self.logger.info('\t'.join(log))
+        
         try:
             self.rpc_broadcall("log", json.dumps(log))
         except:
@@ -709,8 +772,6 @@ class FlowManager(app_manager.RyuApp):
 
         for client in disconnected_clients:
             self.rpc_clients.remove(client)
-
-    # @set_ev_cls(event.EventSwitchEnter)
 
     def get_topology_data(self):
         """Get Topology Data
