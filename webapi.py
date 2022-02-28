@@ -171,7 +171,7 @@ class WebApi(ControllerBase):
         if (filename == "" or filename == None):
             filename = "index.html"
         try:
-            filename = os.path.join(self.rootdir, filename)
+            filename = os.path.join(self.rootdir, "web", filename)
             return self.make_response(filename)
         except IOError:
             return Response(status=400)

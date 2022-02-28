@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from flow_monitor import Tracker
 from ryu.base import app_manager
 from ryu.app.wsgi import WSGIApplication
 from ryu.controller import dpset
@@ -50,7 +51,6 @@ LOG_FILE_NAME = 'flwmgr.log'
 print("You are using Python v" + '.'.join(map(str, sys.version_info)))
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-from flow_monitor import Tracker
 
 
 class FlowManager(app_manager.RyuApp):
@@ -685,12 +685,12 @@ class FlowManager(app_manager.RyuApp):
         now = time.strftime('%b %d %H:%M:%S')
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
-                        hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
+                             hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
         # self.logger.info('\t'.join(log))
         try:
             self.rpc_broadcall("log", json.dumps(log))
         except:
-            pass # avoiding not-serializable objects
+            pass  # avoiding not-serializable objects
 
     def rpc_broadcall(self, func_name, msg):
         from socket import error as SocketError
