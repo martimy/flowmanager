@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+import sys
+import mimetypes
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
 from ryu.app.wsgi import websocket
 from ryu.app.wsgi import WebSocketRPCClient
-import os
-import sys
-import mimetypes
-import time
+
 
 PYTHON3 = sys.version_info > (3, 0)
 
@@ -28,6 +28,7 @@ PYTHON3 = sys.version_info > (3, 0)
 class WebApi(ControllerBase):
     """This class offer an API for FlowManager
     """
+
     def __init__(self, req, link, data, **config):
         """Class Constructor
         """
@@ -36,9 +37,11 @@ class WebApi(ControllerBase):
         self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
 
-    def get_unicode(self, s):
-        return s if PYTHON3 else s.decode("utf-8")
-        
+    def get_unicode(self, any_string):
+        """Ensure all strings are unicode
+        """
+        return any_string if PYTHON3 else any_string.decode("utf-8")
+
     def make_response(self, filename):
         """Response with file content
         """
@@ -60,7 +63,7 @@ class WebApi(ControllerBase):
         return Response(status=404)  # Resource does not exist
 
     @route('monitor', '/data', methods=['GET'])
-    def get_switch_data(self, req, **_kwargs):
+    def get_switch_data(self, req):
         """Get switch data
         """
         if req.GET:  # is this if needed?
@@ -78,7 +81,7 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/topology', methods=['GET'])
-    def get_topology(self, req, **_kwargs):
+    def get_topology(self):
         """Get topology info
         """
         res = Response(content_type="application/json")
@@ -86,42 +89,41 @@ class WebApi(ControllerBase):
         res.json = reply
         return res
 
-    # merge the thre form methods
     @route('monitor', '/meterform', methods=['POST'])
-    def post_meter_form(self, req, **_kwargs):
+    def post_meter_form(self, req):
         """Connect with meter form
         """
         if req.POST:
             res = Response()
-            s = self.api.process_meter_message(req.json)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(
+                self.api.process_meter_message(req.json))
             return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/groupform', methods=['POST'])
-    def post_group_form(self, req, **_kwargs):
+    def post_group_form(self, req):
         """Connect with group form
         """
         if req.POST:
             res = Response()
-            s = self.api.process_group_message(req.json)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(
+                self.api.process_group_message(req.json))
             return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/flowform', methods=['POST'])
-    def post_flow_form(self, req, **_kwargs):
+    def post_flow_form(self, req):
         """Connect with flow control form
         """
         if req.POST:
             res = Response()
-            s = self.api.process_flow_message(req.json)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(
+                self.api.process_flow_message(req.json))
             return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/upload', methods=['POST'])
-    def post_config_upload(self, req, **_kwargs):
+    def post_config_upload(self, req):
         """Connect with configuration upload form
         """
         if req.POST:
@@ -139,31 +141,28 @@ class WebApi(ControllerBase):
 
         return Response(status=400)  # bad request
 
-    # TODO: merge the next two methods
     @route('monitor', '/flowdel', methods=['POST'])
-    def post_flow_delete(self, req, **_kwargs):
+    def post_flow_delete(self, req):
         """Receive flows delete request
         """
         if req.POST:
             res = Response()
-            s = self.api.delete_flow_list(req.json)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(self.api.delete_flow_list(req.json))
             return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/flowmonitor', methods=['POST'])
-    def post_flow_monitor(self, req, **_kwargs):
+    def post_flow_monitor(self, req):
         """Receive flows monitor request
         """
         if req.POST:
             res = Response()
-            s = self.api.monitor_flow_list(req.json)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(self.api.monitor_flow_list(req.json))
             return res
         return Response(status=400)  # bad request
 
     @route('monitor', '/logs', methods=['GET'])
-    def get_logs(self, req, **_kwargs):
+    def get_logs(self, req):
         """Get log mesages
         """
         if req.GET:
@@ -174,7 +173,7 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/home/{filename:.*}', methods=['GET'])
-    def get_filename(self, req, filename, **_kwargs):
+    def get_filename(self, filename):
         """Get monitoring information from ofctl_rest app
         """
         if (filename == "" or filename == None):
@@ -194,12 +193,12 @@ class WebApi(ControllerBase):
         rpc_client.serve_forever()
 
     @route('monitor', '/resetmonitor', methods=['POST'])
-    def post_reset_flow_monitor(self, req, **_kwargs):
+    def post_reset_flow_monitor(self, req):
         """Reset flows monitoring data
         """
         if req.POST:
             res = Response()
-            s = self.api.rest_flow_monitoring(req.json)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(
+                self.api.rest_flow_monitoring(req.json))
             return res
         return Response(status=400)  # bad request
