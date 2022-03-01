@@ -26,13 +26,22 @@ PYTHON3 = sys.version_info > (3, 0)
 
 
 class WebApi(ControllerBase):
+    """This class offer an API for FlowManager
+    """
     def __init__(self, req, link, data, **config):
+        """Class Constructor
+        """
         super(WebApi, self).__init__(req, link, data, **config)
         self.api = data["webctl"]
         self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
 
+    def get_unicode(self, s):
+        return s if PYTHON3 else s.decode("utf-8")
+        
     def make_response(self, filename):
+        """Response with file content
+        """
         filetype, _ = mimetypes.guess_type(filename)
         if not filetype:
             filetype = 'application/octet-stream'
@@ -85,7 +94,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.process_meter_message(req.json)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
         return Response(status=400)  # bad request
 
@@ -96,7 +105,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.process_group_message(req.json)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
         return Response(status=400)  # bad request
 
@@ -107,7 +116,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.process_flow_message(req.json)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
         return Response(status=400)  # bad request
 
@@ -125,7 +134,7 @@ class WebApi(ControllerBase):
             fm = self.api.process_flow_upload(flows) if flows else ''
             res = Response()
             s = "{}, {}, {}".format(rm, gm, fm)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
 
         return Response(status=400)  # bad request
@@ -138,7 +147,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.delete_flow_list(req.json)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
         return Response(status=400)  # bad request
 
@@ -149,7 +158,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.monitor_flow_list(req.json)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
         return Response(status=400)  # bad request
 
@@ -178,6 +187,8 @@ class WebApi(ControllerBase):
 
     @websocket('monitor', '/ws')
     def websocket_handler(self, ws):
+        """Sends monitoring data
+        """
         rpc_client = WebSocketRPCClient(ws)
         self.rpc_clients.append(rpc_client)
         rpc_client.serve_forever()
@@ -189,25 +200,6 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             s = self.api.rest_flow_monitoring(req.json)
-            res.text = s if PYTHON3 else unicode(s, "utf-8")
+            res.text = self.get_unicode(s)
             return res
         return Response(status=400)  # bad request
-
-    # @route('monitor', '/stream', methods=['GET'])
-    # def get_log_SSE(self, req, **_kwargs):
-    #     # Support for SSE
-    #     # https://streamdata.io/blog/server-sent-events/
-
-    #     def eventStream():
-    #         print("entered")
-    #         while len(self.messages) > 0:
-    #             t = self.messages.pop(0) #int(time.time())
-    #             body = 'retry: 10000\ndata: {}\n\n'.format(t)
-    #             yield body
-
-    #     events = ''.join([e for e in eventStream()])
-    #     res = Response(content_type="text/event-stream")
-    #     res.body = events #next(eventStream(),'')
-    #     return res
-
-    # messages = ["Hello,", "how", "are", "you?"]
