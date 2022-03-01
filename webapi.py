@@ -93,38 +93,28 @@ class WebApi(ControllerBase):
         res.json = reply
         return res
 
+    def form_response(self, process_response):
+        res = Response()
+        res.text = self.get_unicode(process_response)
+        return res
+
     @route('monitor', '/meterform', methods=['POST'])
     def post_meter_form(self, req):
         """Connect with meter form
         """
-        if req.POST:
-            res = Response()
-            res.text = self.get_unicode(
-                self.api.process_meter_message(req.json))
-            return res
-        return Response(status=400)  # bad request
+        return self.form_response(self.api.process_meter_message(req.json))
 
     @route('monitor', '/groupform', methods=['POST'])
     def post_group_form(self, req):
         """Connect with group form
         """
-        if req.POST:
-            res = Response()
-            res.text = self.get_unicode(
-                self.api.process_group_message(req.json))
-            return res
-        return Response(status=400)  # bad request
+        return self.form_response(self.api.process_group_message(req.json))
 
     @route('monitor', '/flowform', methods=['POST'])
     def post_flow_form(self, req):
         """Connect with flow control form
         """
-        if req.POST:
-            res = Response()
-            res.text = self.get_unicode(
-                self.api.process_flow_message(req.json))
-            return res
-        return Response(status=400)  # bad request
+        return self.form_response(self.api.process_flow_message(req.json))
 
     @route('monitor', '/upload', methods=['POST'])
     def post_config_upload(self, req):
