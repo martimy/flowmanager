@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Maen Artimy
+# Copyright (c) 2018-2022 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,6 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""
+This module includes an API class for the FlowManager app.  
+"""
 
 import os
 import sys
@@ -131,12 +135,16 @@ class WebApi(ControllerBase):
             groups = req.json.get('groups', None)
             flows = req.json.get('flows', None)
 
-            rm = self.api.process_meter_upload(meters) if meters else ''
-            gm = self.api.process_group_upload(groups) if groups else ''
-            fm = self.api.process_flow_upload(flows) if flows else ''
+            response_meters = self.api.process_meter_upload(
+                meters) if meters else ''
+            response_groups = self.api.process_group_upload(
+                groups) if groups else ''
+            response_flows = self.api.process_flow_upload(
+                flows) if flows else ''
+            response_all = "{}, {}, {}".format(
+                response_meters, response_groups, response_flows)
             res = Response()
-            s = "{}, {}, {}".format(rm, gm, fm)
-            res.text = self.get_unicode(s)
+            res.text = self.get_unicode(response_all)
             return res
 
         return Response(status=400)  # bad request
@@ -176,7 +184,7 @@ class WebApi(ControllerBase):
     def get_filename(self, filename):
         """Get monitoring information from ofctl_rest app
         """
-        if (filename == "" or filename == None):
+        if (filename == "" or filename is None):
             filename = "index.html"
         try:
             filename = os.path.join(self.rootdir, "web", filename)
@@ -185,10 +193,10 @@ class WebApi(ControllerBase):
             return Response(status=400)
 
     @websocket('monitor', '/ws')
-    def websocket_handler(self, ws):
+    def websocket_handler(self, ws_client):
         """Sends monitoring data
         """
-        rpc_client = WebSocketRPCClient(ws)
+        rpc_client = WebSocketRPCClient(ws_client)
         self.rpc_clients.append(rpc_client)
         rpc_client.serve_forever()
 
