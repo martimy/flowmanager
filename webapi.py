@@ -57,7 +57,7 @@ class WebApi(ControllerBase):
         return res
 
     @route('monitor', '/status', methods=['GET'])
-    def get_flow_stats(self, req, **_kwargs):
+    def get_flow_stats(self, req):
         """Get stats
         """
         if req.GET['status'] and req.GET['dpid']:
@@ -70,7 +70,7 @@ class WebApi(ControllerBase):
     def get_switch_data(self, req):
         """Get switch data
         """
-        if req.GET:  # is this if needed?
+        if req.GET:  # is this needed?
             lst = {}  # the server always returns somthing??
             if req.GET.get("list") == "switches":
                 lst = {t[0]: t[0] for t in self.api.get_switches()}
@@ -85,7 +85,7 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/topology', methods=['GET'])
-    def get_topology(self):
+    def get_topology(self, _):
         """Get topology info
         """
         res = Response(content_type="application/json")
@@ -181,7 +181,7 @@ class WebApi(ControllerBase):
         return Response(status=400)  # bad request
 
     @route('monitor', '/home/{filename:.*}', methods=['GET'])
-    def get_filename(self, filename):
+    def get_filename(self, _, filename):
         """Get monitoring information from ofctl_rest app
         """
         if (filename == "" or filename is None):
@@ -191,14 +191,6 @@ class WebApi(ControllerBase):
             return self.make_response(filename)
         except IOError:
             return Response(status=400)
-
-    @websocket('monitor', '/ws')
-    def websocket_handler(self, ws_client):
-        """Sends monitoring data
-        """
-        rpc_client = WebSocketRPCClient(ws_client)
-        self.rpc_clients.append(rpc_client)
-        rpc_client.serve_forever()
 
     @route('monitor', '/resetmonitor', methods=['POST'])
     def post_reset_flow_monitor(self, req):
@@ -210,3 +202,11 @@ class WebApi(ControllerBase):
                 self.api.rest_flow_monitoring(req.json))
             return res
         return Response(status=400)  # bad request
+
+    @websocket('monitor', '/ws')
+    def websocket_handler(self, ws_client):
+        """Sends monitoring data
+        """
+        rpc_client = WebSocketRPCClient(ws_client)
+        self.rpc_clients.append(rpc_client)
+        rpc_client.serve_forever()
