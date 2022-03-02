@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-This module includes an API class for the FlowManager app.  
+This module includes an API class for the FlowManager app. 
 """
 
 import os
@@ -69,7 +69,8 @@ class WebApi(ControllerBase):
         """
         if req.GET['status'] and req.GET['dpid']:
             res = Response(content_type="application/json")
-            res.json = self.ctrl_api.get_stats(req.GET['status'], req.GET['dpid'])
+            res.json = self.ctrl_api.get_stats(
+                req.GET['status'], req.GET['dpid'])
             return res
         return Response(status=404)  # Resource does not exist
 
@@ -146,7 +147,8 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.text = self.get_unicode(self.ctrl_api.delete_flow_list(req.json))
+            res.text = self.get_unicode(
+                self.ctrl_api.delete_flow_list(req.json))
             return res
         return Response(status=400)  # bad request
 
@@ -156,7 +158,8 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.text = self.get_unicode(self.ctrl_api.monitor_flow_list(req.json))
+            res.text = self.get_unicode(
+                self.ctrl_api.monitor_flow_list(req.json))
             return res
         return Response(status=400)  # bad request
 
