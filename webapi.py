@@ -37,7 +37,7 @@ class WebApi(ControllerBase):
         """Class Constructor
         """
         super(WebApi, self).__init__(req, link, data, **config)
-        self.api = data["webctl"]
+        self.ctrl_api = data["webctl"]
         self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
 
@@ -69,7 +69,7 @@ class WebApi(ControllerBase):
         """
         if req.GET['status'] and req.GET['dpid']:
             res = Response(content_type="application/json")
-            res.json = self.api.get_stats(req.GET['status'], req.GET['dpid'])
+            res.json = self.ctrl_api.get_stats(req.GET['status'], req.GET['dpid'])
             return res
         return Response(status=404)  # Resource does not exist
 
@@ -80,11 +80,11 @@ class WebApi(ControllerBase):
         if req.GET:  # is this needed?
             lst = {}  # the server always returns somthing??
             if req.GET.get("list") == "switches":
-                lst = {t[0]: t[0] for t in self.api.get_switches()}
+                lst = {t[0]: t[0] for t in self.ctrl_api.get_switches()}
             else:
                 request = list(req.GET.keys())[0]
                 dpid = int(req.GET[request])
-                lst = self.api.get_stats_request(request, dpid)
+                lst = self.ctrl_api.get_stats_request(request, dpid)
 
             res = Response(content_type="application/json")
             res.json = lst
@@ -96,26 +96,26 @@ class WebApi(ControllerBase):
         """Get topology info
         """
         res = Response(content_type="application/json")
-        res.json = self.api.get_topology_data()
+        res.json = self.ctrl_api.get_topology_data()
         return res
 
     @route('monitor', '/meterform', methods=['POST'])
     def post_meter_form(self, req):
         """Connect with meter form
         """
-        return self.form_response(self.api.process_meter_message(req.json))
+        return self.form_response(self.ctrl_api.process_meter_message(req.json))
 
     @route('monitor', '/groupform', methods=['POST'])
     def post_group_form(self, req):
         """Connect with group form
         """
-        return self.form_response(self.api.process_group_message(req.json))
+        return self.form_response(self.ctrl_api.process_group_message(req.json))
 
     @route('monitor', '/flowform', methods=['POST'])
     def post_flow_form(self, req):
         """Connect with flow control form
         """
-        return self.form_response(self.api.process_flow_message(req.json))
+        return self.form_response(self.ctrl_api.process_flow_message(req.json))
 
     @route('monitor', '/upload', methods=['POST'])
     def post_config_upload(self, req):
@@ -126,11 +126,11 @@ class WebApi(ControllerBase):
             groups = req.json.get('groups', None)
             flows = req.json.get('flows', None)
 
-            response_meters = self.api.process_meter_upload(
+            response_meters = self.ctrl_api.process_meter_upload(
                 meters) if meters else ''
-            response_groups = self.api.process_group_upload(
+            response_groups = self.ctrl_api.process_group_upload(
                 groups) if groups else ''
-            response_flows = self.api.process_flow_upload(
+            response_flows = self.ctrl_api.process_flow_upload(
                 flows) if flows else ''
             response_all = "{}, {}, {}".format(
                 response_meters, response_groups, response_flows)
@@ -146,7 +146,7 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.text = self.get_unicode(self.api.delete_flow_list(req.json))
+            res.text = self.get_unicode(self.ctrl_api.delete_flow_list(req.json))
             return res
         return Response(status=400)  # bad request
 
@@ -156,7 +156,7 @@ class WebApi(ControllerBase):
         """
         if req.POST:
             res = Response()
-            res.text = self.get_unicode(self.api.monitor_flow_list(req.json))
+            res.text = self.get_unicode(self.ctrl_api.monitor_flow_list(req.json))
             return res
         return Response(status=400)  # bad request
 
@@ -165,7 +165,7 @@ class WebApi(ControllerBase):
         """Get log mesages
         """
         if req.GET:
-            logs = self.api.read_logs()
+            logs = self.ctrl_api.read_logs()
             res = Response(content_type="application/json")
             res.json = logs
             return res
@@ -190,7 +190,7 @@ class WebApi(ControllerBase):
         if req.POST:
             res = Response()
             res.text = self.get_unicode(
-                self.api.rest_flow_monitoring(req.json))
+                self.ctrl_api.rest_flow_monitoring(req.json))
             return res
         return Response(status=400)  # bad request
 
