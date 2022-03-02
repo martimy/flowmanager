@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 Maen Artimy
+# Copyright (c) 2018-2022 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flow_monitor import Tracker
+
+"""
+The main module of the FlowManger Applications
+"""
+
+import os
+import sys
+import logging
+from logging.handlers import WatchedFileHandler
+import time
+import random
+import json
+
 from ryu.base import app_manager
 from ryu.app.wsgi import WSGIApplication
 from ryu.controller import dpset
@@ -25,8 +37,8 @@ from ryu.controller.handler import set_ev_cls
 
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
-from ryu.lib import ofctl_utils
-from ryu import utils
+# from ryu.lib import ofctl_utils
+# from ryu import utils
 
 # for packet content
 from ryu.lib.packet import packet
@@ -38,19 +50,14 @@ from ryu.lib.packet import ether_types
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
 
 from webapi import WebApi
-import os
-import sys
-import logging
-from logging.handlers import WatchedFileHandler
-import time
-import random
-import json
+from flow_monitor import Tracker
+
 
 PYTHON3 = sys.version_info > (3, 0)
 LOG_FILE_NAME = 'flwmgr.log'
 print("You are using Python v" + '.'.join(map(str, sys.version_info)))
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+# sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
 class FlowManager(app_manager.RyuApp):
@@ -122,29 +129,30 @@ class FlowManager(app_manager.RyuApp):
         return logger
 
     def get_switches(self):
-        """Return switches."""
+        """Return switches.
+        """
         return self.dpset.get_all()
 
     def get_stats(self, req, dpid):
-        dp = self.dpset.get(int(str(dpid), 0))
-        if not dp:
+        data_path = self.dpset.get(int(str(dpid), 0))
+        if not data_path:
             return
         if req == "flows":
-            return self.ofctl.get_flow_stats(dp, self.waiters)
+            return self.ofctl.get_flow_stats(data_path, self.waiters)
         elif req == "groups":
-            return {"desc": self.ofctl.get_group_desc(dp, self.waiters),
-                    "stats": self.ofctl.get_group_stats(dp, self.waiters)}
+            return {"desc": self.ofctl.get_group_desc(data_path, self.waiters),
+                    "stats": self.ofctl.get_group_stats(data_path, self.waiters)}
         elif req == "meters":
-            return {"desc": self.ofctl.get_meter_config(dp, self.waiters),
-                    "stats": self.ofctl.get_meter_stats(dp, self.waiters)}
+            return {"desc": self.ofctl.get_meter_config(data_path, self.waiters),
+                    "stats": self.ofctl.get_meter_stats(data_path, self.waiters)}
 
     def get_stats_request(self, request, dpid):
         """Get stats using ryu's api
         """
-        dp = self.dpset.get(dpid)
+        data_path = self.dpset.get(dpid)
         func = self.reqfunction.get(request, None)
-        if dp and func:
-            return func(dp, self.waiters)
+        if data_path and func:
+            return func(data_path, self.waiters)
         return None
 
     def read_logs(self):
@@ -159,9 +167,9 @@ class FlowManager(app_manager.RyuApp):
                 # items.append(line)
         return items
 
-    def get_actions(self, parser, set):
+    def get_actions(self, parser, action_set):
         actions = []
-        aDict = {
+        a_dict = {
             'SET_FIELD': (parser.OFPActionSetField, 'field'),
             'COPY_TTL_OUT': (parser.OFPActionCopyTtlOut, None),
             'COPY_TTL_IN': (parser.OFPActionCopyTtlIn, None),
@@ -180,28 +188,30 @@ class FlowManager(app_manager.RyuApp):
             'OUTPUT': (parser.OFPActionOutput, 'port'),
         }
 
-        for action in set:
+        for action in action_set:
             key = list(action.keys())[0]  # There should be only one key
             value = action[key]
-            if key in aDict:
-                f = aDict[key][0]       # the action
-                if aDict[key][1]:       # check if the action needs a value
+            if key in a_dict:
+                found_action = a_dict[key][0]       # the action
+                if a_dict[key][1]:       # check if the action needs a value
                     kwargs = {}
-                    if aDict[key][1] == 'field':
-                        x = value.split('=')
+                    if a_dict[key][1] == 'field':
+                        a_value = value.split('=')
                         val = 0
-                        if len(x) > 1:
-                            val = int(x[1]) if x[1].isdigit() else x[1]
-                        kwargs = {x[0]: val}
-                    elif aDict[key][1] == 'port':
-                        x = value.upper()
-                        val = self.port_id[x] if x in self.port_id else int(x)
-                        kwargs = {aDict[key][1]: val}
+                        if len(a_value) > 1:
+                            val = int(
+                                a_value[1]) if a_value[1].isdigit() else a_value[1]
+                        kwargs = {a_value[0]: val}
+                    elif a_dict[key][1] == 'port':
+                        a_value = value.upper()
+                        val = self.port_id[a_value] if a_value in self.port_id else int(
+                            a_value)
+                        kwargs = {a_dict[key][1]: val}
                     else:
-                        kwargs = {aDict[key][1]: int(value)}
-                    actions.append(f(**kwargs))
+                        kwargs = {a_dict[key][1]: int(value)}
+                    actions.append(found_action(**kwargs))
                 else:
-                    actions.append(f())
+                    actions.append(found_action())
             else:
                 raise Exception("Action {} not supported!".format(key))
         return actions
@@ -214,7 +224,7 @@ class FlowManager(app_manager.RyuApp):
 
         for item in actions:
             # Python 2 has both types
-            if type(item) is str or (not PYTHON3 and type(item) is unicode):
+            if isinstance(item, str) or (not PYTHON3 and isinstance(item, unicode)):
                 if item.startswith('WRITE_METADATA'):
                     metadata = item.split(':')[1].split('/')
                     # expecting hex data
@@ -233,7 +243,7 @@ class FlowManager(app_manager.RyuApp):
                     action = item.split(':')
                     apply_actions += [{action[0]: action[1]}]
 
-            elif type(item) is dict:  # WRITE ACTIONS
+            elif isinstance(item, dict):  # WRITE ACTIONS
                 wractions = item["WRITE_ACTIONS"]
                 for witem in wractions:
                     action = witem.split(':')
@@ -251,14 +261,16 @@ class FlowManager(app_manager.RyuApp):
 
         return inst
 
-    def process_flow_message(self, d):
-        dpid = int(d.get("dpid", 0))
-        dp = self.dpset.get(dpid)
-        if not dp:
+    def process_flow_message(self, flow_entry):
+        """Process Flow Mod message
+        """
+        dpid = int(flow_entry.get("dpid", 0))
+        data_path = self.dpset.get(dpid)
+        if not data_path:
             return "Datapath does not exist!"
 
-        ofproto = dp.ofproto
-        parser = dp.ofproto_parser
+        ofproto = data_path.ofproto
+        parser = data_path.ofproto_parser
 
         command = {
             'add': ofproto.OFPFC_ADD,
@@ -270,15 +282,15 @@ class FlowManager(app_manager.RyuApp):
 
         # Initialize arguments for the flow mod message
         msg_kwargs = {
-            'datapath': dp,
-            'command': command.get(d["operation"], ofproto.OFPFC_ADD),
+            'datapath': data_path,
+            'command': command.get(flow_entry["operation"], ofproto.OFPFC_ADD),
             'buffer_id': ofproto.OFP_NO_BUFFER,
         }
 
-        msg_kwargs['table_id'] = d.get('table_id', 0)
+        msg_kwargs['table_id'] = flow_entry.get('table_id', 0)
 
         # Match fields
-        mf = d.get("match", None)
+        mf = flow_entry.get("match", None)
         # convert port names to numbers
         if "in_port" in mf:
             x = mf["in_port"]
@@ -294,67 +306,70 @@ class FlowManager(app_manager.RyuApp):
 
         msg_kwargs['match'] = parser.OFPMatch(**mf) if mf else None
 
-        msg_kwargs['hard_timeout'] = d.get('hard_timeout', 0)
-        msg_kwargs['idle_timeout'] = d.get('idle_timeout', 0)
-        msg_kwargs['priority'] = d.get('priority', 0)
-        msg_kwargs['cookie'] = d.get('cookie', 0)
-        msg_kwargs['cookie_mask'] = d.get('cookie_mask', 0)
-        op = d.get('out_port', -1)  # make it 0
-        og = d.get('out_group', -1)
+        msg_kwargs['hard_timeout'] = flow_entry.get('hard_timeout', 0)
+        msg_kwargs['idle_timeout'] = flow_entry.get('idle_timeout', 0)
+        msg_kwargs['priority'] = flow_entry.get('priority', 0)
+        msg_kwargs['cookie'] = flow_entry.get('cookie', 0)
+        msg_kwargs['cookie_mask'] = flow_entry.get('cookie_mask', 0)
+        op = flow_entry.get('out_port', -1)  # make it 0
+        og = flow_entry.get('out_group', -1)
         msg_kwargs['out_port'] = ofproto.OFPP_ANY if op <= 0 else op
         msg_kwargs['out_group'] = ofproto.OFPG_ANY if og <= 0 else og
 
         # instructions
         inst = []
-        if "actions" in d:  # Ryu's format
-            inst = self._get_instructions(d['actions'], ofproto, parser)
+        if "actions" in flow_entry:  # Ryu's format
+            inst = self._get_instructions(
+                flow_entry['actions'], ofproto, parser)
         else:              # FlowManager's format
             # Goto meter
-            if ("meter_id" in d) and d['meter_id']:
-                inst += [parser.OFPInstructionMeter(d["meter_id"])]
+            if ("meter_id" in flow_entry) and flow_entry['meter_id']:
+                inst += [parser.OFPInstructionMeter(flow_entry["meter_id"])]
             # Apply Actions
-            if ("apply" in d) and d["apply"]:
-                applyActions = self.get_actions(parser, d["apply"])
+            if ("apply" in flow_entry) and flow_entry["apply"]:
+                applyActions = self.get_actions(parser, flow_entry["apply"])
                 inst += [parser.OFPInstructionActions(
                     ofproto.OFPIT_APPLY_ACTIONS, applyActions)]
             # Clear Actions
-            if ("clearactions" in d) and d["clearactions"]:
+            if ("clearactions" in flow_entry) and flow_entry["clearactions"]:
                 inst += [parser.OFPInstructionActions(
                     ofproto.OFPIT_CLEAR_ACTIONS, [])]
             # Write Actions
-            if ("write" in d) and d["write"]:
+            if ("write" in flow_entry) and flow_entry["write"]:
                 # bc actions must be unique they are in dict
                 # from dict to list
-                toList = [{k: d["write"][k]} for k in d["write"]]
+                toList = [{k: flow_entry["write"][k]}
+                          for k in flow_entry["write"]]
                 # print(toList)
                 writeActions = self.get_actions(parser, toList)
                 inst += [parser.OFPInstructionActions(
                     ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
             # Write Metadata
-            if ("metadata" in d) and d["metadata"]:
-                meta_mask = d.get("metadata_mask", 0)
+            if ("metadata" in flow_entry) and flow_entry["metadata"]:
+                meta_mask = flow_entry.get("metadata_mask", 0)
                 inst += [parser.OFPInstructionWriteMetadata(
-                    d["metadata"], meta_mask)]
+                    flow_entry["metadata"], meta_mask)]
             # Goto Table Metadata
-            if ("goto" in d) and d["goto"]:
-                inst += [parser.OFPInstructionGotoTable(table_id=d["goto"])]
+            if ("goto" in flow_entry) and flow_entry["goto"]:
+                inst += [parser.OFPInstructionGotoTable(
+                    table_id=flow_entry["goto"])]
 
         msg_kwargs['instructions'] = inst
 
         # Flags
         flags = 0
-        flags += 0x01 if d.get('SEND_FLOW_REM', False) else 0
-        flags += 0x02 if d.get('CHECK_OVERLAP', False) else 0
-        flags += 0x04 if d.get('RESET_COUNTS', False) else 0
-        flags += 0x08 if d.get('NO_PKT_COUNTS', False) else 0
-        flags += 0x10 if d.get('NO_BYT_COUNTS', False) else 0
+        flags += 0x01 if flow_entry.get('SEND_FLOW_REM', False) else 0
+        flags += 0x02 if flow_entry.get('CHECK_OVERLAP', False) else 0
+        flags += 0x04 if flow_entry.get('RESET_COUNTS', False) else 0
+        flags += 0x08 if flow_entry.get('NO_PKT_COUNTS', False) else 0
+        flags += 0x10 if flow_entry.get('NO_BYT_COUNTS', False) else 0
 
         msg_kwargs['flags'] = flags
 
         # ryu/ryu/ofproto/ofproto_v1_3_parser.py
         msg = parser.OFPFlowMod(**msg_kwargs)
         try:
-            dp.send_msg(msg)    # ryu/ryu/controller/controller.py
+            data_path.send_msg(msg)    # ryu/ryu/controller/controller.py
         except KeyError as e:
             return "Unrecognized field " + e.__repr__()
         except Exception as e:
@@ -367,12 +382,12 @@ class FlowManager(app_manager.RyuApp):
         """Sends group form data to the switch to update group tables.
         """
         dpid = int(d.get("dpid", 0))
-        dp = self.dpset.get(dpid)
-        if not dp:
+        data_path = self.dpset.get(dpid)
+        if not data_path:
             return "Datapath does not exist!"
 
-        ofproto = dp.ofproto
-        parser = dp.ofproto_parser
+        ofproto = data_path.ofproto
+        parser = data_path.ofproto_parser
 
         command = {
             'add': ofproto.OFPGC_ADD,
@@ -382,10 +397,10 @@ class FlowManager(app_manager.RyuApp):
 
         cmd = command.get(d["operation"], ofproto.OFPGC_ADD)
 
-        type_convert = {'ALL': dp.ofproto.OFPGT_ALL,
-                        'SELECT': dp.ofproto.OFPGT_SELECT,
-                        'INDIRECT': dp.ofproto.OFPGT_INDIRECT,
-                        'FF': dp.ofproto.OFPGT_FF}
+        type_convert = {'ALL': data_path.ofproto.OFPGT_ALL,
+                        'SELECT': data_path.ofproto.OFPGT_SELECT,
+                        'INDIRECT': data_path.ofproto.OFPGT_INDIRECT,
+                        'FF': data_path.ofproto.OFPGT_FF}
 
         gtype = type_convert.get(d["type"])
 
@@ -395,12 +410,12 @@ class FlowManager(app_manager.RyuApp):
         for bucket in d["buckets"]:
             weight = bucket.get('weight', 0)
             watch_port = bucket.get('watch_port', ofproto.OFPP_ANY)
-            watch_group = bucket.get('watch_group', dp.ofproto.OFPG_ANY)
+            watch_group = bucket.get('watch_group', data_path.ofproto.OFPG_ANY)
             actions = []
             if bucket['actions']:
                 actions_list = []
-                if type(bucket['actions'][0]) is str or \
-                   (not PYTHON3 and type(bucket['actions'][0]) is unicode):
+                if isinstance(bucket['actions'][0], str) or \
+                   (not PYTHON3 and isinstance(bucket['actions'][0], unicode)):
                     # Ryu's format
                     for i in bucket['actions']:
                         x = i.split(':', 1)
@@ -412,15 +427,15 @@ class FlowManager(app_manager.RyuApp):
                 else:  # FlowManager's format
                     actions_list = bucket['actions']
                 actions = self.get_actions(parser, actions_list)
-                buckets.append(dp.ofproto_parser.OFPBucket(
+                buckets.append(data_path.ofproto_parser.OFPBucket(
                     weight, watch_port, watch_group, actions))
 
         #print(dp, cmd, gtype, group_id, buckets)
         group_mod = parser.OFPGroupMod(
-            dp, cmd, gtype, group_id, buckets)
+            data_path, cmd, gtype, group_id, buckets)
 
         try:
-            dp.send_msg(group_mod)    # ryu/ryu/controller/controller.py
+            data_path.send_msg(group_mod)    # ryu/ryu/controller/controller.py
         except KeyError as e:
             return e.__repr__()
         except Exception as e:
@@ -432,12 +447,12 @@ class FlowManager(app_manager.RyuApp):
         """Sends meter form data to the switch to update meter table.
         """
         dpid = int(d.get("dpid", 0))
-        dp = self.dpset.get(dpid)
-        if not dp:
+        data_path = self.dpset.get(dpid)
+        if not data_path:
             return "Datapath does not exist!"
 
-        ofproto = dp.ofproto
-        parser = dp.ofproto_parser
+        ofproto = data_path.ofproto
+        parser = data_path.ofproto_parser
 
         command = {
             'add': ofproto.OFPMC_ADD,
@@ -485,9 +500,9 @@ class FlowManager(app_manager.RyuApp):
                                                             burst_size=band[2], prec_level=band[3])]
 
         # TODO: catch some errors
-        meter_mod = parser.OFPMeterMod(dp, cmd, flags, meter_id, bands)
+        meter_mod = parser.OFPMeterMod(data_path, cmd, flags, meter_id, bands)
         try:
-            dp.send_msg(meter_mod)
+            data_path.send_msg(meter_mod)
         except KeyError as e:
             return e.__repr__()
         except Exception as e:
@@ -501,6 +516,8 @@ class FlowManager(app_manager.RyuApp):
     #     return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
     def get_packet_summary(self, content):
+        """Get some packet information
+        """
         pkt = packet.Packet(content)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
         ethtype = eth.ethertype
@@ -522,7 +539,7 @@ class FlowManager(app_manager.RyuApp):
             for flow in swconfig[dpid]:
                 flow['dpid'] = dpid
                 flow['operation'] = 'add'
-                result = self.process_meter_message(flow)
+                _ = self.process_meter_message(flow)
         return 'Meters added successfully!'
 
     def process_group_upload(self, configlist):
@@ -538,8 +555,7 @@ class FlowManager(app_manager.RyuApp):
             for flow in swconfig[dpid]:
                 flow['dpid'] = dpid
                 flow['operation'] = 'add'
-                result = self.process_group_message(flow)
-                print(result)
+                _ = self.process_group_message(flow)
         return 'Groups added successfully!'
 
     def process_flow_upload(self, configlist):
@@ -555,19 +571,7 @@ class FlowManager(app_manager.RyuApp):
             for flow in swconfig[dpid]:
                 flow['dpid'] = dpid
                 flow['operation'] = 'add'
-                result = self.process_flow_message(flow)
-        #         table_id  = flow['table_id']
-        #         tables = config_tree.setdefault(dpid, {})
-        #         table_flows = tables.setdefault(table_id, [])
-        #         table_flows.append(flow)
-
-        # for sw in config_tree:
-        #     sorted_tables = sorted(config_tree[sw].keys(), reverse=True)
-        #     for tpid in sorted_tables:
-        #         flows = config_tree[sw][tpid]
-        #         for flow in flows:
-        #             result = self.process_flow_message(flow)
-
+                _ = self.process_flow_message(flow)
         return 'Flows added successfully!'
 
     ##### Event Handlers #######################################
@@ -590,6 +594,8 @@ class FlowManager(app_manager.RyuApp):
         ofp_event.EventOFPPortDescStatsReply,
     ], MAIN_DISPATCHER)
     def stats_reply_handler(self, ev):
+        """Handles Reply Events
+        """
         msg = ev.msg
         dp = msg.datapath
 
@@ -611,6 +617,9 @@ class FlowManager(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
     def flow_removed_handler(self, ev):
+        """Handles Flow Removal
+        """
+
         msg = ev.msg
         dp = msg.datapath
         ofp = dp.ofproto
@@ -639,6 +648,9 @@ class FlowManager(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPErrorMsg,
                 [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
     def error_msg_handler(self, ev):
+        """Handles an error message
+        """
+
         msg = ev.msg
 
         # TODO: needs to be of the same format as packet-in
@@ -648,6 +660,9 @@ class FlowManager(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
+        """Handles Packet_IN message
+        """
+
         msg = ev.msg
         dp = msg.datapath
         ofp = dp.ofproto
@@ -733,9 +748,11 @@ class FlowManager(app_manager.RyuApp):
         return {"switches": switches, "links": links, "hosts": hosts}
 
     def delete_flow_list(self, flowlist):
+        """Delete a set of flows
+        """
         for item in flowlist:
             item['operation'] = 'delst'
-            result = self.process_flow_message(item)
+            _ = self.process_flow_message(item)
 
             # if the flow was monitored
             if item['cookie'] & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
@@ -745,6 +762,8 @@ class FlowManager(app_manager.RyuApp):
         return 'Flows deleted successfully!'
 
     def monitor_flow_list(self, flowlist):
+        """Monitor a Flow
+        """
         # Here we need to update the flow entries by adding a magic cookie
         # and adding Apply Action: "OUTPUT:CONTROLLER" to the instructions
 
@@ -756,15 +775,17 @@ class FlowManager(app_manager.RyuApp):
             item['hard_timeout'] = 0
             if("OUTPUT:CONTROLLER" not in item['actions']):
                 item['actions'] += ["OUTPUT:CONTROLLER"]
-            result = self.process_flow_message(item)
+            _ = self.process_flow_message(item)
 
         return 'Flows are monitored!'
 
     def rest_flow_monitoring(self, req):
-        id = req["cookie"]
-        if id == "default":
+        """Reset Flow Monitoring
+        """
+        cookie = req["cookie"]
+        if cookie == "default":
             self.tracker.reset(self.MAGIC_COOKIE)
         else:
-            self.tracker.reset(int(id))
+            self.tracker.reset(int(cookie))
 
         return ''
