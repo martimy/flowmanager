@@ -56,6 +56,13 @@ class WebApi(ControllerBase):
         res.body = open(filename, 'rb').read()
         return res
 
+    def form_response(self, process_response):
+        """Provides common form repsonse
+        """
+        res = Response()
+        res.text = self.get_unicode(process_response)
+        return res
+
     @route('monitor', '/status', methods=['GET'])
     def get_flow_stats(self, req):
         """Get stats
@@ -89,13 +96,7 @@ class WebApi(ControllerBase):
         """Get topology info
         """
         res = Response(content_type="application/json")
-        reply = self.api.get_topology_data()
-        res.json = reply
-        return res
-
-    def form_response(self, process_response):
-        res = Response()
-        res.text = self.get_unicode(process_response)
+        res.json = self.api.get_topology_data()
         return res
 
     @route('monitor', '/meterform', methods=['POST'])
