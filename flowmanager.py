@@ -44,9 +44,6 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
-# for topology discovery
-#from ryu.topology import event
-
 from socket import error as SocketError
 from tinyrpc.exc import InvalidReplyError
 
@@ -278,4 +275,3 @@ class FlowManager(app_manager.RyuApp):
         for client in disconnected_clients:
             self.rpc_clients.remove(client)
 
-    ###### API responses #########################

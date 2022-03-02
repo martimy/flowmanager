@@ -19,9 +19,10 @@ This module receives all API requests
 
 import sys
 import random
+from ryu.base import app_manager
 from ryu.lib import ofctl_v1_3
-from flow_monitor import Tracker
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
+from flow_monitor import Tracker
 
 
 PYTHON3 = sys.version_info > (3, 0)
@@ -236,7 +237,6 @@ class Ctrl_Api():
         n_host_list = [h for h in host_list if h.port.hw_addr in port_macs]
 
         hosts = [h.to_dict() for h in n_host_list]
-        print({"switches": switches, "links": links, "hosts": hosts})
         return {"switches": switches, "links": links, "hosts": hosts}
 
     def delete_flow_list(self, flowlist):
@@ -564,3 +564,7 @@ class Ctrl_Api():
     #     flow = {}  # no filters
     #     dp = self.dpset.get(int(str(dpid), 0))
     #     return self.ofctl.get_flow_stats(dp, self.waiters, flow)
+
+
+# This is is needed to start for get_topology_data()
+app_manager.require_app('ryu.topology.switches', api_style=True)
