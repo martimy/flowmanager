@@ -13,24 +13,24 @@
 # limitations under the License.
 
 """
-This module includes an API class for the FlowManager app. 
+This module includes class WebApi, which is part of the FlowManager application.
 """
 
 import os
 import sys
 import mimetypes
 from ryu.app.wsgi import ControllerBase
-from ryu.app.wsgi import route
 from ryu.app.wsgi import Response
-from ryu.app.wsgi import websocket
 from ryu.app.wsgi import WebSocketRPCClient
+from ryu.app.wsgi import route
+from ryu.app.wsgi import websocket
 
 
 PYTHON3 = sys.version_info > (3, 0)
 
 
 class WebApi(ControllerBase):
-    """This class offer an API for FlowManager
+    """This class offers an web-facing API for FlowManager
     """
 
     def __init__(self, req, link, data, **config):
@@ -63,11 +63,23 @@ class WebApi(ControllerBase):
         res.text = self.get_unicode(process_response)
         return res
 
+    @route('monitor', '/home/{filename:.*}', methods=['GET'])
+    def get_filename(self, _, filename):
+        """Load statis files
+        """
+        if (filename == "" or filename is None):
+            filename = "index.html"
+        try:
+            filename = os.path.join(self.rootdir, "web", filename)
+            return self.make_response(filename)
+        except IOError:
+            return Response(status=400)
+
     @route('monitor', '/status', methods=['GET'])
     def get_flow_stats(self, req):
         """Get stats
         """
-        if req.GET['status'] and req.GET['dpid']:
+        if 'status' in req.GET and 'dpid' in req.GET:
             res = Response(content_type="application/json")
             res.json = self.ctrl_api.get_stats(
                 req.GET['status'], req.GET['dpid'])
@@ -78,19 +90,19 @@ class WebApi(ControllerBase):
     def get_switch_data(self, req):
         """Get switch data
         """
-        if req.GET:  # is this needed?
-            lst = {}  # the server always returns somthing??
-            if req.GET.get("list") == "switches":
-                lst = {t[0]: t[0] for t in self.ctrl_api.get_switches()}
-            else:
-                request = list(req.GET.keys())[0]
-                dpid = int(req.GET[request])
-                lst = self.ctrl_api.get_stats_request(request, dpid)
+        # if req.GET:  # is this needed?
+        lst = {}  # the server always returns somthing??
+        if req.GET.get("list") == "switches":
+            lst = {t[0]: t[0] for t in self.ctrl_api.get_switches()}
+        else:
+            request = list(req.GET.keys())[0]
+            dpid = int(req.GET[request])
+            lst = self.ctrl_api.get_stats_request(request, dpid)
 
-            res = Response(content_type="application/json")
-            res.json = lst
-            return res
-        return Response(status=400)  # bad request
+        res = Response(content_type="application/json")
+        res.json = lst
+        return res
+        # return Response(status=400)  # bad request
 
     @route('monitor', '/topology', methods=['GET'])
     def get_topology(self, _):
@@ -98,6 +110,15 @@ class WebApi(ControllerBase):
         """
         res = Response(content_type="application/json")
         res.json = self.ctrl_api.get_topology_data()
+        return res
+
+    @route('monitor', '/logs', methods=['GET'])
+    def get_logs(self, req):
+        """Get log mesages
+        """
+        logs = self.ctrl_api.read_logs()
+        res = Response(content_type="application/json")
+        res.json = logs
         return res
 
     @route('monitor', '/meterform', methods=['POST'])
@@ -122,80 +143,57 @@ class WebApi(ControllerBase):
     def post_config_upload(self, req):
         """Connect with configuration upload form
         """
-        if req.POST:
-            meters = req.json.get('meters', None)
-            groups = req.json.get('groups', None)
-            flows = req.json.get('flows', None)
+        # if req.POST:
+        meters = req.json.get('meters', None)
+        groups = req.json.get('groups', None)
+        flows = req.json.get('flows', None)
 
-            response_meters = self.ctrl_api.process_meter_upload(
-                meters) if meters else ''
-            response_groups = self.ctrl_api.process_group_upload(
-                groups) if groups else ''
-            response_flows = self.ctrl_api.process_flow_upload(
-                flows) if flows else ''
-            response_all = "{}, {}, {}".format(
-                response_meters, response_groups, response_flows)
-            res = Response()
-            res.text = self.get_unicode(response_all)
-            return res
+        response_meters = self.ctrl_api.process_meter_upload(
+            meters) if meters else ''
+        response_groups = self.ctrl_api.process_group_upload(
+            groups) if groups else ''
+        response_flows = self.ctrl_api.process_flow_upload(
+            flows) if flows else ''
+        response_all = "{}, {}, {}".format(
+            response_meters, response_groups, response_flows)
+        res = Response()
+        res.text = self.get_unicode(response_all)
+        return res
 
-        return Response(status=400)  # bad request
+        # return Response(status=400)  # bad request
 
     @route('monitor', '/flowdel', methods=['POST'])
     def post_flow_delete(self, req):
         """Receive flows delete request
         """
-        if req.POST:
-            res = Response()
-            res.text = self.get_unicode(
-                self.ctrl_api.delete_flow_list(req.json))
-            return res
-        return Response(status=400)  # bad request
+        # if req.POST:
+        res = Response()
+        res.text = self.get_unicode(
+            self.ctrl_api.delete_flow_list(req.json))
+        return res
+        # return Response(status=400)  # bad request
 
     @route('monitor', '/flowmonitor', methods=['POST'])
     def post_flow_monitor(self, req):
         """Receive flows monitor request
         """
-        if req.POST:
-            res = Response()
-            res.text = self.get_unicode(
-                self.ctrl_api.monitor_flow_list(req.json))
-            return res
-        return Response(status=400)  # bad request
-
-    @route('monitor', '/logs', methods=['GET'])
-    def get_logs(self, req):
-        """Get log mesages
-        """
-        if req.GET:
-            logs = self.ctrl_api.read_logs()
-            res = Response(content_type="application/json")
-            res.json = logs
-            return res
-        return Response(status=400)  # bad request
-
-    @route('monitor', '/home/{filename:.*}', methods=['GET'])
-    def get_filename(self, _, filename):
-        """Get monitoring information from ofctl_rest app
-        """
-        if (filename == "" or filename is None):
-            filename = "index.html"
-        try:
-            filename = os.path.join(self.rootdir, "web", filename)
-            return self.make_response(filename)
-        except IOError:
-            return Response(status=400)
+        # if req.POST:
+        res = Response()
+        res.text = self.get_unicode(
+            self.ctrl_api.monitor_flow_list(req.json))
+        return res
+        # return Response(status=400)  # bad request
 
     @route('monitor', '/resetmonitor', methods=['POST'])
     def post_reset_flow_monitor(self, req):
         """Reset flows monitoring data
         """
-        if req.POST:
-            res = Response()
-            res.text = self.get_unicode(
-                self.ctrl_api.rest_flow_monitoring(req.json))
-            return res
-        return Response(status=400)  # bad request
+        # if req.POST:
+        res = Response()
+        res.text = self.get_unicode(
+            self.ctrl_api.rest_flow_monitoring(req.json))
+        return res
+        # return Response(status=400)  # bad request
 
     @websocket('monitor', '/ws')
     def websocket_handler(self, ws_client):

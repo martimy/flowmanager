@@ -17,6 +17,7 @@
 This module receives all API requests
 """
 
+import os
 import sys
 import random
 from ryu.base import app_manager
@@ -26,6 +27,7 @@ from flow_monitor import Tracker
 
 
 PYTHON3 = sys.version_info > (3, 0)
+LOG_FILE_NAME = 'flwmgr.log'
 
 
 class Ctrl_Api():
@@ -41,6 +43,10 @@ class Ctrl_Api():
         self.ofctl = ofctl_v1_3
         self.waiters = {}
         self.tracker = Tracker()
+
+        # For Log file
+        cfd = os.path.dirname(os.path.abspath(__file__))
+        self.logfile = os.path.join(cfd, LOG_FILE_NAME)
 
         self.port_id = {
             "IN_PORT": 0xfffffff8,
@@ -167,6 +173,18 @@ class Ctrl_Api():
                 ofproto.OFPIT_WRITE_ACTIONS, writeActions)]
 
         return inst
+
+    def read_logs(self):
+        items = []
+        with open(self.logfile, 'r') as my_file:
+            while True:
+                line = my_file.readline()
+                if not line:
+                    break
+                lst = line.split('\t')
+                items.append(lst)
+                # items.append(line)
+        return items
 
     # methods linked to web api
 

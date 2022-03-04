@@ -52,7 +52,6 @@ from ctrlapi import Ctrl_Api
 
 
 PYTHON3 = sys.version_info > (3, 0)
-LOG_FILE_NAME = 'flwmgr.log'
 print("You are using Python v" + '.'.join(map(str, sys.version_info)))
 
 # sys.path.append(os.path.dirname(os.path.realpath(__file__)))
@@ -85,9 +84,7 @@ class FlowManager(app_manager.RyuApp):
 
         # Setup logging
         # cwd = os.getcwd()
-        cfd = os.path.dirname(os.path.abspath(__file__))
-        self.logfile = os.path.join(cfd, LOG_FILE_NAME)
-        self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
+        # self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
 
     def get_logger(self, logname, logfile, loglevel, propagate):
         """Create and return a logger object."""
@@ -102,18 +99,6 @@ class FlowManager(app_manager.RyuApp):
         logger.propagate = propagate
         logger.setLevel(loglevel)
         return logger
-
-    def read_logs(self):
-        items = []
-        with open(self.logfile, 'r') as my_file:
-            while True:
-                line = my_file.readline()
-                if not line:
-                    break
-                lst = line.split('\t')
-                items.append(lst)
-                # items.append(line)
-        return items
 
     def get_packet_summary(self, content):
         """Get some packet information
