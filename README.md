@@ -10,8 +10,8 @@ The FlowManager is a RYU controller application that gives the user manual contr
 * View switch statistics.
 * View network topology.
 
-![SCREEN1](img/screen1.png) ![SCREEN2](img/screen2.png)
-![SCREEN3](img/screen3.png) ![SCREEN4](img/screen4.png)
+![SCREEN1](web/img/screen1.png) ![SCREEN2](web/img/screen2.png)
+![SCREEN3](web/img/screen3.png) ![SCREEN4](web/img/screen4.png)
 
 ## Dependencies
 
