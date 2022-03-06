@@ -136,32 +136,26 @@ class FlowManager(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
     def flow_removed_handler(self, ev):
         """Handles Flow Removal
+        Called only when the flag "send-flow-removed-msg" is set
         """
 
         msg = ev.msg
         dp = msg.datapath
         ofp = dp.ofproto
-        if msg.reason == ofp.OFPRR_IDLE_TIMEOUT:
-            reason = 'IDLE TIMEOUT'
-        elif msg.reason == ofp.OFPRR_HARD_TIMEOUT:
-            reason = 'HARD TIMEOUT'
-        elif msg.reason == ofp.OFPRR_DELETE:
-            reason = 'DELETE'
-        elif msg.reason == ofp.OFPRR_GROUP_DELETE:
-            reason = 'GROUP DELETE'
-        else:
-            reason = 'unknown'
 
-        # TODO: needs to be of the same format as packet-in
-        # self.logger.info('FlowRemoved\t'
-        #                  'cookie=%d priority=%d reason=%s table_id=%d '
-        #                  'duration_sec=%d duration_nsec=%d '
-        #                  'idle_timeout=%d hard_timeout=%d '
-        #                  'packet_count=%d byte_count=%d match.fields=%s',
-        #                  msg.cookie, msg.priority, reason, msg.table_id,
-        #                  msg.duration_sec, msg.duration_nsec,
-        #                  msg.idle_timeout, msg.hard_timeout,
-        #                  msg.packet_count, msg.byte_count, msg.match)
+
+        # The reason for removal
+        reason_msg = {ofp.OFPRR_IDLE_TIMEOUT: "IDLE TIMEOUT",
+                      ofp.OFPRR_HARD_TIMEOUT: "HARD TIMEOUT",
+                      ofp.OFPRR_DELETE: "DELETE",
+                      ofp.OFPRR_GROUP_DELETE: "GROUP DELETE"
+                      }
+        reason = reason_msg.get(msg.reason, 'UNKNOWN')
+
+        match = msg.match.items()
+        log = list(map(str, ['Removed', dp.id, msg.table_id, reason, match, msg.cookie]))
+        logger.debug(', '.join(log))
+
 
     @set_ev_cls(ofp_event.EventOFPErrorMsg,
                 [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
@@ -219,29 +213,28 @@ class FlowManager(app_manager.RyuApp):
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                              hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
-        # self.logger.info('\t'.join(log))
+        logger.debug(', '.join(log[1:]))
         try:
             self.rpc_broadcall("log", json.dumps(log))
-        except:
-            pass  # avoiding not-serializable objects
+        except Exception as err: 
+            # possible not serializable object
+            logger.error("Error at packet_in_handler %s", err)
 
     def rpc_broadcall(self, func_name, msg):
-
+        logger.debug("rpc %s, %s", func_name, msg)
         disconnected_clients = []
         for rpc_client in self.rpc_clients:
             rpc_server = rpc_client.get_proxy()
             try:
                 getattr(rpc_server, func_name)(msg)
             except SocketError:
-                self.logger.debug('WebSocket disconnected: %s', rpc_client.ws)
+                logger.debug('WebSocket disconnected: %s', rpc_client.ws)
                 disconnected_clients.append(rpc_client)
             except InvalidReplyError as e:
-                self.logger.error(e)
+                logger.error("Error at rpc_broadcall %s", e)
 
         for client in disconnected_clients:
             self.rpc_clients.remove(client)
-
-# Setup logging
 
 
 def get_logger(logfile_name, loglevel):
@@ -249,7 +242,7 @@ def get_logger(logfile_name, loglevel):
     """
     a_logger = logging.getLogger("flowmanager")
     a_logger.setLevel(loglevel)
-    f_handler = logging.FileHandler(logfile_name)
+    f_handler = logging.FileHandler(logfile_name, mode="w")
     f_format = logging.Formatter(
         '%(asctime)s:%(name)s:%(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     f_handler.setFormatter(f_format)

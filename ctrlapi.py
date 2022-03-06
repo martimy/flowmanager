@@ -269,9 +269,7 @@ class Ctrl_Api():
 
             # if the flow was monitored
             if item['cookie'] & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
-                print(item['cookie'])
                 self.tracker.untrack(item['cookie'])
-
         return 'Flows deleted successfully!'
 
     def monitor_flow_list(self, flowlist):

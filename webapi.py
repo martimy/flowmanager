@@ -41,7 +41,7 @@ class WebApi(ControllerBase):
         self.ctrl_api = data["webctl"]
         self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
-        logger.debug("Created WebApi")
+        # logger.debug("Created WebApi")
 
     def get_unicode(self, any_string):
         """Ensure all strings are unicode
@@ -148,7 +148,6 @@ class WebApi(ControllerBase):
     def post_config_upload(self, req):
         """Connect with configuration upload form
         """
-        # if req.POST:
         meters = req.json.get('meters', None)
         groups = req.json.get('groups', None)
         flows = req.json.get('flows', None)
@@ -165,18 +164,14 @@ class WebApi(ControllerBase):
         res.text = self.get_unicode(response_all)
         return res
 
-        # return Response(status=400)  # bad request
-
     @route('monitor', '/flowdel', methods=['POST'])
     def post_flow_delete(self, req):
         """Receive flows delete request
         """
-        # if req.POST:
         res = Response()
         res.text = self.get_unicode(
             self.ctrl_api.delete_flow_list(req.json))
         return res
-        # return Response(status=400)  # bad request
 
     @route('monitor', '/flowmonitor', methods=['POST'])
     def post_flow_monitor(self, req):
