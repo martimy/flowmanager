@@ -18,6 +18,7 @@ This module includes class WebApi, which is part of the FlowManager application.
 
 import os
 import sys
+import logging
 import mimetypes
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
@@ -27,7 +28,7 @@ from ryu.app.wsgi import websocket
 
 
 PYTHON3 = sys.version_info > (3, 0)
-
+logger = logging.getLogger("flowmanager")
 
 class WebApi(ControllerBase):
     """This class offers an web-facing API for FlowManager
@@ -40,6 +41,7 @@ class WebApi(ControllerBase):
         self.ctrl_api = data["webctl"]
         self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
+        logger.debug("Created WebApi")
 
     def get_unicode(self, any_string):
         """Ensure all strings are unicode
@@ -52,6 +54,7 @@ class WebApi(ControllerBase):
         filetype, _ = mimetypes.guess_type(filename)
         if not filetype:
             filetype = 'application/octet-stream'
+        logger.debug("Making response from %s as %s", filename, filetype)
         res = Response(content_type=filetype)
         res.body = open(filename, 'rb').read()
         return res
@@ -67,12 +70,14 @@ class WebApi(ControllerBase):
     def get_filename(self, _, filename):
         """Load statis files
         """
+        logger.debug("Requesting file %s", filename)
         if (filename == "" or filename is None):
             filename = "index.html"
         try:
             filename = os.path.join(self.rootdir, "web", filename)
             return self.make_response(filename)
-        except IOError:
+        except IOError as err:
+            logger.error("IOError %s", err)
             return Response(status=400)
 
     @route('monitor', '/status', methods=['GET'])
@@ -90,7 +95,7 @@ class WebApi(ControllerBase):
     def get_switch_data(self, req):
         """Get switch data
         """
-        # if req.GET:  # is this needed?
+        logger.debug("Requesting data")
         lst = {}  # the server always returns somthing??
         if req.GET.get("list") == "switches":
             lst = {t[0]: t[0] for t in self.ctrl_api.get_switches()}
@@ -102,23 +107,23 @@ class WebApi(ControllerBase):
         res = Response(content_type="application/json")
         res.json = lst
         return res
-        # return Response(status=400)  # bad request
 
     @route('monitor', '/topology', methods=['GET'])
     def get_topology(self, _):
         """Get topology info
         """
+        logger.debug("Requesting topology")
         res = Response(content_type="application/json")
         res.json = self.ctrl_api.get_topology_data()
         return res
 
     @route('monitor', '/logs', methods=['GET'])
-    def get_logs(self, req):
+    def get_logs(self, _):
         """Get log mesages
         """
-        logs = self.ctrl_api.read_logs()
+        logger.debug("Requesting logs")
         res = Response(content_type="application/json")
-        res.json = logs
+        res.json = self.ctrl_api.read_logs()
         return res
 
     @route('monitor', '/meterform', methods=['POST'])

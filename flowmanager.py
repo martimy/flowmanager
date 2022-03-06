@@ -20,10 +20,10 @@ The main module of the FlowManger Applications
 import os
 import sys
 import logging
-from logging.handlers import WatchedFileHandler
 import time
 import json
 
+from socket import error as SocketError
 from ryu.base import app_manager
 from ryu.app.wsgi import WSGIApplication
 from ryu.controller import dpset
@@ -44,17 +44,15 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
-from socket import error as SocketError
 from tinyrpc.exc import InvalidReplyError
 
 from webapi import WebApi
 from ctrlapi import Ctrl_Api
 
 
+LOGLEVEL = logging.DEBUG
+LOGFILE = "flwmgr.log"
 PYTHON3 = sys.version_info > (3, 0)
-print("You are using Python v" + '.'.join(map(str, sys.version_info)))
-
-# sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
 class FlowManager(app_manager.RyuApp):
@@ -66,7 +64,6 @@ class FlowManager(app_manager.RyuApp):
 
     MONITOR_PKTIN = False
     MAGIC_COOKIE = 0x00007ab700000000
-    logname = 'flwmgr'
 
     def __init__(self, *args, **kwargs):
         super(FlowManager, self).__init__(*args, **kwargs)
@@ -82,23 +79,7 @@ class FlowManager(app_manager.RyuApp):
                       {"webctl": self.ctrl_api,
                        "rpc_clients": self.rpc_clients})
 
-        # Setup logging
-        # cwd = os.getcwd()
-        # self.logger = self.get_logger(self.logname, self.logfile, 'INFO', 0)
-
-    def get_logger(self, logname, logfile, loglevel, propagate):
-        """Create and return a logger object."""
-        # TODO: simplify
-        logger = logging.getLogger(logname)
-        logger_handler = WatchedFileHandler(logfile, mode='w')
-        # removed \t%(name)-6s
-        log_fmt = '%(asctime)s\t%(levelname)-8s\t%(message)s'
-        logger_handler.setFormatter(
-            logging.Formatter(log_fmt, '%b %d %H:%M:%S'))
-        logger.addHandler(logger_handler)
-        logger.propagate = propagate
-        logger.setLevel(loglevel)
-        return logger
+        logger.info("Created flowmanager")
 
     def get_packet_summary(self, content):
         """Get some packet information
@@ -260,3 +241,26 @@ class FlowManager(app_manager.RyuApp):
         for client in disconnected_clients:
             self.rpc_clients.remove(client)
 
+# Setup logging
+
+
+def get_logger(logfile_name, loglevel):
+    """Create a logger object.
+    """
+    a_logger = logging.getLogger("flowmanager")
+    a_logger.setLevel(loglevel)
+    f_handler = logging.FileHandler(logfile_name)
+    f_format = logging.Formatter(
+        '%(asctime)s:%(name)s:%(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    f_handler.setFormatter(f_format)
+    a_logger.addHandler(f_handler)
+    
+    return a_logger
+
+
+# For Log file
+cfd = os.path.dirname(os.path.abspath(__file__))
+logfile = os.path.join(cfd, LOGFILE)
+logger = get_logger(logfile, LOGLEVEL)
+
+print("You are using Python v" + '.'.join(map(str, sys.version_info)))

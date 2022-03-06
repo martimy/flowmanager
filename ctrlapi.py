@@ -20,6 +20,7 @@ This module receives all API requests
 import os
 import sys
 import random
+import logging
 from ryu.base import app_manager
 from ryu.lib import ofctl_v1_3
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
@@ -27,7 +28,7 @@ from flow_monitor import Tracker
 
 
 PYTHON3 = sys.version_info > (3, 0)
-LOG_FILE_NAME = 'flwmgr.log'
+logger = logging.getLogger("flowmanager")
 
 
 class Ctrl_Api():
@@ -43,10 +44,6 @@ class Ctrl_Api():
         self.ofctl = ofctl_v1_3
         self.waiters = {}
         self.tracker = Tracker()
-
-        # For Log file
-        cfd = os.path.dirname(os.path.abspath(__file__))
-        self.logfile = os.path.join(cfd, LOG_FILE_NAME)
 
         self.port_id = {
             "IN_PORT": 0xfffffff8,
@@ -70,6 +67,12 @@ class Ctrl_Api():
             "meterstat": self.ofctl.get_meter_stats,
             "tablefeature": self.ofctl.get_table_features,
         }
+
+        # Get log file path
+        handler = logger.handlers[0]
+        self.logfile = handler.baseFilename
+
+        logger.debug("Created Ctrl_Api")
 
     def get_tracker(self):
         return self.tracker
