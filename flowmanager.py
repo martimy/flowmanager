@@ -71,13 +71,10 @@ class FlowManager(app_manager.RyuApp):
         self.dpset = kwargs['dpset']
         #self.writer = None
         self.ofctl = ofctl_v1_3
-        self.rpc_clients = []
         self.ctrl_api = Ctrl_Api(self, self.dpset)
 
         # Data exchanged with WebApi
-        wsgi.register(WebApi,
-                      {"webctl": self.ctrl_api,
-                       "rpc_clients": self.rpc_clients})
+        wsgi.register(WebApi, {"webctl": self.ctrl_api})
 
         logger.info("Created flowmanager")
 
@@ -198,7 +195,7 @@ class FlowManager(app_manager.RyuApp):
 
         # Send the tracked message to the interface
         if tracked_msg:
-            self.rpc_broadcall("update", json.dumps(tracked_msg))
+            self.ctrl_api.rpc_broadcall("update", json.dumps(tracked_msg))
 
         # Continue the normal processing of Packet_In
 
@@ -215,26 +212,10 @@ class FlowManager(app_manager.RyuApp):
                              hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
         logger.debug(', '.join(log[1:]))
         try:
-            self.rpc_broadcall("log", json.dumps(log))
+            self.ctrl_api.rpc_broadcall("log", json.dumps(log))
         except Exception as err: 
             # possible not serializable object
             logger.error("Error at packet_in_handler %s", err)
-
-    def rpc_broadcall(self, func_name, msg):
-        logger.debug("rpc %s, %s", func_name, msg)
-        disconnected_clients = []
-        for rpc_client in self.rpc_clients:
-            rpc_server = rpc_client.get_proxy()
-            try:
-                getattr(rpc_server, func_name)(msg)
-            except SocketError:
-                logger.debug('WebSocket disconnected: %s', rpc_client.ws)
-                disconnected_clients.append(rpc_client)
-            except InvalidReplyError as e:
-                logger.error("Error at rpc_broadcall %s", e)
-
-        for client in disconnected_clients:
-            self.rpc_clients.remove(client)
 
 
 def get_logger(logfile_name, loglevel):

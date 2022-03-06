@@ -39,7 +39,7 @@ class WebApi(ControllerBase):
         """
         super(WebApi, self).__init__(req, link, data, **config)
         self.ctrl_api = data["webctl"]
-        self.rpc_clients = data["rpc_clients"]
+        # self.rpc_clients = data["rpc_clients"]
         self.rootdir = os.path.dirname(os.path.abspath(__file__))
         # logger.debug("Created WebApi")
 
@@ -200,5 +200,5 @@ class WebApi(ControllerBase):
         """Sends monitoring data
         """
         rpc_client = WebSocketRPCClient(ws_client)
-        self.rpc_clients.append(rpc_client)
+        self.ctrl_api.rpc_clients.append(rpc_client)
         rpc_client.serve_forever()

@@ -43,6 +43,7 @@ class Ctrl_Api():
         self.dpset = dpset
         self.ofctl = ofctl_v1_3
         self.waiters = {}
+        self.rpc_clients = []
         self.tracker = Tracker()
 
         self.port_id = {
@@ -584,6 +585,20 @@ class Ctrl_Api():
     #     dp = self.dpset.get(int(str(dpid), 0))
     #     return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
+    def rpc_broadcall(self, func_name, msg):
+        logger.debug("To broadcast %s, %s", func_name, msg)
+        disconnected_clients = []
+        for rpc_client in self.rpc_clients:
+            rpc_server = rpc_client.get_proxy()
+            try:
+                getattr(rpc_server, func_name)(msg)
+            except SocketError:
+                logger.debug('WebSocket disconnected: %s', rpc_client.ws)
+                disconnected_clients.append(rpc_client)
+            except InvalidReplyError as e:
+                logger.error("Error at rpc_broadcall %s", e)
 
+        for client in disconnected_clients:
+            self.rpc_clients.remove(client)
 # This is is needed to start for get_topology_data()
 app_manager.require_app('ryu.topology.switches', api_style=True)
