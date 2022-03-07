@@ -14,7 +14,7 @@
 
 
 """
-The main module of the FlowManger Applications
+The main module of the FlowManager Applications
 """
 
 import os
@@ -44,23 +44,26 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
 from webapi import WebApi
-from ctrlapi import Ctrl_Api
+from ctrlapi import CtrlApi
 
 
 LOGLEVEL = logging.DEBUG
 LOGFILE = "flwmgr.log"
+MONITOR_PKTIN = False
+MAGIC_COOKIE = 0x00007ab700000000
 PYTHON3 = sys.version_info > (3, 0)
 
 
 class FlowManager(app_manager.RyuApp):
+    """This class is the entry poin to the Ryu application.
+    """
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     # This class wants access to the following applications
     _CONTEXTS = {'wsgi': WSGIApplication,
                  'dpset': dpset.DPSet}
 
-    MONITOR_PKTIN = False
-    MAGIC_COOKIE = 0x00007ab700000000
+
 
     def __init__(self, *args, **kwargs):
         super(FlowManager, self).__init__(*args, **kwargs)
@@ -69,7 +72,7 @@ class FlowManager(app_manager.RyuApp):
         #self.writer = None
         self.ofctl = ofctl_v1_3
         self.ws_manager = wsgi.websocketmanager
-        self.ctrl_api = Ctrl_Api(self)
+        self.ctrl_api = CtrlApi(self)
 
         # Data exchanged with WebApi
         wsgi.register(WebApi, {"webctl": self.ctrl_api})
@@ -106,37 +109,37 @@ class FlowManager(app_manager.RyuApp):
         ofp_event.EventOFPGroupDescStatsReply,
         ofp_event.EventOFPPortDescStatsReply,
     ], MAIN_DISPATCHER)
-    def stats_reply_handler(self, ev):
+    def stats_reply_handler(self, event):
         """Handles Reply Events
         """
-        msg = ev.msg
-        dp = msg.datapath
+        msg = event.msg
+        data_path = msg.datapath
 
-        if dp.id not in self.ctrl_api.get_waiters():
+        if data_path.id not in self.ctrl_api.get_waiters():
             return
-        if msg.xid not in self.ctrl_api.get_waiters()[dp.id]:
+        if msg.xid not in self.ctrl_api.get_waiters()[data_path.id]:
             return
-        lock, msgs = self.ctrl_api.get_waiters()[dp.id][msg.xid]
+        lock, msgs = self.ctrl_api.get_waiters()[data_path.id][msg.xid]
         msgs.append(msg)
 
-        flags = dp.ofproto.OFPMPF_REPLY_MORE
+        flags = data_path.ofproto.OFPMPF_REPLY_MORE
 
         if msg.flags & flags:
             return
-        del self.ctrl_api.get_waiters()[dp.id][msg.xid]
+        del self.ctrl_api.get_waiters()[data_path.id][msg.xid]
         lock.set()
 
         # self.messages.append(msg)
 
     @set_ev_cls(ofp_event.EventOFPFlowRemoved, MAIN_DISPATCHER)
-    def flow_removed_handler(self, ev):
+    def flow_removed_handler(self, event):
         """Handles Flow Removal
         Called only when the flag "send-flow-removed-msg" is set
         """
 
-        msg = ev.msg
-        dp = msg.datapath
-        ofp = dp.ofproto
+        msg = event.msg
+        data_path = msg.datapath
+        ofp = data_path.ofproto
 
         # The reason for removal
         reason_msg = {ofp.OFPRR_IDLE_TIMEOUT: "IDLE TIMEOUT",
@@ -148,21 +151,22 @@ class FlowManager(app_manager.RyuApp):
 
         match = msg.match.items()
         log = list(
-            map(str, ['Removed', dp.id, msg.table_id, reason, match, msg.cookie]))
+            map(str, ['Removed', data_path.id, msg.table_id, reason, match, msg.cookie]))
         logger.debug(', '.join(log))
 
     @set_ev_cls(ofp_event.EventOFPErrorMsg,
                 [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
-    def error_msg_handler(self, ev):
+    def error_msg_handler(self, event):
         """Handles an error message
         """
+        # Untested
 
-        msg = ev.msg
+        msg = event.msg
+        data_path = msg.datapath
 
-        # TODO: needs to be of the same format as packet-in
-        # self.logger.error('ErrorMsg\ttype=0x%02x code=0x%02x '
-        #                   'message=%s',
-        #                   msg.type, msg.code, utils.hex_array(msg.data))
+        log = list(
+            map(str, ['ErrorMsg', data_path.id, msg.type, msg.code]))
+        logger.error(', '.join(log))
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
@@ -183,12 +187,12 @@ class FlowManager(app_manager.RyuApp):
 
         # Monitor packets. Flow entries with cookies take precedance
         tracked_msg = None
-        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+        if msg.cookie & MAGIC_COOKIE == MAGIC_COOKIE:
             # track the packet if it has a magic cookie
             tracked_msg = self.ctrl_api.get_tracker().track(msg.cookie, pkt)
-        elif not self.MONITOR_PKTIN:
+        elif MONITOR_PKTIN:
             # track the packet the global tracking option is enabled
-            tracked_msg = self.ctrl_api.get_tracker().track(self.MAGIC_COOKIE, pkt)
+            tracked_msg = self.ctrl_api.get_tracker().track(MAGIC_COOKIE, pkt)
 
         # Send the tracked message to the interface
         if tracked_msg:
@@ -203,6 +207,7 @@ class FlowManager(app_manager.RyuApp):
                       }
         reason = reason_msg.get(msg.reason, 'UNKNOWN')
 
+        # PacketIN messages are always sent to websocket clients
         now = time.strftime('%H:%M:%S')
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,

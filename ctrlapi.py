@@ -24,14 +24,14 @@ import logging
 from ryu.base import app_manager
 from ryu.lib import ofctl_v1_3
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
-from flow_monitor import Tracker
+from flowtracker import Tracker
 
 
 PYTHON3 = sys.version_info > (3, 0)
 logger = logging.getLogger("flowmanager")
 
 
-class Ctrl_Api():
+class CtrlApi():
 
     MAGIC_COOKIE = 0x00007ab700000000
 
