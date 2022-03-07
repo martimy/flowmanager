@@ -47,7 +47,7 @@ from webapi import WebApi
 from ctrlapi import CtrlApi
 
 
-LOGLEVEL = logging.DEBUG
+LOGLEVEL = logging.INFO
 LOGFILE = "flwmgr.log"
 MONITOR_PKTIN = False
 MAGIC_COOKIE = 0x00007ab700000000
