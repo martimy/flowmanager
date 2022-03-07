@@ -1,5 +1,6 @@
 
 # Creating an SDN testbed
+
 ***Based on [RYU SDN Testbed Manual Version 1.6](http://www.obriain.com/training/sdn/RYU_Soft_Testbed_v1.6_odt.pdf) by Diarmuid O Briain*** 
 
 (A newer version of the O Briain's Manual is [available here](http://www.obriain.com/training/sdn/RYU_Soft_Testbed_v2.0.pdf))
@@ -7,6 +8,7 @@
 Here is how you can create an SDN testbed using Mininet, Ryu controller, and FlowManager in a Linux (Ubuntu 18.04) machine.
 
 ## Install Tools and Prerequisites
+
 ```
 ryu@ryu-mn:~$ sudo apt-get install -y build-essential python-dev mtr tcpdump lynx iperf tshark fping wireshark net-tools curl python-pip python-eventlet python-routes python-webob python-paramiko openvswitch-switch git python3-pip
 ```
@@ -23,6 +25,7 @@ ryu@ryu-mn:~$ sudo setcap cap_net_admin,cap_net_raw=eip /usr/bin/dumpcap
 ```
 
 ## Install Mininet
+
 ```
 ryu@ryu-mn:~$ git -C /home/ryu/ clone git://github.com/mininet/mininet
 ryu@ryu-mn:~$ sudo /home/ryu/mininet/util/install.sh -n
@@ -35,11 +38,13 @@ ryu@ryu-mn:~$ sudo apt-get install python3-ryu
 ```
 
 ## Install FlowManager
+
 ```
 ryu@ryu-mn:~$ git clone https://github.com/martimy/ ~/flowmanager
 ```
 
 ## Test your testbed
+
 ```
 ryu@ryu-mn:~$ ryu-manager ryu.app.simple_switch_13
 
@@ -50,11 +55,13 @@ instantiating app ryu.controller.ofp_handler of OFPHandler
 ```
 
 In a different terminal run mininet
+
 ```
 ryu@ryu-mn:~$ sudo mn --controller remote,ip=127.0.0.1  --switch ovsk,protocols=OpenFlow13 --mac --ipbase=10.1.1.0/24 --topo single,4
 ```
 
 In another terminal review the OvS within mininet
+
 ```
 ryu@ryu-mn:~$ sudo ovs-vsctl show
 db733a9e-588e-4a7c-9010-e888ffabb244
@@ -83,6 +90,7 @@ ryu@ryu-mn:~$ sudo ovs-ofctl -O OpenFlow13 dump-flows s1
 ```
 
 In the terminal with the mininet shell
+
 ```
 mininet> pingall
 *** Ping: testing ping reachability
@@ -94,6 +102,7 @@ h4 -> h1 h2 h3
 ```
 
 Now re-review the flowtable in the OvS
+
 ```
 ryu@ryu-mn:~$ sudo ovs-ofctl --protocols OpenFlow13 dump-flows s1
  cookie=0x0, duration=23.971s, table=0, n_packets=3, n_bytes=238, priority=1,in_port="s1-eth2",dl_src=00:00:00:00:00:02,dl_dst=00:00:00:00:00:01 actions=output:"s1-eth1"
@@ -113,7 +122,7 @@ ryu@ryu-mn:~$ sudo ovs-ofctl --protocols OpenFlow13 dump-flows s1
 
 If you have wireshark running pointed to 127.0.0.1 you should see something like this
 
-![](image.png)
+![Wireshark Output](image.png)
 
 Now quit mininet and cleanup
 
