@@ -195,7 +195,6 @@ class WebApi(ControllerBase):
 
     @websocket('monitor', '/ws')
     def websocket_handler_2(self, ws):
-        # simple_switch = self.simple_switch_app
         logger.debug('WebSocket connected: %s', ws)
         rpc_server = WebSocketRPCServer(ws, self.ctrl_api.app)
         rpc_server.serve_forever()

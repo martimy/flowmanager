@@ -203,7 +203,7 @@ class FlowManager(app_manager.RyuApp):
                       }
         reason = reason_msg.get(msg.reason, 'UNKNOWN')
 
-        now = time.strftime('%b %d %H:%M:%S')
+        now = time.strftime('%H:%M:%S')
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                              hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
