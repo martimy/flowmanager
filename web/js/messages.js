@@ -69,12 +69,9 @@ $(function () {
 
     const update_stats = {
         update: function (params) {
-            j = JSON.parse(params);
-            var body = "<div>" + params + "</div>";
-
             var $dropdown = $("#cookieoption");
 
-            j.forEach(element => {
+            params.forEach(element => {
                 let x = element.name.toString();
                 if (cookie_list.indexOf(x) < 0) {
                     cookie_list.push(x);
@@ -89,32 +86,28 @@ $(function () {
             var idx = cookie_list.indexOf(cookie);
             if (idx >= 0) {
                 $('#cookieoption').val(cookie);
-                bigTree.draw(j[idx]);
+                bigTree.draw(params[idx]);
             } else {
-                bigTree.draw(j[0])
+                bigTree.draw(params[0])
             }
 
             // sessionStorage.setItem('trees', params);
             return "";
         },
         log: function (params) {
-            row = JSON.parse(params);
-            add_row(row)
+            add_row(params)
             return "";
         },
     }
 
-    function receiveMessages() {
+    function openWebsocket() {
         var ws = new WebSocket("ws://" + location.host + "/ws");
         ws.onmessage = function (event) {
             var data = JSON.parse(event.data);
-
-            var result = update_stats[data.method](data.params);
-
-            var ret = { "id": data.id, "jsonrpc": "2.0", "result": result };
-            this.send(JSON.stringify(ret));
+            update_stats[data.method](data.params);
         }
     }
+
 
     function startMonitor() {
         tabObj.buildTabs("#main", ["Messages", "Stats"], "Nothing to show!");
@@ -140,7 +133,7 @@ $(function () {
         //     update_stats.update(trees)
         // }
 
-        receiveMessages();
+        openWebsocket();
         tabObj.setActive();
 
         $('#rowoption').change(function () {
