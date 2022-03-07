@@ -3,15 +3,23 @@
 The FlowManager is a RYU controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
 
 ## Features
-* Add/modify/delete flow entries in flow tables.
-* Add/modify/delete group tables and meters.
-* Backup/restore switch tables to/from local drive.
-* View flow tables, group tables, and meters.
-* View switch statistics.
-* View network topology.
+
+- Add/modify/delete flow entries in flow tables.
+- Add/modify/delete group tables and meters.
+- Backup/restore switch tables to/from local drive.
+- View flow tables, group tables, and meters.
+- View switch statistics.
+- View network topology.
+- Track flow entries.
 
 ![SCREEN1](web/img/screen1.png) ![SCREEN2](web/img/screen2.png)
 ![SCREEN3](web/img/screen3.png) ![SCREEN4](web/img/screen4.png)
+
+### New in V0.4.0
+
+- Fixed a bug tracking flow entries.
+- Moding the Python code style closer to PEP-8 (more work is needed).
+- Spliting Python code into four modules for easier management.
 
 ## Dependencies
 
