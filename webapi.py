@@ -22,7 +22,6 @@ import logging
 import mimetypes
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
-# from ryu.app.wsgi import WebSocketRPCClient
 from ryu.app.wsgi import WebSocketRPCServer
 from ryu.app.wsgi import route
 from ryu.app.wsgi import websocket
@@ -30,6 +29,7 @@ from ryu.app.wsgi import websocket
 
 PYTHON3 = sys.version_info > (3, 0)
 logger = logging.getLogger("flowmanager")
+
 
 class WebApi(ControllerBase):
     """This class offers an web-facing API for FlowManager
@@ -180,9 +180,8 @@ class WebApi(ControllerBase):
         """
         res = Response()
         res.text = "This feature is disabled."
-        # This feature is unstable so, it is disabled for now
-        # res.text = self.get_unicode(
-        #     self.ctrl_api.monitor_flow_list(req.json))
+        res.text = self.get_unicode(
+            self.ctrl_api.monitor_flow_list(req.json))
         return res
 
     @route('monitor', '/resetmonitor', methods=['POST'])
@@ -193,14 +192,6 @@ class WebApi(ControllerBase):
         res.text = self.get_unicode(
             self.ctrl_api.rest_flow_monitoring(req.json))
         return res
-
-    # @websocket('monitor', '/ws')
-    # def websocket_handler(self, ws_client):
-    #     """Sends monitoring data
-    #     """
-    #     rpc_client = WebSocketRPCClient(ws_client)
-    #     self.ctrl_api.rpc_clients.append(rpc_client)
-    #     rpc_client.serve_forever()
 
     @websocket('monitor', '/ws')
     def websocket_handler_2(self, ws):

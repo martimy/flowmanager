@@ -138,7 +138,6 @@ class FlowManager(app_manager.RyuApp):
         dp = msg.datapath
         ofp = dp.ofproto
 
-
         # The reason for removal
         reason_msg = {ofp.OFPRR_IDLE_TIMEOUT: "IDLE TIMEOUT",
                       ofp.OFPRR_HARD_TIMEOUT: "HARD TIMEOUT",
@@ -148,9 +147,9 @@ class FlowManager(app_manager.RyuApp):
         reason = reason_msg.get(msg.reason, 'UNKNOWN')
 
         match = msg.match.items()
-        log = list(map(str, ['Removed', dp.id, msg.table_id, reason, match, msg.cookie]))
+        log = list(
+            map(str, ['Removed', dp.id, msg.table_id, reason, match, msg.cookie]))
         logger.debug(', '.join(log))
-
 
     @set_ev_cls(ofp_event.EventOFPErrorMsg,
                 [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
@@ -183,18 +182,17 @@ class FlowManager(app_manager.RyuApp):
             return
 
         # Monitor packets. Flow entries with cookies take precedance
-        # This feature is disabled due to instability
-        # tracked_msg = None
-        # if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
-        #     # track the packet if it has a magic cookie
-        #     tracked_msg = self.ctrl_api.get_tracker().track(msg.cookie, pkt)
-        # elif not self.MONITOR_PKTIN:
-        #     # track the packet the global tracking option is enabled
-        #     tracked_msg = self.ctrl_api.get_tracker().track(self.MAGIC_COOKIE, pkt)
+        tracked_msg = None
+        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+            # track the packet if it has a magic cookie
+            tracked_msg = self.ctrl_api.get_tracker().track(msg.cookie, pkt)
+        elif not self.MONITOR_PKTIN:
+            # track the packet the global tracking option is enabled
+            tracked_msg = self.ctrl_api.get_tracker().track(self.MAGIC_COOKIE, pkt)
 
-        # # Send the tracked message to the interface
-        # if tracked_msg:
-        #     self.ctrl_api.rpc_broadcall("update", json.dumps(tracked_msg))
+        # Send the tracked message to the interface
+        if tracked_msg:
+            self.rpc_broadcall("update", tracked_msg)
 
         # Continue the normal processing of Packet_In
 
@@ -210,15 +208,14 @@ class FlowManager(app_manager.RyuApp):
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                              hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
         logger.debug(', '.join(log[1:]))
-        
-        # This feature is disabled for instability
+        self.rpc_broadcall("log", log)
+
+    def rpc_broadcall(self, func, msg):
+        msg = {"method": func, "params": msg}
         try:
-            self.ws_manager.broadcast(json.dumps(log))
-            # pkt = packet.Packet(msg.data)
-            # self.ws_manager.broadcast(str(pkt))
-        except Exception as err: 
-            # possible not serializable object
-            logger.error("Error at packet_in_handler %s", err)
+            self.ws_manager.broadcast(json.dumps(msg))
+        except Exception as err:
+            logger.error("Error at rpc_broadcall %s", err)
 
 
 def get_logger(logfile_name, loglevel):
@@ -231,7 +228,7 @@ def get_logger(logfile_name, loglevel):
         '%(asctime)s:%(name)s:%(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     f_handler.setFormatter(f_format)
     a_logger.addHandler(f_handler)
-    
+
     return a_logger
 
 
