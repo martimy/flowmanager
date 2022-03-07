@@ -23,7 +23,6 @@ import logging
 import time
 import json
 
-from socket import error as SocketError
 from ryu.base import app_manager
 from ryu.app.wsgi import WSGIApplication
 from ryu.controller import dpset
@@ -43,8 +42,6 @@ from ryu.lib import ofctl_v1_3
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
-
-from tinyrpc.exc import InvalidReplyError
 
 from webapi import WebApi
 from ctrlapi import Ctrl_Api
@@ -71,7 +68,8 @@ class FlowManager(app_manager.RyuApp):
         self.dpset = kwargs['dpset']
         #self.writer = None
         self.ofctl = ofctl_v1_3
-        self.ctrl_api = Ctrl_Api(self, self.dpset)
+        self.ws_manager = wsgi.websocketmanager
+        self.ctrl_api = Ctrl_Api(self)
 
         # Data exchanged with WebApi
         wsgi.register(WebApi, {"webctl": self.ctrl_api})
@@ -185,17 +183,18 @@ class FlowManager(app_manager.RyuApp):
             return
 
         # Monitor packets. Flow entries with cookies take precedance
-        tracked_msg = None
-        if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
-            # track the packet if it has a magic cookie
-            tracked_msg = self.ctrl_api.get_tracker().track(msg.cookie, pkt)
-        elif not self.MONITOR_PKTIN:
-            # track the packet the global tracking option is enabled
-            tracked_msg = self.ctrl_api.get_tracker().track(self.MAGIC_COOKIE, pkt)
+        # This feature is disabled due to instability
+        # tracked_msg = None
+        # if msg.cookie & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
+        #     # track the packet if it has a magic cookie
+        #     tracked_msg = self.ctrl_api.get_tracker().track(msg.cookie, pkt)
+        # elif not self.MONITOR_PKTIN:
+        #     # track the packet the global tracking option is enabled
+        #     tracked_msg = self.ctrl_api.get_tracker().track(self.MAGIC_COOKIE, pkt)
 
-        # Send the tracked message to the interface
-        if tracked_msg:
-            self.ctrl_api.rpc_broadcall("update", json.dumps(tracked_msg))
+        # # Send the tracked message to the interface
+        # if tracked_msg:
+        #     self.ctrl_api.rpc_broadcall("update", json.dumps(tracked_msg))
 
         # Continue the normal processing of Packet_In
 
@@ -211,8 +210,12 @@ class FlowManager(app_manager.RyuApp):
         log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
                              hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
         logger.debug(', '.join(log[1:]))
+        
+        # This feature is disabled for instability
         try:
-            self.ctrl_api.rpc_broadcall("log", json.dumps(log))
+            self.ws_manager.broadcast(json.dumps(log))
+            # pkt = packet.Packet(msg.data)
+            # self.ws_manager.broadcast(str(pkt))
         except Exception as err: 
             # possible not serializable object
             logger.error("Error at packet_in_handler %s", err)

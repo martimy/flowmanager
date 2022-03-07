@@ -17,10 +17,12 @@
 This module receives all API requests
 """
 
-import os
 import sys
 import random
 import logging
+from socket import error as SocketError
+from tinyrpc.exc import InvalidReplyError
+
 from ryu.base import app_manager
 from ryu.lib import ofctl_v1_3
 from ryu.topology.api import get_all_switch, get_all_link, get_all_host
@@ -35,12 +37,12 @@ class Ctrl_Api():
 
     MAGIC_COOKIE = 0x00007ab700000000
 
-    def __init__(self, app, dpset):
+    def __init__(self, app):
         """Constructor
         """
         self.app = app
         # dpset will be removed eventually
-        self.dpset = dpset
+        self.dpset = self.app.dpset
         self.ofctl = ofctl_v1_3
         self.waiters = {}
         self.rpc_clients = []
@@ -440,11 +442,11 @@ class Ctrl_Api():
         msg = parser.OFPFlowMod(**msg_kwargs)
         try:
             data_path.send_msg(msg)    # ryu/ryu/controller/controller.py
-        except KeyError as e:
-            return "Unrecognized field " + e.__repr__()
-        except Exception as e:
+        except KeyError as err:
+            return "Unrecognized field " + err.__repr__()
+        except Exception as err:
             print(msg)
-            return "Error " + e.__repr__()
+            return "Error " + err.__repr__()
 
         return "Message sent successfully."
 
@@ -506,10 +508,10 @@ class Ctrl_Api():
 
         try:
             data_path.send_msg(group_mod)    # ryu/ryu/controller/controller.py
-        except KeyError as e:
-            return e.__repr__()
-        except Exception as e:
-            return e.__repr__()
+        except KeyError as err:
+            return err.__repr__()
+        except Exception as err:
+            return err.__repr__()
 
         return "Message sent successfully."
 
@@ -569,14 +571,13 @@ class Ctrl_Api():
                     bands += [parser.OFPMeterBandDscpRemark(rate=band[1],
                                                             burst_size=band[2], prec_level=band[3])]
 
-        # TODO: catch some errors
         meter_mod = parser.OFPMeterMod(data_path, cmd, flags, meter_id, bands)
         try:
             data_path.send_msg(meter_mod)
-        except KeyError as e:
-            return e.__repr__()
-        except Exception as e:
-            return e.__repr__()
+        except KeyError as err:
+            return err.__repr__()
+        except Exception as err:
+            return err.__repr__()
 
         return "Message sent successfully."
 
@@ -585,20 +586,21 @@ class Ctrl_Api():
     #     dp = self.dpset.get(int(str(dpid), 0))
     #     return self.ofctl.get_flow_stats(dp, self.waiters, flow)
 
-    def rpc_broadcall(self, func_name, msg):
-        logger.debug("To broadcast %s, %s", func_name, msg)
-        disconnected_clients = []
-        for rpc_client in self.rpc_clients:
-            rpc_server = rpc_client.get_proxy()
-            try:
-                getattr(rpc_server, func_name)(msg)
-            except SocketError:
-                logger.debug('WebSocket disconnected: %s', rpc_client.ws)
-                disconnected_clients.append(rpc_client)
-            except InvalidReplyError as e:
-                logger.error("Error at rpc_broadcall %s", e)
+    # def rpc_broadcall(self, func_name, msg):
+    #     logger.debug("To broadcast %s, %s", func_name, msg)
+    #     disconnected_clients = []
+    #     for rpc_client in self.rpc_clients:
+    #         rpc_server = rpc_client.get_proxy()
+    #         try:
+    #             getattr(rpc_server, func_name)(msg)
+    #         except SocketError:
+    #             logger.debug('WebSocket disconnected: %s', rpc_client.ws)
+    #             disconnected_clients.append(rpc_client)
+    #         except InvalidReplyError as err:
+    #             logger.error("Error at rpc_broadcall %s", err)
 
-        for client in disconnected_clients:
-            self.rpc_clients.remove(client)
-# This is is needed to start for get_topology_data()
+    #     for client in disconnected_clients:
+    #         self.rpc_clients.remove(client)
+
+# This is is needed for get_topology_data()
 app_manager.require_app('ryu.topology.switches', api_style=True)

@@ -22,7 +22,8 @@ import logging
 import mimetypes
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
-from ryu.app.wsgi import WebSocketRPCClient
+# from ryu.app.wsgi import WebSocketRPCClient
+from ryu.app.wsgi import WebSocketRPCServer
 from ryu.app.wsgi import route
 from ryu.app.wsgi import websocket
 
@@ -177,28 +178,34 @@ class WebApi(ControllerBase):
     def post_flow_monitor(self, req):
         """Receive flows monitor request
         """
-        # if req.POST:
         res = Response()
-        res.text = self.get_unicode(
-            self.ctrl_api.monitor_flow_list(req.json))
+        res.text = "This feature is disabled."
+        # This feature is unstable so, it is disabled for now
+        # res.text = self.get_unicode(
+        #     self.ctrl_api.monitor_flow_list(req.json))
         return res
-        # return Response(status=400)  # bad request
 
     @route('monitor', '/resetmonitor', methods=['POST'])
     def post_reset_flow_monitor(self, req):
         """Reset flows monitoring data
         """
-        # if req.POST:
         res = Response()
         res.text = self.get_unicode(
             self.ctrl_api.rest_flow_monitoring(req.json))
         return res
-        # return Response(status=400)  # bad request
+
+    # @websocket('monitor', '/ws')
+    # def websocket_handler(self, ws_client):
+    #     """Sends monitoring data
+    #     """
+    #     rpc_client = WebSocketRPCClient(ws_client)
+    #     self.ctrl_api.rpc_clients.append(rpc_client)
+    #     rpc_client.serve_forever()
 
     @websocket('monitor', '/ws')
-    def websocket_handler(self, ws_client):
-        """Sends monitoring data
-        """
-        rpc_client = WebSocketRPCClient(ws_client)
-        self.ctrl_api.rpc_clients.append(rpc_client)
-        rpc_client.serve_forever()
+    def websocket_handler_2(self, ws):
+        # simple_switch = self.simple_switch_app
+        logger.debug('WebSocket connected: %s', ws)
+        rpc_server = WebSocketRPCServer(ws, self.ctrl_api.app)
+        rpc_server.serve_forever()
+        logger.debug('WebSocket disconnected: %s', ws)
