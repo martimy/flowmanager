@@ -58,7 +58,7 @@ Use a web broswer to launch the site http://localhost:8080/home/index.html
 
 ### Docker installation
 
-Use a [Docker image](https://hub.docker.com/repository/docker/martimy/ryu-flowmanager) to run Ryu Controller with the FlowManager.
+Use a [Docker image](https://hub.docker.com/r/martimy/ryu-flowmanager) to run Ryu Controller with the FlowManager.
 
 ```
 docker pull martimy/ryu-flowmanager
