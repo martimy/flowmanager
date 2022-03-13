@@ -18,8 +18,9 @@ The FlowManager is a RYU controller application that gives the user manual contr
 ### New in V0.4.0
 
 - Fixed a bug tracking flow entries.
-- Moding the Python code style closer to PEP-8 (more work is needed).
+- Editing Python code style closer to PEP-8 (more work is needed).
 - Spliting Python code into four modules for easier management.
+- Reorganized folders. 
 
 ## Dependencies
 
@@ -54,6 +55,28 @@ $ ryu-manager --observe-links ~/flowmanager/flowmanager.py ryu.app.simple_switch
 ```
 
 Use a web broswer to launch the site http://localhost:8080/home/index.html
+
+### Docker installation
+
+Use a [Docker image](https://hub.docker.com/repository/docker/martimy/ryu-flowmanager) to run Ryu Controller with the FlowManager.
+
+```
+docker pull martimy/ryu-flowmanager
+docker run -d -p 6633:6633 -p 8080:8080 martimy/ryu-flowmanager
+```
+
+To run the controller with another Ryu app:
+
+```
+docker run -d -p 6633:6633 -p 8080:8080 martimy/ryu-flowmanager:latest ryu.app.simple_switch_13
+docker run -d -p 6633:6633 -p 8080:8080 martimy/ryu-flowmanager:latest flowmanager/flowmanager.py ryu.app.simple_switch_13
+```
+
+To bypass the entry point:
+
+```
+docker run -it --entrypoint bash martimy/ryu-flowmanager
+```
 
 ## Documentation
 
