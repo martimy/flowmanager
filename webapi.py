@@ -87,6 +87,7 @@ class WebApi(ControllerBase):
         """
         if 'status' in req.GET and 'dpid' in req.GET:
             res = Response(content_type="application/json")
+            res.headers['Access-Control-Allow-Origin'] = '*'
             res.json = self.ctrl_api.get_stats(
                 req.GET['status'], req.GET['dpid'])
             return res
@@ -102,10 +103,11 @@ class WebApi(ControllerBase):
             lst = {t[0]: t[0] for t in self.ctrl_api.get_switches()}
         else:
             request = list(req.GET.keys())[0]
-            dpid = int(req.GET[request])
+            dpid = int(req.GET[request])  # possible ValueError
             lst = self.ctrl_api.get_stats_request(request, dpid)
 
         res = Response(content_type="application/json")
+        res.headers['Access-Control-Allow-Origin'] = '*'
         res.json = lst
         return res
 
@@ -115,6 +117,7 @@ class WebApi(ControllerBase):
         """
         logger.debug("Requesting topology")
         res = Response(content_type="application/json")
+        res.headers['Access-Control-Allow-Origin'] = '*'
         res.json = self.ctrl_api.get_topology_data()
         return res
 
@@ -124,6 +127,7 @@ class WebApi(ControllerBase):
         """
         logger.debug("Requesting logs")
         res = Response(content_type="application/json")
+        res.headers['Access-Control-Allow-Origin'] = '*'
         res.json = self.ctrl_api.read_logs()
         return res
 
