@@ -15,6 +15,10 @@ The FlowManager is a RYU controller application that gives the user manual contr
 ![SCREEN1](web/img/screen1.png) ![SCREEN2](web/img/screen2.png)
 ![SCREEN3](web/img/screen3.png) ![SCREEN4](web/img/screen4.png)
 
+### New in V0.4.1
+
+- Upgraded jquery to v3.5.0
+
 ### New in V0.4.0
 
 - Fixed a bug tracking flow entries.
