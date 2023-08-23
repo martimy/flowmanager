@@ -17,6 +17,7 @@
 This module receives all API requests
 """
 
+from curses.ascii import isdigit
 import sys
 import random
 import logging
@@ -62,11 +63,18 @@ class CtrlApi():
             "portdesc": self.ofctl.get_port_desc,
             "portstat": self.ofctl.get_port_stats,
             "flowsumm": self.ofctl.get_aggregate_flow_stats,
+            "flowstat": self.ofctl.get_flow_stats,
             "tablestat": self.ofctl.get_table_stats,
+            "tablefeature": self.ofctl.get_table_features,
             "queueconfig": self.ofctl.get_queue_config,
             "queuestat": self.ofctl.get_queue_stats,
             "meterstat": self.ofctl.get_meter_stats,
-            "tablefeature": self.ofctl.get_table_features,
+            "meterconfig": self.ofctl.get_meter_config,
+            "meterfeatures": self.ofctl.get_meter_features,
+            "groupdesc": self.ofctl.get_group_desc,
+            "groupstat": self.ofctl.get_group_stats,
+            "groupfeatures": self.ofctl.get_group_features,
+            "role": self.ofctl.get_role,
         }
 
         # Get log file path
@@ -115,19 +123,23 @@ class CtrlApi():
                         a_value = value.split('=')
                         val = 0
                         if len(a_value) > 1:
-                            val = int(
-                                a_value[1]) if a_value[1].isdigit() else a_value[1]
+                            x = a_value[1]
+                            val = int(x) if x.isdigit() else int(x, 16) if x.startswith('0x') else x
                         kwargs = {a_value[0]: val}
                     elif a_dict[key][1] == 'port':
                         a_value = value.upper()
                         val = self.port_id[a_value] if a_value in self.port_id else int(
                             a_value)
                         kwargs = {a_dict[key][1]: val}
+                    elif a_dict[key][1] == 'ethertype':
+                        ethertype = int(value) if value.isdigit() else int(value, 16) if value.startswith('0x') else value
+                        kwargs = {a_dict[key][1]: ethertype}
                     else:
                         kwargs = {a_dict[key][1]: int(value)}
                     actions.append(found_action(**kwargs))
                 else:
                     actions.append(found_action())
+                print(actions)
             else:
                 raise Exception("Action {} not supported!".format(key))
         return actions
