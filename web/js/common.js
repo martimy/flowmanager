@@ -553,8 +553,8 @@ function fix_compatibility(odata) {
     return odata.replace(/dl_/g, 'eth_')
         .replace(/nw_/g, 'ipv4_')
         .replace(/eth_vlan/g, 'vlan_vid')
-        .replace(/tp_dst/g, 'udp_dst')
         .replace(/ipv4_proto/g, 'ip_proto');
+//        .replace(/tp_dst/g, 'udp_dst')
 }
 
 // remove underscore and switch to uppercase
