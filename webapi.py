@@ -32,12 +32,10 @@ logger = logging.getLogger("flowmanager")
 
 
 class WebApi(ControllerBase):
-    """This class offers an web-facing API for FlowManager
-    """
+    """This class offers an web-facing API for FlowManager"""
 
     def __init__(self, req, link, data, **config):
-        """Class Constructor
-        """
+        """Class Constructor"""
         super(WebApi, self).__init__(req, link, data, **config)
         self.ctrl_api = data["webctl"]
         # self.rpc_clients = data["rpc_clients"]
@@ -45,34 +43,30 @@ class WebApi(ControllerBase):
         # logger.debug("Created WebApi")
 
     def get_unicode(self, any_string):
-        """Ensure all strings are unicode
-        """
+        """Ensure all strings are unicode"""
         return any_string if PYTHON3 else any_string.decode("utf-8")
 
     def make_response(self, filename):
-        """Response with file content
-        """
+        """Response with file content"""
         filetype, _ = mimetypes.guess_type(filename)
         if not filetype:
-            filetype = 'application/octet-stream'
+            filetype = "application/octet-stream"
         logger.debug("Making response from %s as %s", filename, filetype)
         res = Response(content_type=filetype)
-        res.body = open(filename, 'rb').read()
+        res.body = open(filename, "rb").read()
         return res
 
     def form_response(self, process_response):
-        """Provides common form repsonse
-        """
+        """Provides common form repsonse"""
         res = Response()
         res.text = self.get_unicode(process_response)
         return res
 
-    @route('monitor', '/home/{filename:.*}', methods=['GET'])
+    @route("monitor", "/home/{filename:.*}", methods=["GET"])
     def get_filename(self, _, filename):
-        """Load statis files
-        """
+        """Load statis files"""
         logger.debug("Requesting file %s", filename)
-        if (filename == "" or filename is None):
+        if filename == "" or filename is None:
             filename = "index.html"
         try:
             filename = os.path.join(self.rootdir, "web", filename)
@@ -81,22 +75,19 @@ class WebApi(ControllerBase):
             logger.error("IOError %s", err)
             return Response(status=400)
 
-    @route('monitor', '/status', methods=['GET'])
+    @route("monitor", "/status", methods=["GET"])
     def get_flow_stats(self, req):
-        """Get stats
-        """
-        if 'status' in req.GET and 'dpid' in req.GET:
+        """Get stats"""
+        if "status" in req.GET and "dpid" in req.GET:
             res = Response(content_type="application/json")
-            res.headers['Access-Control-Allow-Origin'] = '*'
-            res.json = self.ctrl_api.get_stats(
-                req.GET['status'], req.GET['dpid'])
+            res.headers["Access-Control-Allow-Origin"] = "*"
+            res.json = self.ctrl_api.get_stats(req.GET["status"], req.GET["dpid"])
             return res
         return Response(status=404)  # Resource does not exist
 
-    @route('monitor', '/data', methods=['GET'])
+    @route("monitor", "/data", methods=["GET"])
     def get_switch_data(self, req):
-        """Get switch data
-        """
+        """Get switch data"""
         logger.debug("Requesting data")
         lst = {}  # the server always returns somthing??
         if req.GET.get("list") == "switches":
@@ -107,99 +98,85 @@ class WebApi(ControllerBase):
             lst = self.ctrl_api.get_stats_request(request, dpid)
 
         res = Response(content_type="application/json")
-        res.headers['Access-Control-Allow-Origin'] = '*'
+        res.headers["Access-Control-Allow-Origin"] = "*"
         res.json = lst
         return res
 
-    @route('monitor', '/topology', methods=['GET'])
+    @route("monitor", "/topology", methods=["GET"])
     def get_topology(self, _):
-        """Get topology info
-        """
+        """Get topology info"""
         logger.debug("Requesting topology")
         res = Response(content_type="application/json")
-        res.headers['Access-Control-Allow-Origin'] = '*'
+        res.headers["Access-Control-Allow-Origin"] = "*"
         res.json = self.ctrl_api.get_topology_data()
         return res
 
-    @route('monitor', '/logs', methods=['GET'])
+    @route("monitor", "/logs", methods=["GET"])
     def get_logs(self, _):
-        """Get log mesages
-        """
+        """Get log mesages"""
         logger.debug("Requesting logs")
         res = Response(content_type="application/json")
-        res.headers['Access-Control-Allow-Origin'] = '*'
+        res.headers["Access-Control-Allow-Origin"] = "*"
         res.json = self.ctrl_api.read_logs()
         return res
 
-    @route('monitor', '/meterform', methods=['POST'])
+    @route("monitor", "/meterform", methods=["POST"])
     def post_meter_form(self, req):
-        """Connect with meter form
-        """
+        """Connect with meter form"""
         return self.form_response(self.ctrl_api.process_meter_message(req.json))
 
-    @route('monitor', '/groupform', methods=['POST'])
+    @route("monitor", "/groupform", methods=["POST"])
     def post_group_form(self, req):
-        """Connect with group form
-        """
+        """Connect with group form"""
         return self.form_response(self.ctrl_api.process_group_message(req.json))
 
-    @route('monitor', '/flowform', methods=['POST'])
+    @route("monitor", "/flowform", methods=["POST"])
     def post_flow_form(self, req):
-        """Connect with flow control form
-        """
+        """Connect with flow control form"""
         return self.form_response(self.ctrl_api.process_flow_message(req.json))
 
-    @route('monitor', '/upload', methods=['POST'])
+    @route("monitor", "/upload", methods=["POST"])
     def post_config_upload(self, req):
-        """Connect with configuration upload form
-        """
-        meters = req.json.get('meters', None)
-        groups = req.json.get('groups', None)
-        flows = req.json.get('flows', None)
+        """Connect with configuration upload form"""
+        meters = req.json.get("meters", None)
+        groups = req.json.get("groups", None)
+        flows = req.json.get("flows", None)
 
-        response_meters = self.ctrl_api.process_meter_upload(
-            meters) if meters else ''
-        response_groups = self.ctrl_api.process_group_upload(
-            groups) if groups else ''
-        response_flows = self.ctrl_api.process_flow_upload(
-            flows) if flows else ''
+        response_meters = self.ctrl_api.process_meter_upload(meters) if meters else ""
+        response_groups = self.ctrl_api.process_group_upload(groups) if groups else ""
+        response_flows = self.ctrl_api.process_flow_upload(flows) if flows else ""
         response_all = "{}, {}, {}".format(
-            response_meters, response_groups, response_flows)
+            response_meters, response_groups, response_flows
+        )
         res = Response()
         res.text = self.get_unicode(response_all)
         return res
 
-    @route('monitor', '/flowdel', methods=['POST'])
+    @route("monitor", "/flowdel", methods=["POST"])
     def post_flow_delete(self, req):
-        """Receive flows delete request
-        """
+        """Receive flows delete request"""
         res = Response()
-        res.text = self.get_unicode(
-            self.ctrl_api.delete_flow_list(req.json))
+        res.text = self.get_unicode(self.ctrl_api.delete_flow_list(req.json))
         return res
 
-    @route('monitor', '/flowmonitor', methods=['POST'])
+    @route("monitor", "/flowmonitor", methods=["POST"])
     def post_flow_monitor(self, req):
-        """Receive flows monitor request
-        """
+        """Receive flows monitor request"""
         res = Response()
         res.text = "This feature is disabled."
-        res.text = self.get_unicode(
-            self.ctrl_api.monitor_flow_list(req.json))
+        res.text = self.get_unicode(self.ctrl_api.monitor_flow_list(req.json))
         return res
 
-    @route('monitor', '/resetmonitor', methods=['POST'])
+    @route("monitor", "/resetmonitor", methods=["POST"])
     def post_reset_flow_monitor(self, req):
-        """Reset flows monitoring data
-        """
+        """Reset flows monitoring data"""
         res = Response()
-        res.text = self.get_unicode(
-            self.ctrl_api.rest_flow_monitoring(req.json))
+        res.text = self.get_unicode(self.ctrl_api.rest_flow_monitoring(req.json))
         return res
 
-    @websocket('monitor', '/ws')
+    @websocket("monitor", "/ws")
     def websocket_handler_2(self, ws):
-        logger.debug('WebSocket connected: %s', ws)
+        logger.debug("WebSocket connected: %s", ws)
         rpc_server = WebSocketRPCServer(ws, self.ctrl_api.app)
         rpc_server.serve_forever()
-        logger.debug('WebSocket disconnected: %s', ws)
+        logger.debug("WebSocket disconnected: %s", ws)

@@ -26,6 +26,7 @@ import json
 from ryu.base import app_manager
 from ryu.app.wsgi import WSGIApplication
 from ryu.controller import dpset
+
 # these are needed for the events
 from ryu.controller import ofp_event
 from ryu.controller.handler import HANDSHAKE_DISPATCHER
@@ -35,6 +36,7 @@ from ryu.controller.handler import set_ev_cls
 
 from ryu.ofproto import ofproto_v1_3
 from ryu.lib import ofctl_v1_3
+
 # from ryu.lib import ofctl_utils
 # from ryu import utils
 
@@ -50,26 +52,23 @@ from ctrlapi import CtrlApi
 LOGLEVEL = logging.INFO
 LOGFILE = "flwmgr.log"
 MONITOR_PKTIN = False
-MAGIC_COOKIE = 0x00007ab700000000
+MAGIC_COOKIE = 0x00007AB700000000
 PYTHON3 = sys.version_info > (3, 0)
 
 
 class FlowManager(app_manager.RyuApp):
-    """This class is the entry poin to the Ryu application.
-    """
+    """This class is the entry poin to the Ryu application."""
+
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     # This class wants access to the following applications
-    _CONTEXTS = {'wsgi': WSGIApplication,
-                 'dpset': dpset.DPSet}
-
-
+    _CONTEXTS = {"wsgi": WSGIApplication, "dpset": dpset.DPSet}
 
     def __init__(self, *args, **kwargs):
         super(FlowManager, self).__init__(*args, **kwargs)
-        wsgi = kwargs['wsgi']
-        self.dpset = kwargs['dpset']
-        #self.writer = None
+        wsgi = kwargs["wsgi"]
+        self.dpset = kwargs["dpset"]
+        # self.writer = None
         self.ofctl = ofctl_v1_3
         self.ws_manager = wsgi.websocketmanager
         self.ctrl_api = CtrlApi(self)
@@ -80,38 +79,39 @@ class FlowManager(app_manager.RyuApp):
         logger.info("Created flowmanager")
 
     def get_packet_summary(self, content):
-        """Get some packet information
-        """
+        """Get some packet information"""
         pkt = packet.Packet(content)
         eth = pkt.get_protocols(ethernet.ethernet)[0]
         ethtype = eth.ethertype
         dst = eth.dst
         src = eth.src
 
-        return '(src={}, dst={}, type=0x{:04x})'.format(src, dst, ethtype)
+        return "(src={}, dst={}, type=0x{:04x})".format(src, dst, ethtype)
 
     ##### Event Handlers #######################################
 
-    @set_ev_cls([  # ofp_event.EventOFPStatsReply,
-        ofp_event.EventOFPDescStatsReply,
-        ofp_event.EventOFPFlowStatsReply,
-        ofp_event.EventOFPAggregateStatsReply,
-        ofp_event.EventOFPTableStatsReply,
-        # ofp_event.EventOFPTableFeaturesStatsReply,
-        ofp_event.EventOFPPortStatsReply,
-        # ofp_event.EventOFPQueueStatsReply,
-        # ofp_event.EventOFPQueueDescStatsReply,
-        ofp_event.EventOFPMeterStatsReply,
-        ofp_event.EventOFPMeterFeaturesStatsReply,
-        ofp_event.EventOFPMeterConfigStatsReply,
-        ofp_event.EventOFPGroupStatsReply,
-        # ofp_event.EventOFPGroupFeaturesStatsReply,
-        ofp_event.EventOFPGroupDescStatsReply,
-        ofp_event.EventOFPPortDescStatsReply,
-    ], MAIN_DISPATCHER)
+    @set_ev_cls(
+        [  # ofp_event.EventOFPStatsReply,
+            ofp_event.EventOFPDescStatsReply,
+            ofp_event.EventOFPFlowStatsReply,
+            ofp_event.EventOFPAggregateStatsReply,
+            ofp_event.EventOFPTableStatsReply,
+            # ofp_event.EventOFPTableFeaturesStatsReply,
+            ofp_event.EventOFPPortStatsReply,
+            # ofp_event.EventOFPQueueStatsReply,
+            # ofp_event.EventOFPQueueDescStatsReply,
+            ofp_event.EventOFPMeterStatsReply,
+            ofp_event.EventOFPMeterFeaturesStatsReply,
+            ofp_event.EventOFPMeterConfigStatsReply,
+            ofp_event.EventOFPGroupStatsReply,
+            # ofp_event.EventOFPGroupFeaturesStatsReply,
+            ofp_event.EventOFPGroupDescStatsReply,
+            ofp_event.EventOFPPortDescStatsReply,
+        ],
+        MAIN_DISPATCHER,
+    )
     def stats_reply_handler(self, event):
-        """Handles Reply Events
-        """
+        """Handles Reply Events"""
         msg = event.msg
         data_path = msg.datapath
 
@@ -142,36 +142,37 @@ class FlowManager(app_manager.RyuApp):
         ofp = data_path.ofproto
 
         # The reason for removal
-        reason_msg = {ofp.OFPRR_IDLE_TIMEOUT: "IDLE TIMEOUT",
-                      ofp.OFPRR_HARD_TIMEOUT: "HARD TIMEOUT",
-                      ofp.OFPRR_DELETE: "DELETE",
-                      ofp.OFPRR_GROUP_DELETE: "GROUP DELETE"
-                      }
-        reason = reason_msg.get(msg.reason, 'UNKNOWN')
+        reason_msg = {
+            ofp.OFPRR_IDLE_TIMEOUT: "IDLE TIMEOUT",
+            ofp.OFPRR_HARD_TIMEOUT: "HARD TIMEOUT",
+            ofp.OFPRR_DELETE: "DELETE",
+            ofp.OFPRR_GROUP_DELETE: "GROUP DELETE",
+        }
+        reason = reason_msg.get(msg.reason, "UNKNOWN")
 
         match = msg.match.items()
         log = list(
-            map(str, ['Removed', data_path.id, msg.table_id, reason, match, msg.cookie]))
-        logger.debug(', '.join(log))
+            map(str, ["Removed", data_path.id, msg.table_id, reason, match, msg.cookie])
+        )
+        logger.debug(", ".join(log))
 
-    @set_ev_cls(ofp_event.EventOFPErrorMsg,
-                [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER])
+    @set_ev_cls(
+        ofp_event.EventOFPErrorMsg,
+        [HANDSHAKE_DISPATCHER, CONFIG_DISPATCHER, MAIN_DISPATCHER],
+    )
     def error_msg_handler(self, event):
-        """Handles an error message
-        """
+        """Handles an error message"""
         # Untested
 
         msg = event.msg
         data_path = msg.datapath
 
-        log = list(
-            map(str, ['ErrorMsg', data_path.id, msg.type, msg.code]))
-        logger.error(', '.join(log))
+        log = list(map(str, ["ErrorMsg", data_path.id, msg.type, msg.code]))
+        logger.error(", ".join(log))
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def packet_in_handler(self, ev):
-        """Handles Packet_IN message
-        """
+        """Handles Packet_IN message"""
 
         msg = ev.msg
         dp = msg.datapath
@@ -201,18 +202,33 @@ class FlowManager(app_manager.RyuApp):
         # Continue the normal processing of Packet_In
 
         # The reason for packet_in
-        reason_msg = {ofp.OFPR_NO_MATCH: "NO MATCH",
-                      ofp.OFPR_ACTION: "ACTION",
-                      ofp.OFPR_INVALID_TTL: "INVALID TTL"
-                      }
-        reason = reason_msg.get(msg.reason, 'UNKNOWN')
+        reason_msg = {
+            ofp.OFPR_NO_MATCH: "NO MATCH",
+            ofp.OFPR_ACTION: "ACTION",
+            ofp.OFPR_INVALID_TTL: "INVALID TTL",
+        }
+        reason = reason_msg.get(msg.reason, "UNKNOWN")
 
         # PacketIN messages are always sent to websocket clients
-        now = time.strftime('%H:%M:%S')
+        now = time.strftime("%H:%M:%S")
         match = msg.match.items()  # ['OFPMatch']['oxm_fields']
-        log = list(map(str, [now, 'PacketIn', dp.id, msg.table_id, reason, match,
-                             hex(msg.buffer_id), msg.cookie, self.get_packet_summary(msg.data)]))
-        logger.debug(', '.join(log[1:]))
+        log = list(
+            map(
+                str,
+                [
+                    now,
+                    "PacketIn",
+                    dp.id,
+                    msg.table_id,
+                    reason,
+                    match,
+                    hex(msg.buffer_id),
+                    msg.cookie,
+                    self.get_packet_summary(msg.data),
+                ],
+            )
+        )
+        logger.debug(", ".join(log[1:]))
         self.rpc_broadcall("log", log)
 
     def rpc_broadcall(self, func, msg):
@@ -224,13 +240,13 @@ class FlowManager(app_manager.RyuApp):
 
 
 def get_logger(logfile_name, loglevel):
-    """Create a logger object.
-    """
+    """Create a logger object."""
     a_logger = logging.getLogger("flowmanager")
     a_logger.setLevel(loglevel)
     f_handler = logging.FileHandler(logfile_name, mode="w")
     f_format = logging.Formatter(
-        '%(asctime)s:%(name)s:%(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        "%(asctime)s:%(name)s:%(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    )
     f_handler.setFormatter(f_format)
     a_logger.addHandler(f_handler)
 
@@ -242,4 +258,4 @@ cfd = os.path.dirname(os.path.abspath(__file__))
 logfile = os.path.join(cfd, LOGFILE)
 logger = get_logger(logfile, LOGLEVEL)
 
-print("You are using Python v" + '.'.join(map(str, sys.version_info)))
+print("You are using Python v" + ".".join(map(str, sys.version_info)))

@@ -46,7 +46,7 @@ UDP = udp.udp.__name__
 #         self._f.flush()
 
 
-class Tracker():
+class Tracker:
 
     all_stats = []
 
@@ -70,24 +70,27 @@ class Tracker():
             self.all_stats.append(root)
 
         # Get all protocols in a packet
-        header_list = [(p.protocol_name, p) for p in pkt.protocols if isinstance(
-            p, packet_base.PacketBase)]
+        header_list = [
+            (p.protocol_name, p)
+            for p in pkt.protocols
+            if isinstance(p, packet_base.PacketBase)
+        ]
 
         for k in header_list:
             name = self.getName(k, header_list)
-            if name in self.existing_name(root['children']):
+            if name in self.existing_name(root["children"]):
                 # If the protcol is found in the tree, make it root
                 # for the next protocol
-                root = self.get_name(name, root['children'])
+                root = self.get_name(name, root["children"])
             else:
                 # If the protcol is not found in the tree, create a new node
                 # and make it root for the next protocol
                 new_root = {"name": name, "children": []}
-                root['children'].append(new_root)
+                root["children"].append(new_root)
                 root = new_root
 
-        c = root.setdefault('count', 0)
-        root['count'] = c + 1
+        c = root.setdefault("count", 0)
+        root["count"] = c + 1
 
         return self.all_stats
 
@@ -97,17 +100,17 @@ class Tracker():
             d = k[1].dst
             return "{} [{}, {}]".format(k[0], s, d)
         if k[0] in [TCP, UDP]:
-            #s = k[1].src_port
+            # s = k[1].src_port
             d = k[1].dst_port
             return "{} [{}]".format(k[0], d)
         return k[0]
 
     def existing_name(self, lst):
         for n in lst:
-            yield n['name']
+            yield n["name"]
 
     def get_name(self, name, lst):
         for n in lst:
-            if n.get('name', None) == name:
+            if n.get("name", None) == name:
                 return n
         return None
