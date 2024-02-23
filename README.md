@@ -42,15 +42,14 @@ $ pip install ryu
 ```
 
 Note: The application, ryu-manager, which you will need to run the FlowManager is known to have issues with Python3.10 and eventlet module.
-The FlowMananager has been recently tested in Ubuntu 20.04 with Python v3.8.10 and eventlet v0.30.2.
+The FlowMananager has been recently tested in Ubuntu 20.04 with Python v3.8.10 and eventlet v0.30.1.
 
 To downgrade eventlet:
 
 ```
 $ pip uninstall eventlet
-$ pip install eventlet==0.30.2
+$ pip install eventlet==0.30.1
 ```
-
 
 ## Installation
 
