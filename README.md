@@ -35,6 +35,23 @@ The FlowManager is a RYU controller application that gives the user manual contr
 FlowManager is a [RYU Controller](https://osrg.github.io/ryu/) application, so make sure that the controller is installed properly before you proceed.
 Also, if you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
 
+To install Ryu, 
+
+```
+$ pip install ryu
+```
+
+Note: The application, ryu-manager, which you will need to run the FlowManager is known to have issues with Python3.10 and eventlet module.
+The FlowMananager has been recently tested in Ubuntu 20.04 with Python v3.8.10 and eventlet v0.30.2.
+
+To downgrade eventlet:
+
+```
+$ pip uninstall eventlet
+$ pip install eventlet==0.30.2
+```
+
+
 ## Installation
 
 Install FlowManager using the following steps:
