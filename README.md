@@ -1,6 +1,6 @@
 # FlowManager
 
-![Static Badge](https://img.shields.io/badge/Docs-martimy.github.io%2Fflowmanager%2F-blue?style=flat&link=https%3A%2F%2Fmartimy.github.io%2Fflowmanager%2F)
+[![Static Badge](https://img.shields.io/badge/Docs-Here-blue)](https://martimy.github.io/flowmanager)
 
 
 The FlowManager is a RYU controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
