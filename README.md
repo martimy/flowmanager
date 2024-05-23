@@ -33,7 +33,9 @@ The FlowManager is a RYU controller application that gives the user manual contr
 - Spliting Python code into four modules for easier management.
 - Reorganized folders. 
 
-## Dependencies
+## Installation
+
+### Ryu Controller
 
 FlowManager is a [RYU Controller](https://osrg.github.io/ryu/) application, so make sure that the controller is installed properly before you proceed.
 Also, if you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
@@ -44,17 +46,49 @@ To install Ryu,
 $ pip install ryu
 ```
 
-Note: The application, ryu-manager, which you will need to run the FlowManager is known to have issues with Python3.10 and eventlet module.
-The FlowMananager has been recently tested in Ubuntu 20.04 with Python v3.8.10 and eventlet v0.30.1.
+Note: The application, ryu-manager, which you will need to run the FlowManager is known to have issues with Python3.10 and eventlet module. In this case, you may need to downgrade the Python version and the eventlet module.
 
-To downgrade eventlet:
+If the default Python version in your machine is higher than 3.9, you may need install Python v3.9 and change the default Python version running on you machine or install Ryu in a virtual environment for Python 3.9:
 
-```
-$ pip uninstall eventlet
-$ pip install eventlet==0.30.1
-```
+1. Install Python 3.9
 
-## Installation
+    ```bash
+    $ sudo add-apt-repository ppa:deadsnakes/ppa
+    $ sudo apt-get update
+    $ sudo apt-get install python3.9
+    ```
+
+2. Install distutils
+
+    ```bash
+    $ sudo apt-get install python3.9-distutils
+    ```
+
+3. Create Virtual Environemnt (or change the default Python version)
+
+    ```bash
+    $ virtualenv -p /usr/bin/python3.9 venv39
+    ```
+
+4. Install Ryu
+
+    ```bash
+    $ source venv39/bin/activate
+    $ python -m pip install --upgrade pip
+    $ pip3 uninstall eventlet
+    $ pip3 install eventlet==0.30.2
+    $ pip3 install ryu
+    ```
+
+5. Verify the ryu-manager is working properly
+
+    ```bash
+    $ ryu-manager --version
+    ryu-manager 4.34
+    ```
+
+
+### FlowManager
 
 Install FlowManager using the following steps:
 
