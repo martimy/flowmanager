@@ -152,9 +152,10 @@ You can find some useful documention in [here](https://martimy.github.io/flowman
 
 ## Authors
 
-* **Maen Artimy** - [Profile](http://adhocnode.com)
+* Created by **Maen Artimy** - [Personal blog](http://adhocnode.com)
 
 ## License
 
 FlowManager is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details
+
 
