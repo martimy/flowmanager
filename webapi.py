@@ -20,11 +20,11 @@ import os
 import sys
 import logging
 import mimetypes
-from os_ken.app.wsgi import ControllerBase
-from os_ken.app.wsgi import Response
-from os_ken.app.wsgi import WebSocketRPCServer
-from os_ken.app.wsgi import route
-from os_ken.app.wsgi import websocket
+from os_ken_wsgi import ControllerBase
+from os_ken_wsgi import Response
+from os_ken_wsgi import WebSocketRPCServer
+from os_ken_wsgi import route
+from os_ken_wsgi import websocket
 
 
 PYTHON3 = sys.version_info > (3, 0)

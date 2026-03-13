@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 """
 The main module of the FlowManager Applications
 """
+
+import eventlet
+eventlet.monkey_patch()
 
 import os
 import sys
@@ -24,7 +26,7 @@ import time
 import json
 
 from os_ken.base import app_manager
-from os_ken.app.wsgi import WSGIApplication
+from os_ken_wsgi import WSGIApplication, WSGIServer, hub
 from os_ken.controller import dpset
 
 # these are needed for the events
@@ -75,6 +77,10 @@ class FlowManager(app_manager.OSKenApp):
 
         # Data exchanged with WebApi
         wsgi.register(WebApi, {"webctl": self.ctrl_api})
+
+        # Start the WSGI server
+        self.wsgi_server = WSGIServer(wsgi)
+        hub.spawn(self.wsgi_server)
 
         logger.info("Created flowmanager")
 
