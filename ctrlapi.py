@@ -22,9 +22,9 @@ import sys
 import random
 import logging
 
-from ryu.base import app_manager
-from ryu.lib import ofctl_v1_3
-from ryu.topology.api import get_all_switch, get_all_link, get_all_host
+from os_ken.base import app_manager
+from os_ken.lib import ofctl_v1_3
+from os_ken.topology.api import get_all_switch, get_all_link, get_all_host
 from flowtracker import Tracker
 
 
@@ -631,4 +631,4 @@ class CtrlApi:
 
 
 # This is is needed for get_topology_data()
-app_manager.require_app("ryu.topology.switches", api_style=True)
+app_manager.require_app("os_ken.topology.switches", api_style=True)

@@ -23,27 +23,27 @@ import logging
 import time
 import json
 
-from ryu.base import app_manager
-from ryu.app.wsgi import WSGIApplication
-from ryu.controller import dpset
+from os_ken.base import app_manager
+from os_ken.app.wsgi import WSGIApplication
+from os_ken.controller import dpset
 
 # these are needed for the events
-from ryu.controller import ofp_event
-from ryu.controller.handler import HANDSHAKE_DISPATCHER
-from ryu.controller.handler import CONFIG_DISPATCHER
-from ryu.controller.handler import MAIN_DISPATCHER
-from ryu.controller.handler import set_ev_cls
+from os_ken.controller import ofp_event
+from os_ken.controller.handler import HANDSHAKE_DISPATCHER
+from os_ken.controller.handler import CONFIG_DISPATCHER
+from os_ken.controller.handler import MAIN_DISPATCHER
+from os_ken.controller.handler import set_ev_cls
 
-from ryu.ofproto import ofproto_v1_3
-from ryu.lib import ofctl_v1_3
+from os_ken.ofproto import ofproto_v1_3
+from os_ken.lib import ofctl_v1_3
 
-# from ryu.lib import ofctl_utils
-# from ryu import utils
+# from os_ken.lib import ofctl_utils
+# from os_ken import utils
 
 # for packet content
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import ether_types
+from os_ken.lib.packet import packet
+from os_ken.lib.packet import ethernet
+from os_ken.lib.packet import ether_types
 
 from webapi import WebApi
 from ctrlapi import CtrlApi
@@ -56,8 +56,8 @@ MAGIC_COOKIE = 0x00007AB700000000
 PYTHON3 = sys.version_info > (3, 0)
 
 
-class FlowManager(app_manager.RyuApp):
-    """This class is the entry poin to the Ryu application."""
+class FlowManager(app_manager.OSKenApp):
+    """This class is the entry poin to the OS-Ken application."""
 
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 

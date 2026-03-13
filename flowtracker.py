@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ryu.lib import pcaplib
-from ryu.lib.packet import arp
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import icmp
-from ryu.lib.packet import ipv4
-from ryu.lib.packet import ipv6
-from ryu.lib.packet import packet
-from ryu.lib.packet import packet_base
-from ryu.lib.packet import tcp
-from ryu.lib.packet import udp
-from ryu.lib.packet import vlan
+from os_ken.lib import pcaplib
+from os_ken.lib.packet import arp
+from os_ken.lib.packet import ethernet
+from os_ken.lib.packet import icmp
+from os_ken.lib.packet import ipv4
+from os_ken.lib.packet import ipv6
+from os_ken.lib.packet import packet
+from os_ken.lib.packet import packet_base
+from os_ken.lib.packet import tcp
+from os_ken.lib.packet import udp
+from os_ken.lib.packet import vlan
 import json
 
 ETHERNET = ethernet.ethernet.__name__

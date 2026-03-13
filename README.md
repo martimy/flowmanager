@@ -3,7 +3,7 @@
 [![Static Badge](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
 
-The FlowManager is a RYU controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
+The FlowManager is an OS-Ken (formerly RYU) controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
 
 ## Features
 
@@ -17,6 +17,10 @@ The FlowManager is a RYU controller application that gives the user manual contr
 
 ![SCREEN1](web/img/screen1.png) ![SCREEN2](web/img/screen2.png)
 ![SCREEN3](web/img/screen3.png) ![SCREEN4](web/img/screen4.png)
+
+### New in V0.5.0
+
+- Migrated from Ryu to OS-Ken for better maintenance and Python 3 compatibility.
 
 ### New in V0.4.2
 
@@ -35,57 +39,16 @@ The FlowManager is a RYU controller application that gives the user manual contr
 
 ## Installation
 
-### Ryu Controller
+### OS-Ken Controller
 
-FlowManager is a [RYU Controller](https://osrg.github.io/ryu/) application, so make sure that the controller is installed properly before you proceed.
+FlowManager is an [OS-Ken Controller](https://github.com/osrg/os-ken) application, so make sure that the controller is installed properly before you proceed. OS-Ken is a maintained fork of the Ryu SDN Framework.
 Also, if you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
 
-To install Ryu, 
+To install OS-Ken, 
 
 ```
-$ pip install ryu
+$ pip install os-ken
 ```
-
-Note: The application, ryu-manager, which you will need to run the FlowManager is known to have issues with Python3.10 and eventlet module. In this case, you may need to downgrade the Python version and the eventlet module.
-
-If the default Python version in your machine is higher than 3.9, you may need install Python v3.9 and change the default Python version running on you machine or install Ryu in a virtual environment for Python 3.9:
-
-1. Install Python 3.9
-
-    ```bash
-    $ sudo add-apt-repository ppa:deadsnakes/ppa
-    $ sudo apt-get update
-    $ sudo apt-get install python3.9
-    ```
-
-2. Install distutils
-
-    ```bash
-    $ sudo apt-get install python3.9-distutils
-    ```
-
-3. Create Virtual Environemnt (or change the default Python version)
-
-    ```bash
-    $ virtualenv -p /usr/bin/python3.9 venv39
-    ```
-
-4. Install Ryu
-
-    ```bash
-    $ source venv39/bin/activate
-    $ python -m pip install --upgrade pip
-    $ pip3 uninstall eventlet
-    $ pip3 install eventlet==0.30.2
-    $ pip3 install ryu
-    ```
-
-5. Verify the ryu-manager is working properly
-
-    ```bash
-    $ ryu-manager --version
-    ryu-manager 4.34
-    ```
 
 
 ### FlowManager
@@ -100,19 +63,19 @@ $ git clone https://github.com/martimy/flowmanager
 
 Run the FlowManager alone:
 ```
-$ ryu-manager ~/flowmanager/flowmanager.py
+$ osken-manager ~/flowmanager/flowmanager.py
 ```
 
-or with another RYU application:
+or with another OS-Ken application:
 
 ```
-$ ryu-manager ~/flowmanager/flowmanager.py ryu.app.simple_switch_13
+$ osken-manager ~/flowmanager/flowmanager.py os_ken.app.simple_switch_13
 ```
 
 and to display the topology:
 
 ```
-$ ryu-manager --observe-links ~/flowmanager/flowmanager.py ryu.app.simple_switch_13
+$ osken-manager --observe-links ~/flowmanager/flowmanager.py os_ken.app.simple_switch_13
 ```
 
 Use a web broswer to launch the site http://localhost:8080/home/index.html
