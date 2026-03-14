@@ -16,8 +16,8 @@
 The main module of the FlowManager Applications
 """
 
-import eventlet
-eventlet.monkey_patch()
+#import eventlet
+#eventlet.monkey_patch()
 
 import os
 import sys
