@@ -350,7 +350,7 @@ class CtrlApi:
             }
 
     def get_stats_request(self, request, dpid):
-        """Get stats using ryu's api"""
+        """Get stats using OS-Ken's api"""
         data_path = self.dpset.get(dpid)
         func = self.reqfunction.get(request, None)
         if data_path and func:

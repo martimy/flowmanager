@@ -44,38 +44,45 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 FlowManager is an [OS-Ken Controller](https://github.com/osrg/os-ken) application, so make sure that the controller is installed properly before you proceed. OS-Ken is a maintained fork of the Ryu SDN Framework.
 Also, if you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
 
-To install OS-Ken, 
+To install OS-Ken on Ubuntu/Debian:
 
+```bash
+$ sudo apt install python3-os-ken
 ```
-$ pip install os-ken
-```
+(This will install version 2.3.1)
 
+Alternatively, using pip:
+```bash
+$ pip install os-ken==3.1.1
+```
 
 ### FlowManager
 
 Install FlowManager using the following steps:
 
-```
+```bash
 $ git clone https://github.com/martimy/flowmanager
 ```
 
 ## Running the app
 
+To avoid `eventlet` related issues (like the "RLock was not greened" error), use the provided `run_osken.py` script to launch the application:
+
 Run the FlowManager alone:
-```
-$ osken-manager ~/flowmanager/flowmanager.py
+```bash
+$ python3 run_osken.py flowmanager.py
 ```
 
 or with another OS-Ken application:
 
-```
-$ osken-manager ~/flowmanager/flowmanager.py os_ken.app.simple_switch_13
+```bash
+$ python3 run_osken.py flowmanager.py os_ken.app.simple_switch_13
 ```
 
 and to display the topology:
 
-```
-$ osken-manager --observe-links ~/flowmanager/flowmanager.py os_ken.app.simple_switch_13
+```bash
+$ python3 run_osken.py --observe-links flowmanager.py os_ken.app.simple_switch_13
 ```
 
 Use a web broswer to launch the site http://localhost:8080/home/index.html
