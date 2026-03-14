@@ -76,38 +76,17 @@ $ python3 run_osken.py flowmanager.py
 or with another OS-Ken application:
 
 ```bash
-$ python3 run_osken.py flowmanager.py os_ken.app.simple_switch_13
+$ python3 run_osken.py flowmanager.py \<application>\
 ```
 
 and to display the topology:
 
 ```bash
-$ python3 run_osken.py --observe-links flowmanager.py os_ken.app.simple_switch_13
+$ python3 run_osken.py --observe-links flowmanager.py \<application\>
 ```
 
 Use a web broswer to launch the site http://localhost:8080/home/index.html
 
-### Docker installation
-
-Use a [Docker image](https://hub.docker.com/r/martimy/ryu-flowmanager) to run Ryu Controller with the FlowManager.
-
-```
-docker pull martimy/ryu-flowmanager
-docker run -d -p 6633:6633 -p 8080:8080 martimy/ryu-flowmanager
-```
-
-To run the controller with another Ryu app:
-
-```
-docker run -d -p 6633:6633 -p 8080:8080 martimy/ryu-flowmanager:latest ryu.app.simple_switch_13
-docker run -d -p 6633:6633 -p 8080:8080 martimy/ryu-flowmanager:latest flowmanager/flowmanager.py ryu.app.simple_switch_13
-```
-
-To bypass the entry point:
-
-```
-docker run -it --entrypoint bash martimy/ryu-flowmanager
-```
 
 ## Documentation
 
