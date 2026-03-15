@@ -125,15 +125,30 @@ $(function () {
     }
 
     //Send the data to the server
-    $.post("/upload", data)
-      .done(function (response) {
-        var msg = response;
-        displaySnackbar(msg);
-      })
-      .fail(function () {
-        var msg = "No response from controller.";
-        displaySnackbar(msg);
-      })
+    // $.post("/upload", data)
+    //   .done(function (response) {
+    //     var msg = response;
+    //     displaySnackbar(msg);
+    //   })
+    //   .fail(function () {
+    //     var msg = "No response from controller.";
+    //     displaySnackbar(msg);
+    //   })
+
+    $.ajax({
+        url: "/upload",
+        type: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            displaySnackbar(response.message);
+        },
+        error: function(xhr) {
+            var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+            displaySnackbar(errMsg);
+        }
+    });
 
   });
 

@@ -153,18 +153,36 @@ $(function () {
     var r = validate(formData, matches, actions);
     var msg = r.message;
 
-    //console.log(formData);
+    // console.log(formData);
 
     // Send the data to the server
-    $.post("/flowform", JSON.stringify(formData))
-      .done( function(response) {
-        msg += response;
-        displaySnackbar(msg);
-      })
-      .fail( function() {
-        msg += "No response from controller.";
-        displaySnackbar(msg);
-      })
+    // $.post("/flowform", JSON.stringify(formData))
+    //   .done( function(response) {
+    //     msg += response;
+    //     displaySnackbar(msg);
+    //   })
+    //   .fail( function() {
+    //     msg += "No response from controller.";
+    //     displaySnackbar(msg);
+    //   })
+
+    // Send the data to the server
+    $.ajax({
+        url: "/flowform",
+        type: "POST",
+        data: JSON.stringify(formData),
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            msg += response.message;
+            displaySnackbar(msg);
+        },
+        error: function(xhr) {
+            var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+            msg += errMsg;
+            displaySnackbar(msg);
+        }
+    });
   });
 
   // Initialize the form

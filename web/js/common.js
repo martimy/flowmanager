@@ -290,17 +290,34 @@ function Tables(category) {
                 flows.push(row.dataitem)
             });
             if (flows.length > 0) {
-                $.post("/flowdel", JSON.stringify(flows))
-                    .done(function (response) {
-                        displayMessage(response);
+                // $.post("/flowdel", JSON.stringify(flows))
+                //     .done(function (response) {
+                //         displayMessage(response);
+                //         selected.forEach(function (row) {
+                //             row.$row.addClass("hiddenrow"); //temp
+                //         })
+                //     })
+                //     .fail(function () {
+                //         var msg = "No response from controller.";
+                //         displayMessage(msg);
+                //     })
+                $.ajax({
+                    url: "/flowdel",
+                    type: "POST",
+                    data: JSON.stringify(flows),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function(response) {
+                        displayMessage(response.message);
                         selected.forEach(function (row) {
                             row.$row.addClass("hiddenrow"); //temp
                         })
-                    })
-                    .fail(function () {
-                        var msg = "No response from controller.";
-                        displayMessage(msg);
-                    })
+                    },
+                    error: function(xhr) {
+                        var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+                        displayMessage(errMsg);
+                    }
+                });
             }
         });
 
@@ -313,17 +330,37 @@ function Tables(category) {
                 flows.push(row.dataitem)
             });
             if (flows.length > 0) {
-                $.post("/flowmonitor", JSON.stringify(flows))
-                    .done(function (response) {
-                        displayMessage(response);
+                // $.post("/flowmonitor", JSON.stringify(flows))
+                //     .done(function (response) {
+                //         displayMessage(response);
+                //         selected.forEach(function (row) {
+                //             row.$row.addClass("monitorrow"); //temp
+                //         })
+                //     })
+                //     .fail(function () {
+                //         var msg = "No response from controller.";
+                //         displayMessage(msg);
+                //     })
+                
+                $.ajax({
+                    url: "/flowmonitor",
+                    type: "POST",
+                    data: JSON.stringify(flows),
+                    contentType: "application/json",
+                    dataType: "json",
+                    success: function(response) {
+                        let msg = response.message;
+                        displayMessage(msg);
                         selected.forEach(function (row) {
                             row.$row.addClass("monitorrow"); //temp
                         })
-                    })
-                    .fail(function () {
-                        var msg = "No response from controller.";
+                    },
+                    error: function(xhr) {
+                        var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+                        let msg = errMsg;
                         displayMessage(msg);
-                    })
+                    }
+                });
             }
         });
 

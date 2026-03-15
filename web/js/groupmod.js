@@ -137,15 +137,32 @@ $(function () {
     //console.log(formData);
 
     // Send the data to the server
-    $.post("/groupform", JSON.stringify(formData))
-      .done( function(response) {
-        msg += response;
-        displaySnackbar(msg);
-      })
-      .fail( function() {
-        msg += "No response from controller.";
-        displaySnackbar(msg);
-      })
+    // $.post("/groupform", JSON.stringify(formData))
+    //   .done( function(response) {
+    //     msg += response;
+    //     displaySnackbar(msg);
+    //   })
+    //   .fail( function() {
+    //     msg += "No response from controller.";
+    //     displaySnackbar(msg);
+    //   })
+
+    $.ajax({
+        url: "/groupform",
+        type: "POST",
+        data: JSON.stringify(formData),
+        contentType: "application/json",
+        dataType: "json",
+        success: function(response) {
+            msg += response.message;
+            displaySnackbar(msg);
+        },
+        error: function(xhr) {
+            var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+            msg += errMsg;
+            displaySnackbar(msg);
+        }
+    });
   });
 
   // Display Snackbar

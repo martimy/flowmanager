@@ -133,15 +133,33 @@ $(function () {
     //console.log(formData);
 
     // Send the data to the server
-    $.post("/meterform", JSON.stringify(formData))
-      .done( function(response) {
-        msg += response;
-        displaySnackbar(msg);
-      })
-      .fail( function() {
-        msg += "No response from controller.";
-        displaySnackbar(msg);
-      })
+    // $.post("/meterform", JSON.stringify(formData))
+    //   .done( function(response) {
+    //     msg += response;
+    //     displaySnackbar(msg);
+    //   })
+    //   .fail( function() {
+    //     msg += "No response from controller.";
+    //     displaySnackbar(msg);
+    //   })
+
+    $.ajax({
+        url: "/meterform",
+        type: "POST",
+        data: JSON.stringify(formData),
+        contentType: "application/json",  // <-- this is the fix
+        dataType: "json",
+        success: function(response) {
+            msg += response.message;
+            displaySnackbar(msg);
+        },
+        error: function(xhr) {
+            var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+            msg += errMsg;
+            displaySnackbar(msg);
+        }
+    });
+
   });
 
   // Setup the form

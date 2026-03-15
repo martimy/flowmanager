@@ -151,12 +151,28 @@ $(function () {
         $('#reset').on("click", function () {
             // get selected cookie
 
-            $.post("/resetmonitor", JSON.stringify({ "cookie": selectedCookie }))
-                .done(function (response) {
-                    //$('svg').empty();
-                })
-                .fail(function () {
-                })
+            // $.post("/resetmonitor", JSON.stringify({ "cookie": selectedCookie }))
+            //     .done(function (response) {
+            //         //$('svg').empty();
+            //     })
+            //     .fail(function () {
+            //     })
+            
+            $.ajax({
+                url: "/resetmonitor",
+                type: "POST",
+                data: JSON.stringify({ "cookie": selectedCookie }),
+                contentType: "application/json",
+                dataType: "json",
+                success: function(response) {
+                    displaySnackbar(response.message);
+                },
+                error: function(xhr) {
+                    var errMsg = xhr.responseJSON ? xhr.responseJSON.message : "No response from controller.";
+                    displaySnackbar(errMsg);
+                }
+            });
+
         });
 
         $('#cookieoption').on('change', function () {
