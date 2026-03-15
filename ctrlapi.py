@@ -235,7 +235,7 @@ class CtrlApi:
                 flow["dpid"] = dpid
                 flow["operation"] = "add"
                 _ = self.process_meter_message(flow)
-        return "Meters added successfully!"
+        return {"status": "success", "message": "Meters added successfully!"}
 
     def process_group_upload(self, configlist):
         """Sends groups to the switch to update group tables."""
@@ -250,7 +250,7 @@ class CtrlApi:
                 flow["dpid"] = dpid
                 flow["operation"] = "add"
                 _ = self.process_group_message(flow)
-        return "Groups added successfully!"
+        return {"status": "success", "message": "Groups added successfully!"}
 
     def process_flow_upload(self, configlist):
         """Sends flows to the switch to update flow tables."""
@@ -265,7 +265,7 @@ class CtrlApi:
                 flow["dpid"] = dpid
                 flow["operation"] = "add"
                 _ = self.process_flow_message(flow)
-        return "Flows added successfully!"
+        return {"status": "success", "message": "Flows added successfully!"}
 
     # @set_ev_cls(event.EventSwitchEnter)
 
@@ -289,6 +289,7 @@ class CtrlApi:
 
     def delete_flow_list(self, flowlist):
         """Delete a set of flows"""
+        print(flowlist)
         for item in flowlist:
             item["operation"] = "delst"
             _ = self.process_flow_message(item)
@@ -296,7 +297,7 @@ class CtrlApi:
             # if the flow was monitored
             if item["cookie"] & self.MAGIC_COOKIE == self.MAGIC_COOKIE:
                 self.tracker.untrack(item["cookie"])
-        return "Flows deleted successfully!"
+        return {"status": "success", "message": "Flows deleted successfully!"}
 
     def monitor_flow_list(self, flowlist):
         """Monitor a Flow"""
@@ -313,7 +314,7 @@ class CtrlApi:
                 item["actions"] += ["OUTPUT:CONTROLLER"]
             _ = self.process_flow_message(item)
 
-        return "Flows are monitored!"
+        return {"status": "success", "message": "Flows are monitored!"}
 
     def rest_flow_monitoring(self, req):
         """Reset Flow Monitoring"""
@@ -323,7 +324,7 @@ class CtrlApi:
         else:
             self.tracker.reset(int(cookie))
 
-        return ""
+        return {"status": "success", "message": "Flow monitoring reset."}
 
     def get_switches(self):
         """Returns switch infor."""
@@ -360,7 +361,7 @@ class CtrlApi:
         dpid = int(flow_entry.get("dpid", 0))
         data_path = self.dpset.get(dpid)
         if not data_path:
-            return "Datapath does not exist!"
+            return {"status": "error", "message": "Datapath does not exist!"}
 
         ofproto = data_path.ofproto
         parser = data_path.ofproto_parser
@@ -464,24 +465,24 @@ class CtrlApi:
 
         msg_kwargs["flags"] = flags
 
-        # ryu/ryu/ofproto/ofproto_v1_3_parser.py
+        # os_ken/os_ken/ofproto/ofproto_v1_3_parser.py
         msg = parser.OFPFlowMod(**msg_kwargs)
         try:
-            data_path.send_msg(msg)  # ryu/ryu/controller/controller.py
+            data_path.send_msg(msg)  # os_ken/os_ken/controller/controller.py
         except KeyError as err:
-            return "Unrecognized field " + err.__repr__()
+            return {"status": "error", "message": "Unrecognized field " + err.__repr__()}
         except Exception as err:
             print(msg)
-            return "Error " + err.__repr__()
+            return {"status": "error", "message": "Error " + err.__repr__()}
 
-        return "Message sent successfully."
+        return {"status": "success", "message": "Message sent successfully."}
 
     def process_group_message(self, d):
         """Sends group form data to the switch to update group tables."""
         dpid = int(d.get("dpid", 0))
         data_path = self.dpset.get(dpid)
         if not data_path:
-            return "Datapath does not exist!"
+            return {"status": "error", "message": "Datapath does not exist!"}
 
         ofproto = data_path.ofproto
         parser = data_path.ofproto_parser
@@ -537,20 +538,20 @@ class CtrlApi:
         group_mod = parser.OFPGroupMod(data_path, cmd, gtype, group_id, buckets)
 
         try:
-            data_path.send_msg(group_mod)  # ryu/ryu/controller/controller.py
+            data_path.send_msg(group_mod)  # os_ken/os_ken/controller/controller.py
         except KeyError as err:
-            return err.__repr__()
+            return {"status": "error", "message": err.__repr__()}
         except Exception as err:
-            return err.__repr__()
+            return {"status": "error", "message": err.__repr__()}
 
-        return "Message sent successfully."
+        return {"status": "success", "message": "Message sent successfully."}
 
     def process_meter_message(self, d):
         """Sends meter form data to the switch to update meter table."""
         dpid = int(d.get("dpid", 0))
         data_path = self.dpset.get(dpid)
         if not data_path:
-            return "Datapath does not exist!"
+            return {"status": "error", "message": "Datapath does not exist!"}
 
         ofproto = data_path.ofproto
         parser = data_path.ofproto_parser
@@ -614,11 +615,11 @@ class CtrlApi:
         try:
             data_path.send_msg(meter_mod)
         except KeyError as err:
-            return err.__repr__()
+            return {"status": "error", "message": err.__repr__()}
         except Exception as err:
-            return err.__repr__()
+            return {"status": "error", "message": err.__repr__()}
 
-        return "Message sent successfully."
+        return {"status": "success", "message": "Message sent successfully."}
 
     # def get_flow_stats(self, req, dpid): # unused
     #     flow = {}  # no filters

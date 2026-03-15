@@ -23,6 +23,7 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Query
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from models import FlowEntry, GroupEntry, MeterEntry, ConfigUpload
 
 logger = logging.getLogger("flowmanager")
 
@@ -58,6 +59,20 @@ class ConnectionManager:
                 logger.error(f"Error broadcasting to websocket: {e}")
 
 manager = ConnectionManager()
+
+def broadcast_sync(message: str):
+    """Wrapper to call async broadcast from sync code"""
+    import asyncio
+    try:
+        # Get the loop from the running FastAPI app if possible
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.run_coroutine_threadsafe(manager.broadcast(message), loop)
+        else:
+            loop.run_until_complete(manager.broadcast(message))
+    except Exception as e:
+        # Fallback for when loop is not easily accessible
+        logger.error(f"Async broadcast failed: {e}")
 
 @app.get("/status")
 async def get_flow_stats(status: str, dpid: str):
@@ -97,30 +112,26 @@ async def get_logs():
     return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
 
 @app.post("/meterform")
-async def post_meter_form(request: Request):
+async def post_meter_form(entry: MeterEntry):
     """Connect with meter form"""
-    data = await request.json()
-    return ctrl_api.process_meter_message(data)
+    return ctrl_api.process_meter_message(entry.dict(exclude_unset=True))
 
 @app.post("/groupform")
-async def post_group_form(request: Request):
+async def post_group_form(entry: GroupEntry):
     """Connect with group form"""
-    data = await request.json()
-    return ctrl_api.process_group_message(data)
+    return ctrl_api.process_group_message(entry.dict(exclude_unset=True))
 
 @app.post("/flowform")
-async def post_flow_form(request: Request):
+async def post_flow_form(entry: FlowEntry):
     """Connect with flow control form"""
-    data = await request.json()
-    return ctrl_api.process_flow_message(data)
+    return ctrl_api.process_flow_message(entry.dict(exclude_unset=True))
 
 @app.post("/upload")
-async def post_config_upload(request: Request):
+async def post_config_upload(config: ConfigUpload):
     """Connect with configuration upload form"""
-    data = await request.json()
-    meters = data.get("meters")
-    groups = data.get("groups")
-    flows = data.get("flows")
+    meters = config.meters
+    groups = config.groups
+    flows = config.flows
 
     response_meters = ctrl_api.process_meter_upload(meters) if meters else ""
     response_groups = ctrl_api.process_group_upload(groups) if groups else ""
@@ -128,21 +139,18 @@ async def post_config_upload(request: Request):
     return f"{response_meters}, {response_groups}, {response_flows}"
 
 @app.post("/flowdel")
-async def post_flow_delete(request: Request):
+async def post_flow_delete(entries: List[FlowEntry]):
     """Receive flows delete request"""
-    data = await request.json()
-    return ctrl_api.delete_flow_list(data)
+    return ctrl_api.delete_flow_list([e.dict(exclude_unset=True) for e in entries])
 
 @app.post("/flowmonitor")
-async def post_flow_monitor(request: Request):
+async def post_flow_monitor(entries: List[FlowEntry]):
     """Receive flows monitor request"""
-    data = await request.json()
-    return ctrl_api.monitor_flow_list(data)
+    return ctrl_api.monitor_flow_list([e.dict(exclude_unset=True) for e in entries])
 
 @app.post("/resetmonitor")
-async def post_reset_flow_monitor(request: Request):
+async def post_reset_flow_monitor(data: dict):
     """Reset flows monitoring data"""
-    data = await request.json()
     return ctrl_api.rest_flow_monitoring(data)
 
 @app.websocket("/ws")

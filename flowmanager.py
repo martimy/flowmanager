@@ -44,7 +44,7 @@ from os_ken.lib.packet import packet
 from os_ken.lib.packet import ethernet
 from os_ken.lib.packet import ether_types
 
-from webapi import run_server, manager
+from webapi import run_server, broadcast_sync
 from ctrlapi import CtrlApi
 
 
@@ -230,7 +230,7 @@ class FlowManager(app_manager.OSKenApp):
     def rpc_broadcall(self, func, msg):
         msg_dict = {"method": func, "params": msg}
         try:
-            hub.spawn(manager.broadcast, json.dumps(msg_dict))
+            broadcast_sync(json.dumps(msg_dict))
         except Exception as err:
             logger.error("Error at rpc_broadcall %s", err)
 

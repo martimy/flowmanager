@@ -22,6 +22,9 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 
 - Migrated from Ryu to OS-Ken for better maintenance and Python 3 compatibility.
 - Replaced legacy WSGI/RPC stack with **FastAPI**.
+- Introduced **Pydantic models** for robust API data validation and type safety.
+- Refactored API to return **structured JSON responses** instead of raw strings.
+- Replaced `post` with `ajax` in js code.
 - Removed Python 2 compatibility layers.
 
 ### New in V0.4.2
