@@ -1,5 +1,5 @@
 /*
-    Copyright (c) Maen Artimy, 2018
+    Copyright (c) Maen Artimy, 2018-2026
 */
 
 table {
@@ -57,7 +57,7 @@ td {
 }
 
 tr:nth-child(even) {
-  background-color: whitesmoke;
+  background-color: var(--scolor-1);
 }
 
 table.sortable th:hover {
