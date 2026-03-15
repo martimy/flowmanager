@@ -21,6 +21,8 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 ### New in V0.5.0
 
 - Migrated from Ryu to OS-Ken for better maintenance and Python 3 compatibility.
+- Replaced legacy WSGI/RPC stack with **FastAPI**.
+- Removed Python 2 compatibility layers.
 
 ### New in V0.4.2
 
@@ -54,6 +56,11 @@ $ sudo apt install python3-os-ken
 Alternatively, using pip:
 ```bash
 $ pip install os-ken==3.1.1
+```
+
+Install FastAPI and Uvicorn:
+```bash
+$ pip install fastapi uvicorn
 ```
 
 ### FlowManager
@@ -96,6 +103,7 @@ You can find some useful documention in [here](https://martimy.github.io/flowman
 ## Built With
 
 * [Python](https://www.python.org/) - A programming language ideal for SDN applications.
+* [FastAPI](https://fastapi.tiangolo.com/) - A modern, fast web framework for building APIs.
 * [jQuery](https://jquery.com/) - A JavaScript library for event handling, animation.
 * [D3.js](https://d3js.org/) - A JavaScript library for data visulization. 
 

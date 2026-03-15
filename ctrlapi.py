@@ -28,7 +28,6 @@ from os_ken.topology.api import get_all_switch, get_all_link, get_all_host
 from flowtracker import Tracker
 
 
-PYTHON3 = sys.version_info > (3, 0)
 logger = logging.getLogger("flowmanager")
 
 
@@ -166,8 +165,7 @@ class CtrlApi:
         write_actions = []
 
         for item in actions:
-            # Python 2 has both types
-            if isinstance(item, str) or (not PYTHON3 and isinstance(item, unicode)):
+            if isinstance(item, str):
                 if item.startswith("WRITE_METADATA"):
                     metadata = item.split(":")[1].split("/")
                     # expecting hex data
@@ -515,10 +513,8 @@ class CtrlApi:
             actions = []
             if bucket["actions"]:
                 actions_list = []
-                if isinstance(bucket["actions"][0], str) or (
-                    not PYTHON3 and isinstance(bucket["actions"][0], unicode)
-                ):
-                    # Ryu's format
+                if isinstance(bucket["actions"][0], str):
+                    # OS-Ken's format
                     for i in bucket["actions"]:
                         x = i.split(":", 1)
                         y = (

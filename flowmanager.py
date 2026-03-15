@@ -26,7 +26,6 @@ import time
 import json
 
 from os_ken.base import app_manager
-from os_ken_wsgi import WSGIApplication, WSGIServer, hub
 from os_ken.controller import dpset
 
 # these are needed for the events
@@ -38,16 +37,14 @@ from os_ken.controller.handler import set_ev_cls
 
 from os_ken.ofproto import ofproto_v1_3
 from os_ken.lib import ofctl_v1_3
-
-# from os_ken.lib import ofctl_utils
-# from os_ken import utils
+from os_ken.lib import hub
 
 # for packet content
 from os_ken.lib.packet import packet
 from os_ken.lib.packet import ethernet
 from os_ken.lib.packet import ether_types
 
-from webapi import WebApi
+from webapi import run_server, manager
 from ctrlapi import CtrlApi
 
 
@@ -55,7 +52,6 @@ LOGLEVEL = logging.INFO
 LOGFILE = "flwmgr.log"
 MONITOR_PKTIN = False
 MAGIC_COOKIE = 0x00007AB700000000
-PYTHON3 = sys.version_info > (3, 0)
 
 
 class FlowManager(app_manager.OSKenApp):
@@ -64,23 +60,17 @@ class FlowManager(app_manager.OSKenApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
 
     # This class wants access to the following applications
-    _CONTEXTS = {"wsgi": WSGIApplication, "dpset": dpset.DPSet}
+    _CONTEXTS = {"dpset": dpset.DPSet}
 
     def __init__(self, *args, **kwargs):
         super(FlowManager, self).__init__(*args, **kwargs)
-        wsgi = kwargs["wsgi"]
         self.dpset = kwargs["dpset"]
         # self.writer = None
         self.ofctl = ofctl_v1_3
-        self.ws_manager = wsgi.websocketmanager
         self.ctrl_api = CtrlApi(self)
 
-        # Data exchanged with WebApi
-        wsgi.register(WebApi, {"webctl": self.ctrl_api})
-
-        # Start the WSGI server
-        self.wsgi_server = WSGIServer(wsgi)
-        hub.spawn(self.wsgi_server)
+        # Start the FastAPI server
+        hub.spawn(run_server, self.ctrl_api, "0.0.0.0", 8080)
 
         logger.info("Created flowmanager")
 
@@ -238,9 +228,9 @@ class FlowManager(app_manager.OSKenApp):
         self.rpc_broadcall("log", log)
 
     def rpc_broadcall(self, func, msg):
-        msg = {"method": func, "params": msg}
+        msg_dict = {"method": func, "params": msg}
         try:
-            self.ws_manager.broadcast(json.dumps(msg))
+            hub.spawn(manager.broadcast, json.dumps(msg_dict))
         except Exception as err:
             logger.error("Error at rpc_broadcall %s", err)
 

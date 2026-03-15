@@ -13,170 +13,155 @@
 # limitations under the License.
 
 """
-This module includes class WebApi, which is part of the FlowManager application.
+This module includes FastAPI application for FlowManager.
 """
 
 import os
-import sys
 import logging
-import mimetypes
-from os_ken_wsgi import ControllerBase
-from os_ken_wsgi import Response
-from os_ken_wsgi import WebSocketRPCServer
-from os_ken_wsgi import route
-from os_ken_wsgi import websocket
+from typing import List, Optional
+from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Query
+from fastapi.responses import JSONResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
-
-PYTHON3 = sys.version_info > (3, 0)
 logger = logging.getLogger("flowmanager")
 
+app = FastAPI(title="FlowManager API")
 
-class WebApi(ControllerBase):
-    """This class offers an web-facing API for FlowManager"""
+# Enable CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    def __init__(self, req, link, data, **config):
-        """Class Constructor"""
-        super(WebApi, self).__init__(req, link, data, **config)
-        self.ctrl_api = data["webctl"]
-        # self.rpc_clients = data["rpc_clients"]
-        self.rootdir = os.path.dirname(os.path.abspath(__file__))
-        # logger.debug("Created WebApi")
+# Global reference to ctrl_api
+ctrl_api = None
 
-    def get_unicode(self, any_string):
-        """Ensure all strings are unicode"""
-        return any_string if PYTHON3 else any_string.decode("utf-8")
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
 
-    def make_response(self, filename):
-        """Response with file content"""
-        filetype, _ = mimetypes.guess_type(filename)
-        if not filetype:
-            filetype = "application/octet-stream"
-        logger.debug("Making response from %s as %s", filename, filetype)
-        res = Response(content_type=filetype)
-        res.body = open(filename, "rb").read()
-        return res
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
 
-    def form_response(self, process_response):
-        """Provides common form repsonse"""
-        res = Response()
-        res.text = self.get_unicode(process_response)
-        return res
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
 
-    @route("monitor", "/home/{filename:.*}", methods=["GET"])
-    def get_filename(self, _, filename):
-        """Load statis files"""
-        logger.debug("Requesting file %s", filename)
-        if filename == "" or filename is None:
-            filename = "index.html"
-        try:
-            filename = os.path.join(self.rootdir, "web", filename)
-            return self.make_response(filename)
-        except IOError as err:
-            logger.error("IOError %s", err)
-            return Response(status=400)
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            try:
+                await connection.send_text(message)
+            except Exception as e:
+                logger.error(f"Error broadcasting to websocket: {e}")
 
-    @route("monitor", "/status", methods=["GET"])
-    def get_flow_stats(self, req):
-        """Get stats"""
-        if "status" in req.GET and "dpid" in req.GET:
-            res = Response(content_type="application/json")
-            res.headers["Access-Control-Allow-Origin"] = "*"
-            res.json = self.ctrl_api.get_stats(req.GET["status"], req.GET["dpid"])
-            return res
-        return Response(status=404)  # Resource does not exist
+manager = ConnectionManager()
 
-    @route("monitor", "/data", methods=["GET"])
-    def get_switch_data(self, req):
-        """Get switch data"""
-        logger.debug("Requesting data")
-        lst = {}  # the server always returns somthing??
-        if req.GET.get("list") == "switches":
-            lst = {t[0]: t[0] for t in self.ctrl_api.get_switches()}
-        else:
-            request = list(req.GET.keys())[0]
-            dpid = int(req.GET[request])  # possible ValueError
-            lst = self.ctrl_api.get_stats_request(request, dpid)
+@app.get("/status")
+async def get_flow_stats(status: str, dpid: str):
+    """Get stats"""
+    if ctrl_api:
+        data = ctrl_api.get_stats(status, dpid)
+        return JSONResponse(content=data)
+    return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
 
-        res = Response(content_type="application/json")
-        res.headers["Access-Control-Allow-Origin"] = "*"
-        res.json = lst
-        return res
+@app.get("/data")
+async def get_switch_data(request: Request):
+    """Get switch data"""
+    if not ctrl_api:
+        return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
+    
+    params = request.query_params
+    if params.get("list") == "switches":
+        lst = {t[0]: t[0] for t in ctrl_api.get_switches()}
+    else:
+        req_type = list(params.keys())[0]
+        dpid = int(params[req_type])
+        lst = ctrl_api.get_stats_request(req_type, dpid)
+    return JSONResponse(content=lst)
 
-    @route("monitor", "/topology", methods=["GET"])
-    def get_topology(self, _):
-        """Get topology info"""
-        logger.debug("Requesting topology")
-        res = Response(content_type="application/json")
-        res.headers["Access-Control-Allow-Origin"] = "*"
-        res.json = self.ctrl_api.get_topology_data()
-        return res
+@app.get("/topology")
+async def get_topology():
+    """Get topology info"""
+    if ctrl_api:
+        return JSONResponse(content=ctrl_api.get_topology_data())
+    return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
 
-    @route("monitor", "/logs", methods=["GET"])
-    def get_logs(self, _):
-        """Get log mesages"""
-        logger.debug("Requesting logs")
-        res = Response(content_type="application/json")
-        res.headers["Access-Control-Allow-Origin"] = "*"
-        res.json = self.ctrl_api.read_logs()
-        return res
+@app.get("/logs")
+async def get_logs():
+    """Get log messages"""
+    if ctrl_api:
+        return JSONResponse(content=ctrl_api.read_logs())
+    return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
 
-    @route("monitor", "/meterform", methods=["POST"])
-    def post_meter_form(self, req):
-        """Connect with meter form"""
-        return self.form_response(self.ctrl_api.process_meter_message(req.json))
+@app.post("/meterform")
+async def post_meter_form(request: Request):
+    """Connect with meter form"""
+    data = await request.json()
+    return ctrl_api.process_meter_message(data)
 
-    @route("monitor", "/groupform", methods=["POST"])
-    def post_group_form(self, req):
-        """Connect with group form"""
-        return self.form_response(self.ctrl_api.process_group_message(req.json))
+@app.post("/groupform")
+async def post_group_form(request: Request):
+    """Connect with group form"""
+    data = await request.json()
+    return ctrl_api.process_group_message(data)
 
-    @route("monitor", "/flowform", methods=["POST"])
-    def post_flow_form(self, req):
-        """Connect with flow control form"""
-        return self.form_response(self.ctrl_api.process_flow_message(req.json))
+@app.post("/flowform")
+async def post_flow_form(request: Request):
+    """Connect with flow control form"""
+    data = await request.json()
+    return ctrl_api.process_flow_message(data)
 
-    @route("monitor", "/upload", methods=["POST"])
-    def post_config_upload(self, req):
-        """Connect with configuration upload form"""
-        meters = req.json.get("meters", None)
-        groups = req.json.get("groups", None)
-        flows = req.json.get("flows", None)
+@app.post("/upload")
+async def post_config_upload(request: Request):
+    """Connect with configuration upload form"""
+    data = await request.json()
+    meters = data.get("meters")
+    groups = data.get("groups")
+    flows = data.get("flows")
 
-        response_meters = self.ctrl_api.process_meter_upload(meters) if meters else ""
-        response_groups = self.ctrl_api.process_group_upload(groups) if groups else ""
-        response_flows = self.ctrl_api.process_flow_upload(flows) if flows else ""
-        response_all = "{}, {}, {}".format(
-            response_meters, response_groups, response_flows
-        )
-        res = Response()
-        res.text = self.get_unicode(response_all)
-        return res
+    response_meters = ctrl_api.process_meter_upload(meters) if meters else ""
+    response_groups = ctrl_api.process_group_upload(groups) if groups else ""
+    response_flows = ctrl_api.process_flow_upload(flows) if flows else ""
+    return f"{response_meters}, {response_groups}, {response_flows}"
 
-    @route("monitor", "/flowdel", methods=["POST"])
-    def post_flow_delete(self, req):
-        """Receive flows delete request"""
-        res = Response()
-        res.text = self.get_unicode(self.ctrl_api.delete_flow_list(req.json))
-        return res
+@app.post("/flowdel")
+async def post_flow_delete(request: Request):
+    """Receive flows delete request"""
+    data = await request.json()
+    return ctrl_api.delete_flow_list(data)
 
-    @route("monitor", "/flowmonitor", methods=["POST"])
-    def post_flow_monitor(self, req):
-        """Receive flows monitor request"""
-        res = Response()
-        res.text = "This feature is disabled."
-        res.text = self.get_unicode(self.ctrl_api.monitor_flow_list(req.json))
-        return res
+@app.post("/flowmonitor")
+async def post_flow_monitor(request: Request):
+    """Receive flows monitor request"""
+    data = await request.json()
+    return ctrl_api.monitor_flow_list(data)
 
-    @route("monitor", "/resetmonitor", methods=["POST"])
-    def post_reset_flow_monitor(self, req):
-        """Reset flows monitoring data"""
-        res = Response()
-        res.text = self.get_unicode(self.ctrl_api.rest_flow_monitoring(req.json))
-        return res
+@app.post("/resetmonitor")
+async def post_reset_flow_monitor(request: Request):
+    """Reset flows monitoring data"""
+    data = await request.json()
+    return ctrl_api.rest_flow_monitoring(data)
 
-    @websocket("monitor", "/ws")
-    def websocket_handler_2(self, ws):
-        logger.debug("WebSocket connected: %s", ws)
-        rpc_server = WebSocketRPCServer(ws, self.ctrl_api.app)
-        rpc_server.serve_forever()
-        logger.debug("WebSocket disconnected: %s", ws)
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # We don't expect messages from client for now, but need to keep it open
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+
+# Mount static files AFTER all other routes to avoid shadowing
+app.mount("/home", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "web"), html=True), name="web")
+
+def run_server(ctrl, host, port):
+    global ctrl_api
+    ctrl_api = ctrl
+    import uvicorn
+    # Use standard uvicorn worker, it will run in its own loop
+    # If monkey-patched, it will use greened primitives.
+    uvicorn.run(app, host=host, port=port, log_level="info")
