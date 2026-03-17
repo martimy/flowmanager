@@ -107,7 +107,7 @@
     color: white;
 }
 
-.dropdown:hover .dropdown-content {
+.dropdown-content.open {
     display: block;
 }
 

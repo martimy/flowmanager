@@ -389,7 +389,6 @@ function Tables(category) {
 
         var $menu = $('<div></div>').addClass("dropdown");
         var $button = $('<button><i class="icon icon-menu"></i></button>');
-        //$button.html('Options');
 
         var $list = $('<div></div>').addClass("dropdown-content");
         $list.html('<a href="delete">Delete</a> \
@@ -400,11 +399,27 @@ function Tables(category) {
 
         setMenuEvents($list, dp_table);
 
+        // Click the button to open/close the menu
+        $button.on('click', function (e) {
+            e.stopPropagation();
+            var isOpen = $list.hasClass('open');
+            // Close all other open dropdowns first
+            $('.dropdown-content.open').removeClass('open');
+            if (!isOpen) {
+                $list.addClass('open');
+            }
+        });
+
         $menu.append($button);
         $menu.append($list);
 
         return $menu;
     }
+
+    // Close any open dropdown when clicking elsewhere on the page
+    $(document).on('click', function () {
+        $('.dropdown-content.open').removeClass('open');
+    });
 
     return {
         buildTableCard: buildTableCard,
