@@ -6,10 +6,10 @@
 		class="st5">
 	<style type="text/css">
 	<![CDATA[
-		.st1 {fill:#ffffff;stroke:#246767;stroke-linecap:round;stroke-linejoin:round;stroke-width:3}
-		.st2 {fill:#699a9a;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
-		.st3 {fill:#428080;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.24}
-		.st4 {fill:#246767;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.24}
+		.st1 {fill:#ffffff;stroke:#0C447C;stroke-linecap:round;stroke-linejoin:round;stroke-width:3}
+		.st2 {fill:#85B7EB;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st3 {fill:#378ADD;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.24}
+		.st4 {fill:#0C447C;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.24}
 		.st5 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
 	]]>
 	</style>
