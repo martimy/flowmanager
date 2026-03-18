@@ -17,6 +17,7 @@ This module includes FastAPI application for FlowManager.
 """
 
 import os
+import asyncio
 import logging
 from typing import List, Optional
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect, Query
@@ -40,39 +41,59 @@ app.add_middleware(
 # Global reference to ctrl_api
 ctrl_api = None
 
+
 class ConnectionManager:
+    """Manages active WebSocket connections and broadcasts messages to all clients.
+
+    Replaces the old WebSocketRPCServer / rpc_clients pattern. The single shared
+    instance is stored on app.state so other modules can reach it via the FastAPI
+    app object, mirroring the old self.ctrl_api.app reference.
+    """
+
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: set[WebSocket] = set()
+        self._loop: asyncio.AbstractEventLoop | None = None
 
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
+    def set_loop(self, loop: asyncio.AbstractEventLoop):
+        """Store the event loop so sync callers can schedule broadcasts onto it."""
+        self._loop = loop
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    def register(self, websocket: WebSocket):
+        self.active_connections.add(websocket)
+
+    def unregister(self, websocket: WebSocket):
+        self.active_connections.discard(websocket)
 
     async def broadcast(self, message: str):
-        for connection in self.active_connections:
+        """Send a message to every connected client, pruning stale connections."""
+        disconnected = set()
+        for ws in self.active_connections:
             try:
-                await connection.send_text(message)
+                await ws.send_text(message)
             except Exception as e:
-                logger.error(f"Error broadcasting to websocket: {e}")
+                logger.error("Error broadcasting to websocket: %s", e)
+                disconnected.add(ws)
+        self.active_connections -= disconnected
 
+    def broadcast_sync(self, message: str):
+        """Thread-safe broadcast for callers running outside the asyncio loop.
+
+        flowmanager.py runs in an OS-Ken/eventlet hub thread, so it cannot
+        await directly. This schedules the coroutine onto the stored loop.
+        """
+        if self._loop is None or not self._loop.is_running():
+            logger.error("broadcast_sync called before event loop is available")
+            return
+        asyncio.run_coroutine_threadsafe(self.broadcast(message), self._loop)
+
+
+# Single shared instance - registered on app.state in run_server()
 manager = ConnectionManager()
 
+
 def broadcast_sync(message: str):
-    """Wrapper to call async broadcast from sync code"""
-    import asyncio
-    try:
-        # Get the loop from the running FastAPI app if possible
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.run_coroutine_threadsafe(manager.broadcast(message), loop)
-        else:
-            loop.run_until_complete(manager.broadcast(message))
-    except Exception as e:
-        # Fallback for when loop is not easily accessible
-        logger.error(f"Async broadcast failed: {e}")
+    """Module-level convenience wrapper used by flowmanager.py."""
+    manager.broadcast_sync(message)
 
 @app.get("/status")
 async def get_flow_stats(status: str, dpid: str):
@@ -154,14 +175,19 @@ async def post_reset_flow_monitor(data: dict):
     return ctrl_api.rest_flow_monitoring(data)
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+async def websocket_handler(websocket: WebSocket):
+    await websocket.accept()
+    manager.register(websocket)
+    logger.debug("WebSocket connected: %s", websocket)
     try:
         while True:
-            # We don't expect messages from client for now, but need to keep it open
+            # The JS client never sends meaningful data — this just keeps the
+            # connection open and detects clean disconnects via the exception.
             await websocket.receive_text()
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
+        logger.debug("WebSocket disconnected: %s", websocket)
+    finally:
+        manager.unregister(websocket)
 
 # Mount static files AFTER all other routes to avoid shadowing
 app.mount("/home", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "web"), html=True), name="web")
@@ -169,7 +195,14 @@ app.mount("/home", StaticFiles(directory=os.path.join(os.path.dirname(__file__),
 def run_server(ctrl, host, port):
     global ctrl_api
     ctrl_api = ctrl
+
+    # Capture the event loop once uvicorn starts it, so broadcast_sync() can
+    # schedule coroutines onto it from the OS-Ken hub thread.
+    @app.on_event("startup")
+    async def _on_startup():
+        import asyncio
+        manager.set_loop(asyncio.get_running_loop())
+        app.state.manager = manager  # also available via app.state if needed
+
     import uvicorn
-    # Use standard uvicorn worker, it will run in its own loop
-    # If monkey-patched, it will use greened primitives.
     uvicorn.run(app, host=host, port=port, log_level="info")

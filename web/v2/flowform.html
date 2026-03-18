@@ -336,7 +336,7 @@
               <label v-for="flag in FLAGS" :key="flag.id"
                 class="flag-item" :class="{ checked: form.flags[flag.id] }"
                 @click="form.flags[flag.id] = !form.flags[flag.id]">
-                <input type="checkbox" :checked="form.flags[flag.id]">
+                <!--input type="checkbox" :checked="form.flags[flag.id]"-->
                 <div class="flag-checkmark">
                   <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1.5 5l2.5 2.5 4.5-4"/></svg>
                 </div>

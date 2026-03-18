@@ -234,7 +234,6 @@ class FlowManager(app_manager.OSKenApp):
         except Exception as err:
             logger.error("Error at rpc_broadcall %s", err)
 
-
 def get_logger(logfile_name, loglevel):
     """Create a logger object."""
     a_logger = logging.getLogger("flowmanager")

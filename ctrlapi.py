@@ -42,7 +42,6 @@ class CtrlApi:
         self.dpset = self.app.dpset
         self.ofctl = ofctl_v1_3
         self.waiters = {}
-        self.rpc_clients = []
         self.tracker = Tracker()
 
         self.port_id = {

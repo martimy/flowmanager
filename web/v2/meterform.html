@@ -430,7 +430,7 @@
               :class="{ checked: form.flags[flag.id] }"
               @click="toggleFlag(flag.id)"
             >
-              <input type="checkbox" :checked="form.flags[flag.id]">
+              <!--input type="checkbox" :checked="form.flags[flag.id]"-->
               <div class="flag-checkmark">
                 <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                   <path d="M1.5 5l2.5 2.5 4.5-4"/>
@@ -647,14 +647,22 @@ new Vue({
 
     // ── Flags ─────────────────────────────────────────
     toggleFlag(id) {
-      // KBPS and PKTPS are mutually exclusive
-      if (id === 'OFPMF_KBPS' && !this.form.flags.OFPMF_KBPS) {
+      if (this.form.flags[id]) {
+        // Turning off → just do it
+        this.form.flags[id] = false;
+        return;
+      }
+
+      // Turning on → enforce exclusion first
+      if (id === 'OFPMF_KBPS') {
         this.form.flags.OFPMF_PKTPS = false;
-      } else if (id === 'OFPMF_PKTPS' && !this.form.flags.OFPMF_PKTPS) {
+      } else if (id === 'OFPMF_PKTPS') {
         this.form.flags.OFPMF_KBPS = false;
       }
-      this.$set(this.form.flags, id, !this.form.flags[id]);
+
+      this.form.flags[id] = true;
     },
+
 
     // ── Bands ─────────────────────────────────────────
     addBand() {
