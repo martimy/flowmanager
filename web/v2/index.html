@@ -298,8 +298,8 @@
 
         <!-- Flow Tables -->
         <div v-show="detailTab === 'tables'">
-          <!--div v-if="!selectedSw.tables || selectedSw.tables.length === 0" class="detail-empty">No active flow tables found for this switch.</div-->
-          <div v-if="!selectedSw.tables || selectedSw.tables.length === 0" class="detail-empty">Not implemented yet.</div>
+          <div v-if="!selectedSw.tables || selectedSw.tables.length === 0" class="detail-empty">No active flow tables found for this switch.</div>
+          <!--div v-if="!selectedSw.tables || selectedSw.tables.length === 0" class="detail-empty">Not implemented yet.</div-->
           <table v-else class="detail-table">
             <thead><tr><th>Table ID</th><th class="num">Active Flows</th><th class="num">Pkts Looked Up</th><th class="num">Pkts Matched</th></tr></thead>
             <tbody>
@@ -315,8 +315,8 @@
 
         <!-- Port Statistics -->
         <div v-show="detailTab === 'ports'">
-          <!--div v-if="!selectedSw.ports || selectedSw.ports.length === 0" class="detail-empty">No port statistics available for this switch.</div-->
-          <div v-if="!selectedSw.ports || selectedSw.ports.length === 0" class="detail-empty">Not implemented yet.</div>
+          <div v-if="!selectedSw.ports || selectedSw.ports.length === 0" class="detail-empty">No port statistics available for this switch.</div>
+          <!--div v-if="!selectedSw.ports || selectedSw.ports.length === 0" class="detail-empty">Not implemented yet.</div-->
           <table v-else class="detail-table">
             <thead><tr><th>Port</th><th class="num">RX Pkts</th><th class="num">TX Pkts</th><th class="num">RX Bytes</th><th class="num">TX Bytes</th><th class="num">RX Errors</th><th class="num">TX Errors</th><th class="num">RX Dropped</th><th class="num">TX Dropped</th></tr></thead>
             <tbody>
@@ -396,8 +396,8 @@ new Vue({
       const sw = { dpid, flowCount:0, tableCount:0, portCount:0, totalLookups:0, totalMatched:0, tables:[], ports:[], desc:{} };
       const [flowsRes, tableRes, portRes, descRes] = await Promise.allSettled([
         fetch(`/status?status=flows&dpid=${dpid}`),
-        fetch(`/status?status=tablestat&dpid=${dpid}`),
-        fetch(`/status?status=portstat&dpid=${dpid}`),
+        fetch(`/data?tablestat=${dpid}`),
+        fetch(`/data?portstat=${dpid}`),
         fetch(`/data?switchdesc=${dpid}`),
       ]);
       if (flowsRes.status === 'fulfilled' && flowsRes.value.ok) {
