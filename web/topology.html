@@ -1,30 +1,492 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<html>
+<html lang="en">
 <head>
-	<title>Topology</title>
-	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
-	<link rel="stylesheet" type="text/css" href="css\table.css?v2">
-	<link rel="stylesheet" type="text/css" href="css\cards.css?v1">
-	<link rel="stylesheet" type="text/css" href="css\tabs.css?v1">	
-	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
-	<link rel="stylesheet" type="text/css" href="css\topology.css?v3">
-	<script src="js/jquery-3.7.1.min.js"></script>
-	<!--script src="https://d3js.org/d3.v4.min.js"></script-->
-	<script src="js/d3/d3.min.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topology</title>
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="js/d3/d3.min.js"></script>
+  <style>
+    :root {
+      --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
+      --pcolor-3: #0C447C; --pcolor-4: #042C53;
+      --scolor-0: #7F77DD; --scolor-1: #EEEDFE; --scolor-2: #AFA9EC;
+      --scolor-3: #534AB7; --scolor-4: #3C3489;
+      --white: #ffffff;
+      --bg:         #f0f4fa;
+      --bg-card:    #ffffff;
+      --bg-sidebar: var(--pcolor-4);
+      --text-main:  var(--pcolor-4);
+      --text-muted: #6b7fa3;
+      --text-light: #a0aec0;
+      --border:     #dde3f0;
+      --radius:     10px;
+      --shadow:     0 2px 12px rgba(24,95,165,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .sidebar-brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; line-height: 1.2; }
+    .sidebar-brand-sub  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--pcolor-1); letter-spacing: 0.12em; text-transform: uppercase; }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pcolor-2); padding: 10px 20px 4px; }
+    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
+    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .nav-link.active { background: rgba(133,183,235,0.15); color: var(--white); border-left-color: var(--pcolor-1); font-weight: 500; }
+    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+    .nav-link.active svg { opacity: 1; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-clock { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--pcolor-1); }
+
+    /* ── Main ── */
+    .main { margin-left: 200px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+    .topbar-right  { display: flex; align-items: center; gap: 12px; }
+    .last-updated  { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn svg { width: 13px; height: 13px; }
+    .btn-primary { background: var(--pcolor-0); color: var(--white); }
+    .btn-primary:hover { background: var(--pcolor-3); }
+    .btn-primary.spinning svg { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Page body ── */
+    .page-body { padding: 20px 32px 40px; flex: 1; display: flex; flex-direction: column; }
+
+    /* ── Tabs ── */
+    .tab-bar { display: flex; align-items: center; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+    .tab-btn { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; padding: 8px 18px; border: none; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; letter-spacing: 0.04em; position: relative; bottom: -2px; border-bottom: 2px solid transparent; }
+    .tab-btn:hover  { background: var(--scolor-1); color: var(--scolor-3); }
+    .tab-btn.active { color: var(--pcolor-0); font-weight: 600; border-bottom: 2px solid var(--pcolor-0); background: transparent; }
+
+    /* ── Tab panels ── */
+    .tab-panel { display: none; flex: 1; }
+    .tab-panel.active { display: block; }
+
+    /* ── SVG canvas card ── */
+    .svg-card {
+      background: var(--bg-card);
+      border: 1px solid var(--scolor-2);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* ── D3 topology styles (from topology.css, adapted) ── */
+    .svg-card svg {
+      display: block;
+      width: 100%;
+      border: none;
+      border-radius: 0;
+    }
+
+    .node image { width: 60px; height: 60px; }
+    text.label  { fill: var(--scolor-4); text-anchor: start; }
+    .links line { stroke: var(--scolor-3); stroke-opacity: 0.6; }
+    circle { stroke: var(--scolor-3); fill: white; }
+    text.start, text.end { fill: var(--scolor-3); text-anchor: middle; alignment-baseline: middle; font-size: 0.75em; }
+    .node circle { fill: #fff; stroke: var(--scolor-3); stroke-width: 2px; }
+    .node text   { font: 12px 'DM Sans', sans-serif; }
+    .link { fill: none; stroke: var(--scolor-3); stroke-width: 1px; }
+
+    /* ── Tooltip ── */
+    div.tooltip {
+      position: absolute;
+      text-align: left;
+      padding: 6px 10px;
+      color: white;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--pcolor-3);
+      border-radius: 6px;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+
+    /* ── Tables tab ── */
+    .data-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+    }
+    .data-section-title {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+      color: var(--text-main); text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 8px; margin-top: 18px;
+    }
+    .data-section-title:first-child { margin-top: 0; }
+    .data-pre {
+      font-family: 'DM Mono', monospace; font-size: 11.5px;
+      line-height: 1.6; color: var(--text-muted);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; padding: 12px 14px;
+      white-space: pre-wrap; word-break: break-all;
+    }
+
+    /* ── Empty / error states ── */
+    .state-banner { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: var(--radius); margin-bottom: 16px; font-size: 13.5px; font-weight: 500; }
+    .state-banner.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  </style>
 </head>
 <body>
-<div class="container_16">
-	<div id="header" class="grid_16">
-	<h1>Topology</h1>
-	<button type="button" class="refresh">Refresh</button>
-	</div>
-	<div id="menu" class="grid_2"></div>
-	<div id="main" class="grid_14"></div>
-</div>
-<script src="js/mainmenu.js"></script>
-<script src="js/common.js"></script>
-<script src="js/topology.js"></script>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <!--svg viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="6" fill="rgba(133,183,235,0.15)"/>
+        <rect x="5" y="9" width="18" height="3" rx="1.5" fill="#85B7EB"/>
+        <rect x="5" y="16" width="18" height="3" rx="1.5" fill="#85B7EB"/>
+        <circle cx="20" cy="10.5" r="2" fill="#2ab08e"/>
+        <circle cx="20" cy="17.5" r="2" fill="#e07b3a"/>
+        <circle cx="8"  cy="10.5" r="1.2" fill="rgba(133,183,235,0.5)"/>
+        <circle cx="8"  cy="17.5" r="1.2" fill="rgba(133,183,235,0.5)"/>
+      </svg-->
+      <img src="img/logo.svg" width="28" height="28">
+      <div>
+        <div class="sidebar-brand-name">FlowManager</div>
+        <div class="sidebar-brand-sub">SDN Application</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Monitor</div>
+      <a href="index.html"    class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg>Dashboard</a>
+      <a href="flows.html"    class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>Flows</a>
+      <a href="groups.html"   class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 110 6A3 3 0 018 1zm-5 9a5 5 0 0110 0v1H3v-1z"/></svg>Groups</a>
+      <a href="meters.html"   class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zM7 5h2v4H7zm0 5h2v2H7z"/></svg>Meters</a>
+      <a href="topology.html" class="nav-link active"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2"/><circle cx="2" cy="3" r="1.5"/><circle cx="14" cy="3" r="1.5"/><circle cx="2" cy="13" r="1.5"/><circle cx="14" cy="13" r="1.5"/><line x1="3.5" y1="3.5" x2="6.5" y2="7" stroke="currentColor" stroke-width="1"/><line x1="12.5" y1="3.5" x2="9.5" y2="7" stroke="currentColor" stroke-width="1"/><line x1="3.5" y1="12.5" x2="6.5" y2="9" stroke="currentColor" stroke-width="1"/><line x1="12.5" y1="12.5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1"/></svg>Topology</a>
+      <a href="messages.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2h14a1 1 0 011 1v8a1 1 0 01-1 1H5l-4 3V3a1 1 0 011-1z"/></svg>Messages</a>
+      <div class="nav-section-label" style="margin-top:8px">Control</div>
+      <a href="flowform.html"  class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Flow Control</a>
+      <a href="groupform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Group Control</a>
+      <a href="meterform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Meter Control</a>
+      <div class="nav-section-label" style="margin-top:8px">System</div>
+      <a href="config.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 1h3l.5 2a5 5 0 011.4.8l2-.5 1.5 2.6-1.5 1.4a5 5 0 010 1.6l1.5 1.4L13.4 13l-2-.5A5 5 0 0110 13.2l-.5 2h-3l-.5-2A5 5 0 014.6 12.5l-2 .5L1.1 10.4 2.6 9A5 5 0 012.6 7.4L1.1 5.6 2.6 3l2 .5A5 5 0 016 2.8zM8 6a2 2 0 100 4A2 2 0 008 6z"/></svg>Configuration</a>
+      <a href="about.html"  class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 7v5M8 5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-clock" id="clock"></div>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title">Topology</div>
+      <div class="topbar-right">
+        <span class="last-updated" id="last-updated"></span>
+        <button class="btn btn-primary" id="refresh-btn" onclick="refreshTopology()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3"/><path d="M13.5 2v3h-3"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+
+      <!-- Error banner (hidden by default) -->
+      <div class="state-banner error" id="error-banner" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"/></svg>
+        <span id="error-text"></span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tab-graph-btn"  onclick="switchTab('graph')">Graph</button>
+        <button class="tab-btn"        id="tab-tables-btn" onclick="switchTab('tables')">Tables</button>
+      </div>
+
+      <!-- Graph tab -->
+      <div class="tab-panel active" id="tab-graph">
+        <div class="svg-card">
+          <svg id="topology-svg" width="1060" height="620"></svg>
+        </div>
+      </div>
+
+      <!-- Tables tab -->
+      <div class="tab-panel" id="tab-tables">
+        <div class="data-card">
+          <div class="data-section-title">Switches</div>
+          <pre class="data-pre" id="data-switches">—</pre>
+          <div class="data-section-title">Links</div>
+          <pre class="data-pre" id="data-links">—</pre>
+          <div class="data-section-title">Hosts</div>
+          <pre class="data-pre" id="data-hosts">—</pre>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // ── Clock ─────────────────────────────────────────────────────────────
+    function tick() {
+      document.getElementById('clock').textContent =
+        new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // ── Tab switching ─────────────────────────────────────────────────────
+    function switchTab(name) {
+      ['graph', 'tables'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('active', t === name);
+        document.getElementById('tab-' + t + '-btn').classList.toggle('active', t === name);
+      });
+      sessionStorage.setItem('topologyTab', name);
+    }
+
+    // Restore saved tab
+    const savedTab = sessionStorage.getItem('topologyTab');
+    if (savedTab) switchTab(savedTab);
+
+    // ── Refresh button state ──────────────────────────────────────────────
+    function setLoading(on) {
+      const btn = document.getElementById('refresh-btn');
+      btn.classList.toggle('spinning', on);
+      btn.disabled = on;
+    }
+
+    // ── Error banner ──────────────────────────────────────────────────────
+    function showError(msg) {
+      const banner = document.getElementById('error-banner');
+      document.getElementById('error-text').textContent = msg;
+      banner.style.display = 'flex';
+    }
+    function hideError() {
+      document.getElementById('error-banner').style.display = 'none';
+    }
+  </script>
+
+  <!-- ── topology.js: D3 logic, unchanged except jQuery calls replaced ── -->
+  <script>
+    const size   = 60;
+    const radius = 8;
+
+    // Tooltip div (appended to body, same as original)
+    const div = d3.select('body').append('div')
+      .attr('class', 'tooltip')
+      .style('opacity', 0);
+
+    function add_prefix(obj) {
+      return String(obj).replace(/^0+/, 'Switch_');
+    }
+
+    function trim_zeros(obj) {
+      return String(obj).replace(/^0+/, '');
+    }
+
+    function toGraph(top) {
+      var nodes = [];
+      var links = [];
+
+      var lst = top.switches;
+      for (var i = 0; i < lst.length; i++) {
+        nodes.push({ 'id': lst[i].dpid, 'type': 'switch' });
+      }
+
+      if (top.links.length > 0) {
+        lst = top.links;
+        for (var i = 0; i < lst.length; i++) {
+          if (lst[i].src.dpid < lst[i].dst.dpid) {
+            links.push({
+              'source': lst[i].src.dpid, 'target': lst[i].dst.dpid, 'value': 4,
+              'port': { 'source': lst[i].src.port_no, 'target': lst[i].dst.port_no }
+            });
+          }
+        }
+      } else if (top.switches.length > 1) {
+        nodes.push({ 'id': 0, 'type': 'cloud' });
+        for (var i = 0; i < lst.length; i++) {
+          links.push({
+            'source': 0, 'target': lst[i].dpid, 'value': 4,
+            'port': { 'source': 0, 'target': 0 }
+          });
+        }
+      }
+
+      lst = top.hosts;
+      for (var i = 0; i < lst.length; i++) {
+        nodes.push({ 'id': lst[i].mac, 'type': 'host' });
+        links.push({
+          'source': lst[i].port.dpid, 'target': lst[i].mac, 'value': 2,
+          'port': { 'source': lst[i].port.port_no, 'target': 0 }
+        });
+      }
+
+      return { 'nodes': nodes, 'links': links };
+    }
+
+    function plotGraph(graph) {
+      // Select the SVG already in the DOM — no jQuery injection needed
+      var svg    = d3.select('#topology-svg');
+      var width  = +svg.attr('width');
+      var height = +svg.attr('height');
+
+      // Clear previous render on refresh
+      svg.selectAll('*').remove();
+
+      function box_force() {
+        var curr_node;
+        for (var i = 0, n = graph.nodes.length; i < n; ++i) {
+          curr_node = graph.nodes[i];
+          curr_node.x = Math.max(radius, Math.min(width  - radius, curr_node.x));
+          curr_node.y = Math.max(radius, Math.min(height - radius, curr_node.y));
+        }
+      }
+
+      var simulation = d3.forceSimulation()
+        .nodes(graph.nodes)
+        .force('link', d3.forceLink(graph.links).id(function(d) { return d.id; }).distance(size * 2))
+        .force('charge', d3.forceManyBody().strength(-size * 30))
+        .force('x', d3.forceX(width / 2))
+        .force('y', d3.forceY(function(d) {
+          return d.type === 'host' ? 3 * height / 4 : height / 4;
+        }).strength(0.25))
+        .force('centre', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(35))
+        .force('box', box_force);
+
+      var node = svg.append('g')
+        .attr('class', 'nodes')
+        .selectAll('.node')
+        .data(graph.nodes)
+        .enter().append('g')
+        .attr('class', 'node');
+
+      node.append('image')
+        .attr('xlink:href', function(d) {
+          if (d.type === 'switch') return '/home/img/switch.svg';
+          if (d.type === 'cloud')  return '/home/img/cloud.svg';
+          return '/home/img/pc.svg';
+        })
+        .on('mouseover', handleMouseOver)
+        .on('mouseout',  handleMouseOut);
+
+      node.append('text')
+        .attr('class', 'label')
+        .attr('dy', size + 14)
+        .text(function(d) { return d.id; });
+
+      var link = svg.append('g')
+        .attr('class', 'links')
+        .selectAll('.link')
+        .data(graph.links)
+        .enter().append('g')
+        .attr('class', 'link');
+
+      link.append('line')
+        .attr('stroke-width', function(d) { return d.value; });
+
+      link.append('circle').attr('class', 'start').attr('r', radius);
+      link.append('circle').attr('class', 'end').attr('r', radius);
+      link.append('text').attr('class', 'start').text(function(d) { return trim_zeros(d.port.source); });
+      link.append('text').attr('class', 'end').text(function(d)   { return trim_zeros(d.port.target); });
+
+      function tickActions() {
+        function norm(d) {
+          return Math.sqrt((d.target.x - d.source.x) ** 2 + (d.target.y - d.source.y) ** 2);
+        }
+        node.attr('transform', function(d) {
+          return 'translate(' + (d.x - size / 2) + ',' + (d.y - size / 2) + ')';
+        });
+        link.attr('transform', function(d) {
+          return 'translate(' + d.source.x + ',' + d.source.y + ')';
+        });
+        link.selectAll('line')
+          .attr('x1', function(d) { return (d.target.x - d.source.x) * size / 2 / norm(d); })
+          .attr('y1', function(d) { return (d.target.y - d.source.y) * size / 2 / norm(d); })
+          .attr('x2', function(d) { return (d.target.x - d.source.x) * (1 - size / 2 / norm(d)); })
+          .attr('y2', function(d) { return (d.target.y - d.source.y) * (1 - size / 2 / norm(d)); });
+        link.selectAll('circle.start')
+          .attr('cx', function(d) { return (d.target.x - d.source.x) * size / 2 / norm(d); })
+          .attr('cy', function(d) { return (d.target.y - d.source.y) * size / 2 / norm(d); });
+        link.selectAll('circle.end')
+          .attr('cx', function(d) { return (d.target.x - d.source.x) * (1 - size / 2 / norm(d)); })
+          .attr('cy', function(d) { return (d.target.y - d.source.y) * (1 - size / 2 / norm(d)); });
+        link.selectAll('text.start')
+          .attr('dx', function(d) { return (d.target.x - d.source.x) * size / 2 / norm(d); })
+          .attr('dy', function(d) { return (d.target.y - d.source.y) * size / 2 / norm(d); });
+        link.selectAll('text.end')
+          .attr('dx', function(d) { return (d.target.x - d.source.x) * (1 - size / 2 / norm(d)); })
+          .attr('dy', function(d) { return (d.target.y - d.source.y) * (1 - size / 2 / norm(d)); });
+      }
+
+      node.call(d3.drag()
+        .on('start', drag_start)
+        .on('drag',  drag_drag)
+        .on('end',   drag_end));
+
+      function drag_start(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      }
+      function drag_drag(d) { d.fx = d3.event.x; d.fy = d3.event.y; }
+      function drag_end(d) {
+        if (!d3.event.active) simulation.alphaTarget(0);
+        d.fx = null; d.fy = null;
+      }
+
+      function handleMouseOver(d) {
+        div.transition().duration(200).style('opacity', .9);
+        div.html(d.type + ': ' + d.id)
+          .style('left', (d3.event.pageX) + 'px')
+          .style('top',  (d3.event.pageY - 28) + 'px');
+      }
+      function handleMouseOut() {
+        div.transition().duration(500).style('opacity', 0);
+      }
+
+      simulation.on('tick', tickActions);
+    }
+
+    function listTopology(network) {
+      document.getElementById('data-switches').textContent =
+        JSON.stringify(network.switches, null, 2);
+      document.getElementById('data-links').textContent =
+        JSON.stringify(network.links, null, 2);
+      document.getElementById('data-hosts').textContent =
+        JSON.stringify(network.hosts, null, 2);
+    }
+
+    function refreshTopology() {
+      hideError();
+      setLoading(true);
+
+      d3.json('/topology').then(function(data) {
+        listTopology(data);
+        plotGraph(toGraph(data));
+
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.getElementById('last-updated').textContent = 'Updated ' + now;
+        setLoading(false);
+      }).catch(function() {
+        showError('Could not load topology from controller.');
+        setLoading(false);
+      });
+    }
+
+    // Load on page open
+    refreshTopology();
+  </script>
+
 </body>
 </html>

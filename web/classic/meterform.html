@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Meter Control</title>
+	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\form.css?v3">
+	<script src="js\jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<div class="container_16">
+<div id="header" class="grid_16">
+	<h1>Meter Control</h1>
+	<input type="button" class="refresh" name="import" value="Import" style="display: none;">
+</div>
+<div id="menu" class="grid_2"></div>
+<div id="main" class="grid_14">
+
+<form  id="metermod" action="action" method="post">
+		<div class="formcontrol">
+	    <input type="submit" value="Submit">
+	    <input type="reset" value="Clear">
+		</div>
+
+		<div class="form">
+		<div class="fieldset">
+			<h1>Target:</h1>
+			<label for="dpid">Switch ID:</label><select type="number" id="dpid"></select><br>
+			<label for="meter_id">Meter ID:</label><input type="number" id="meter_id" min="1" max="4294901760" value=""><br>
+		</div>
+
+		<div class="fieldset">
+			<h1>Flags:</h1>
+			<input type="checkbox" id="OFPMF_KBPS" checked="checked"><label for="OFPMF_KBPS">Rate in Kbps</label>
+			<input type="checkbox" id="OFPMF_PKTPS"><label for="OFPMF_PKTPS">Rate in pps</label>
+			<input type="checkbox" id="OFPMF_BURST"><label for="OFPMF_BURST">Do Burst Size</label>
+			<input type="checkbox" id="OFPMF_STATS"><label for="OFPMF_STATS">Collect Statistics</label>
+		</div>
+
+		<div class="fieldset">
+			<h1>Meter Operation:</h1>
+			<ul class="operation">
+			<li><input type="radio" id="op1" name="operation" value="add" checked="checked">
+					<label for="op1">Add</labeL></li>
+			<li><input type="radio" id="op2" name="operation" value="mod">
+					<label for="op2">Modify</labeL></li>
+			<li><input type="radio" id="op3" name="operation" value="del">
+					<label for="op3">Delete</labeL></li>
+			</ul>
+		</div>
+
+		<div class="fieldset">
+				<h1>Meter Bands:</h1>
+				<table id="Bands" class="extendable">
+					<tr>
+						<th>Band Type</th><th>Rate</th><th>Burst Size</th><th>Prec Level</th><th></th>
+					</tr>
+					<tr>
+						<td><input list="bandtype" name="bandtype" value="DROP"></td>
+						<td><input type="number" name="rate" min="0" value="0"></td>
+						<td><input type="number" name="burst" min="0" value="0" disabled></td>
+						<td><input type="number" name="prec" min="0" max="63" value="0" disabled></td>
+						<td><input type="button" name="bapply" value="+"></td>
+					</tr>
+				</table>
+				<datalist id="bandtype">
+					<option value="DROP">
+					<option value="DSCP_REMARK">
+				</datalist>
+		</div>
+	</div>
+</form>
+<div id="output"></div>
+<div id="snackbar"></div>
+</div>
+</div>
+<script src="js\mainmenu.js"></script>
+<script src="js\metermodvalidate.js?v1"></script>
+<script src="js\metermod.js?v1"></script>
+</body>
+</html>

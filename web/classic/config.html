@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Configuration Backup/Restore</title>
+	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="css\style.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\menu.css?v2">
+	<link rel="stylesheet" type="text/css" href="css\form.css?v3">
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<script src="js\jquery-3.7.1.min.js"></script>
+</head>
+<body>
+<div class="container_16">
+<div id="header" class="grid_16">
+	<h1>Configuration Backup/Restore</h1>
+</div>
+<div id="menu" class="grid_2"></div>
+<div id="main" class="grid_14">
+
+<form  id="confbackup" action="action" method="post">
+    <div class="fieldset">
+        <h1>Backup:</h1>
+        <label for="dpid" style="vertical-align: top;">Select Switches:</label>
+        <select type="number" id="dpid" multiple="multiple" size="5" class="multiple">
+            <option value = "ALL" selected="selected">--ALL--</option>
+        </select><br><br>
+        <input type="checkbox" id="pretty"><label for="pretty">Formatted</label><br>
+        <input type="submit" name="save" value="Save">
+        
+    </div>
+    <div class="fieldset">
+        <h1>Restore</h1>
+        <div class="file-upload">
+            <div class="file-select">
+                <div class="file-select-button" id="fileName">Choose Backup File</div>
+                <div class="file-select-name" id="noFile">No file chosen...</div> 
+                <input type="file" name="chooseFile" id="chooseMeterFile">
+            </div>
+            <input type="submit" value="Restore" name="restore" class="file-submit" disabled>
+        </div>
+    </div>
+    <textarea id="confcontent" class="filecontent" rows="0" cols="50">No content...</textarea><br>
+</form>
+
+<div id="output"></div>
+<div id="snackbar"></div>
+</div>
+</div>
+<script src="js\mainmenu.js"></script>
+<script src="js\common.js"></script>
+<script src="js\config.js"></script>
+</body>
+</html>
+
+
+  

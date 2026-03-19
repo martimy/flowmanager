@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<html>
+<head>
+	<title>Flow Manager</title>
+	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+	<link rel="stylesheet" type="text/css" href="css\style.css">
+	<link rel="stylesheet" type="text/css" href="css\cards.css">
+	<link rel="stylesheet" type="text/css" href="css\table.css">
+	<link rel="stylesheet" type="text/css" href="css\menu.css">
+	<script src="js\jquery-3.7.1.min.js"></script>
+	<script src="js\main.js"></script>
+	<script src="js\modules.js"></script>
+	<script src="js\cards.js"></script>
+</head>
+<body onload="generateCards.run(views, 'main');moduleManager.loadModules(views)">
+<script>console.log("started!");</script>
+<div class="container_16">
+<div id="header" class="grid_16">
+	<h1>Flow Manager</h1>
+	<button class="refresh" onclick="location.href='/home/v2/index.html'" style="background-color: var(--accent-purple);">Try New UI</button>
+</div>
+<div id="menu" class="grid_2"></div>
+<div id="main" class="grid_14"></div>
+</div>
+</div>
+<script src="js\mainmenu.js"></script>
+<script>console.log("finished!");</script>
+</body>
+</html>

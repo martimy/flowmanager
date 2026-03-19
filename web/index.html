@@ -1,30 +1,473 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<html>
+<html lang="en">
 <head>
-	<title>Flow Manager</title>
-	<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-	<link rel="stylesheet" type="text/css" href="css\style.css">
-	<link rel="stylesheet" type="text/css" href="css\cards.css">
-	<link rel="stylesheet" type="text/css" href="css\table.css">
-	<link rel="stylesheet" type="text/css" href="css\menu.css">
-	<script src="js\jquery-3.7.1.min.js"></script>
-	<script src="js\main.js"></script>
-	<script src="js\modules.js"></script>
-	<script src="js\cards.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flow Manager</title>
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+  <style>
+    :root {
+      --pcolor-0:#185FA5;--pcolor-1:#85B7EB;--pcolor-2:#378ADD;--pcolor-3:#0C447C;--pcolor-4:#042C53;
+      --scolor-0:#7F77DD;--scolor-1:#EEEDFE;--scolor-2:#AFA9EC;--scolor-3:#534AB7;--scolor-4:#3C3489;
+      --white:#ffffff;--bg:#f0f4fa;--bg-card:#ffffff;--bg-sidebar:var(--pcolor-4);
+      --text-main:var(--pcolor-4);--text-muted:#6b7fa3;--text-light:#a0aec0;
+      --border:#dde3f0;--radius:10px;
+      --shadow:0 2px 12px rgba(24,95,165,0.08);--shadow-md:0 4px 24px rgba(24,95,165,0.13);
+      --green:#2ab08e;--orange:#e07b3a;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-main);min-height:100vh;display:flex;}
+    .sidebar{width:200px;min-height:100vh;background:var(--bg-sidebar);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+    .sidebar-brand{display:flex;align-items:center;gap:10px;padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.08);}
+    .sidebar-brand svg{width:28px;height:28px;flex-shrink:0;}
+    .sidebar-brand-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);letter-spacing:0.02em;line-height:1.2;}
+    .sidebar-brand-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--pcolor-1);letter-spacing:0.12em;text-transform:uppercase;}
+    .sidebar-nav{flex:1;padding:16px 0;overflow-y:auto;}
+    .nav-section-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--pcolor-2);padding:10px 20px 4px;}
+    .nav-link{display:flex;align-items:center;gap:10px;padding:9px 20px;color:rgba(255,255,255,0.65);text-decoration:none;font-size:13.5px;font-weight:400;transition:background 0.15s,color 0.15s;border-left:3px solid transparent;}
+    .nav-link:hover{background:rgba(255,255,255,0.06);color:var(--white);}
+    .nav-link.active{background:rgba(133,183,235,0.15);color:var(--white);border-left-color:var(--pcolor-1);font-weight:500;}
+    .nav-link svg{width:15px;height:15px;flex-shrink:0;opacity:0.7;}
+    .nav-link.active svg{opacity:1;}
+    .sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.08);}
+    .sidebar-clock{font-family:'DM Mono',monospace;font-size:11px;color:var(--pcolor-1);}
+    .main{margin-left:200px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+    .topbar{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+    .topbar-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;letter-spacing:-0.01em;}
+    .topbar-right{display:flex;align-items:center;gap:16px;}
+    .last-updated{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);}
+    .btn-refresh{display:flex;align-items:center;gap:6px;padding:7px 16px;background:var(--pcolor-0);color:var(--white);border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background 0.15s,transform 0.1s;}
+    .btn-refresh:hover{background:var(--pcolor-3);}.btn-refresh:active{transform:scale(0.97);}
+    .btn-refresh svg{width:13px;height:13px;}
+    .btn-refresh.spinning svg{animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .page-body{padding:28px 32px 40px;flex:1;}
+    .state-banner{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:var(--radius);margin-bottom:24px;font-size:13.5px;font-weight:500;}
+    .state-banner.error{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+    .stat-card{background:var(--bg-card);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow);border:1px solid var(--border);display:flex;align-items:flex-start;gap:14px;transition:box-shadow 0.2s,transform 0.2s;animation:fadeUp 0.4s ease both;}
+    .stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+    .stat-card:nth-child(1){animation-delay:0.05s}.stat-card:nth-child(2){animation-delay:0.10s}
+    .stat-card:nth-child(3){animation-delay:0.15s}.stat-card:nth-child(4){animation-delay:0.20s}
+    .stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .stat-icon svg{width:20px;height:20px;}
+    .stat-icon.blue{background:#dbeafe;color:var(--pcolor-0);}
+    .stat-icon.purple{background:var(--scolor-1);color:var(--scolor-3);}
+    .stat-icon.green{background:#d1fae5;color:#059669;}
+    .stat-icon.orange{background:#ffedd5;color:#c2410c;}
+    .stat-body{flex:1;min-width:0;}
+    .stat-value{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;color:var(--text-main);letter-spacing:-0.02em;}
+    .stat-label{font-size:12px;color:var(--text-muted);margin-top:4px;}
+    .stat-value.skel{background:var(--border);color:transparent;border-radius:6px;width:48px;animation:pulse 1.2s ease infinite;}
+    .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+    .section-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2px 10px;}
+    .sw-table-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px;animation:fadeUp 0.4s ease 0.1s both;}
+    .sw-table{width:100%;border-collapse:collapse;}
+    .sw-table thead th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--white);text-align:left;padding:10px 16px;background:var(--pcolor-3);border-right:1px solid rgba(255,255,255,0.1);white-space:nowrap;}
+    .sw-table thead th:last-child{border-right:none;}
+    .sw-table tbody td{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+    .sw-table tbody tr:last-child td{border-bottom:none;}
+    .sw-table tbody tr{cursor:pointer;transition:background 0.12s;}
+    .sw-table tbody tr:hover td{background:#f0f7ff;}
+    .sw-table tbody tr.selected td{background:var(--scolor-1);}
+    .sw-table tbody tr.selected .sw-id-text{color:var(--scolor-3);}
+    .sw-status{display:flex;align-items:center;gap:8px;}
+    .sw-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(42,176,142,0.18);flex-shrink:0;}
+    .sw-id-text{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--pcolor-3);}
+    .mini-pill{font-family:'DM Mono',monospace;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;display:inline-block;}
+    .mini-pill.blue{background:#dbeafe;color:var(--pcolor-3);}
+    .mini-pill.purple{background:var(--scolor-1);color:var(--scolor-3);}
+    .mini-pill.green{background:#d1fae5;color:#065f46;}
+    .select-hint{text-align:center;padding:10px;color:var(--text-muted);font-size:12.5px;border-top:1px solid var(--border);}
+    .select-hint svg{width:12px;height:12px;margin-right:4px;vertical-align:middle;opacity:0.5;}
+    .skel-row td{animation:pulse 1.2s ease infinite;}
+    .skel-cell{display:inline-block;height:12px;border-radius:4px;background:var(--border);}
+    .detail-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;animation:fadeUp 0.3s ease both;}
+    .detail-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--pcolor-4);}
+    .detail-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);display:flex;align-items:center;gap:10px;}
+    .detail-title .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(42,176,142,0.25);}
+    .detail-close{background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.7);cursor:pointer;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background 0.15s;}
+    .detail-close:hover{background:rgba(255,255,255,0.2);color:white;}
+    .detail-close svg{width:14px;height:14px;}
+    .detail-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg);}
+    .detail-tab{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;padding:10px 20px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;}
+    .detail-tab:hover{color:var(--text-main);}
+    .detail-tab.active{color:var(--pcolor-0);border-bottom-color:var(--pcolor-0);}
+    .detail-table{width:100%;border-collapse:collapse;}
+    .detail-table thead th{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);text-align:left;padding:8px 16px 10px;border-bottom:2px solid var(--border);font-weight:500;white-space:nowrap;}
+    .detail-table thead th.num{text-align:right;}
+    .detail-table tbody td{padding:9px 16px;border-bottom:1px solid var(--border);font-size:12.5px;}
+    .detail-table tbody td.num{text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted);}
+    .detail-table tbody td.mono{font-family:'DM Mono',monospace;font-size:12px;color:var(--pcolor-3);}
+    .detail-table tbody tr:last-child td{border-bottom:none;}
+    .detail-table tbody tr:nth-child(even) td{background:#fafbff;}
+    .detail-table tbody tr:hover td{background:#f0f7ff !important;}
+    .detail-empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--text-muted);}
+    .empty-state svg{width:48px;height:48px;opacity:0.25;display:block;margin:0 auto 12px;}
+    .empty-state p{font-size:14px;}
+    #snackbar{visibility:hidden;min-width:250px;background:var(--pcolor-4);color:white;text-align:center;border-radius:8px;padding:12px 20px;position:fixed;z-index:999;left:50%;bottom:30px;transform:translateX(-50%);font-size:13px;box-shadow:0 4px 20px rgba(4,44,83,0.25);}
+    #snackbar.show{visibility:visible;animation:fadein 0.3s,fadeout 0.4s 2.6s;}
+    @keyframes fadein{from{bottom:10px;opacity:0}to{bottom:30px;opacity:1}}
+    @keyframes fadeout{from{bottom:30px;opacity:1}to{bottom:10px;opacity:0}}
+  </style>
 </head>
-<body onload="generateCards.run(views, 'main');moduleManager.loadModules(views)">
-<script>console.log("started!");</script>
-<div class="container_16">
-<div id="header" class="grid_16">
-	<h1>Flow Manager</h1>
-	<button class="refresh" onclick="location.href='/home/v2/index.html'" style="background-color: var(--accent-purple);">Try New UI</button>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="img/logo.svg" width="28" height="28">
+      <div>
+        <div class="sidebar-brand-name">FlowManager</div>
+        <div class="sidebar-brand-sub">SDN Application</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Monitor</div>
+      <a href="index.html" class="nav-link active"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg>Dashboard</a>
+      <a href="flows.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>Flows</a>
+      <a href="groups.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 110 6A3 3 0 018 1zm-5 9a5 5 0 0110 0v1H3v-1z"/></svg>Groups</a>
+      <a href="meters.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zM7 5h2v4H7zm0 5h2v2H7z"/></svg>Meters</a>
+      <a href="topology.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2"/><circle cx="2" cy="3" r="1.5"/><circle cx="14" cy="3" r="1.5"/><circle cx="2" cy="13" r="1.5"/><circle cx="14" cy="13" r="1.5"/><line x1="3.5" y1="3.5" x2="6.5" y2="7" stroke="currentColor" stroke-width="1"/><line x1="12.5" y1="3.5" x2="9.5" y2="7" stroke="currentColor" stroke-width="1"/><line x1="3.5" y1="12.5" x2="6.5" y2="9" stroke="currentColor" stroke-width="1"/><line x1="12.5" y1="12.5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1"/></svg>Topology</a>
+      <a href="messages.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2h14a1 1 0 011 1v8a1 1 0 01-1 1H5l-4 3V3a1 1 0 011-1z"/></svg>Messages</a>
+      <div class="nav-section-label" style="margin-top:8px">Control</div>
+      <a href="flowform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Flow Control</a>
+      <a href="groupform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Group Control</a>
+      <a href="meterform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Meter Control</a>
+      <div class="nav-section-label" style="margin-top:8px">System</div>
+      <a href="config.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 1h3l.5 2a5 5 0 011.4.8l2-.5 1.5 2.6-1.5 1.4a5 5 0 010 1.6l1.5 1.4L13.4 13l-2-.5A5 5 0 0110 13.2l-.5 2h-3l-.5-2A5 5 0 014.6 12.5l-2 .5L1.1 10.4 2.6 9A5 5 0 012.6 7.4L1.1 5.6 2.6 3l2 .5A5 5 0 016 2.8zM8 6a2 2 0 100 4A2 2 0 008 6z"/></svg>Configuration</a>
+      <a href="about.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 7v5M8 5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>About</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-clock">{{ currentTime }}</div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title">Network Overview</div>
+      <div class="topbar-right">
+        <span class="last-updated" v-if="lastUpdated">Updated {{ lastUpdated }}</span>
+        <button class="btn-refresh" :class="{ spinning: loading }" @click="loadData">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3"/><path d="M13.5 2v3h-3"/>
+          </svg>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <main class="page-body">
+      <div v-if="error" class="state-banner error">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"/></svg>
+        {{ error }}
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="6" width="16" height="3" rx="1.5"/><rect x="2" y="11" width="16" height="3" rx="1.5"/><circle cx="16" cy="7.5" r="1.5" fill="#2ab08e"/><circle cx="16" cy="12.5" r="1.5" fill="#e07b3a"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" :class="{ skel: loading }">{{ loading ? '' : totalSwitches }}</div>
+            <div class="stat-label">Active Switches</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 4h14v2H3zm0 4h14v2H3zm0 4h14v2H3z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" :class="{ skel: loading }">{{ loading ? '' : totalFlows }}</div>
+            <div class="stat-label">Total Flow Entries</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm0 3v5l3 3-1 1-3.5-3.5V5h1.5z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" :class="{ skel: loading }">{{ loading ? '' : totalTables }}</div>
+            <div class="stat-label">Flow Tables</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm2 0v10h10V5H5z"/><path d="M7 8h6v2H7zm0 3h4v2H7z"/></svg>
+          </div>
+          <div class="stat-body">
+            <div class="stat-value" :class="{ skel: loading }">{{ loading ? '' : totalPorts }}</div>
+            <div class="stat-label">Total Ports</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Switch table -->
+      <div class="section-hdr">
+        <div class="section-title">Switches</div>
+        <div class="section-badge" v-if="!loading">{{ switchList.length }} connected</div>
+      </div>
+
+      <div v-if="!loading && switchList.length === 0 && !error" class="empty-state">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="6" y="14" width="36" height="8" rx="2"/><rect x="6" y="26" width="36" height="8" rx="2"/>
+          <circle cx="38" cy="18" r="2" fill="currentColor"/><circle cx="38" cy="30" r="2" fill="currentColor"/>
+        </svg>
+        <p>No switches found. Is the controller running?</p>
+      </div>
+
+      <div v-else class="sw-table-card">
+        <table class="sw-table">
+          <thead>
+            <tr>
+              <th>Switch ID</th>
+              <th>Flows</th>
+              <th>Tables</th>
+              <th>Ports</th>
+              <th>Pkt Lookups</th>
+              <th>Pkt Matched</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-if="loading">
+              <tr v-for="n in 3" :key="n" class="skel-row">
+                <td><div class="skel-cell" style="width:120px"></div></td>
+                <td><div class="skel-cell" style="width:40px"></div></td>
+                <td><div class="skel-cell" style="width:40px"></div></td>
+                <td><div class="skel-cell" style="width:40px"></div></td>
+                <td><div class="skel-cell" style="width:60px"></div></td>
+                <td><div class="skel-cell" style="width:60px"></div></td>
+              </tr>
+            </template>
+            <tr v-else v-for="sw in switchList" :key="sw.dpid"
+              :class="{ selected: selectedDpid === sw.dpid }"
+              @click="selectSwitch(sw.dpid)">
+              <td>
+                <div class="sw-status">
+                  <div class="sw-dot"></div>
+                  <span class="sw-id-text">{{ formatDpid(sw.dpid) }}</span>
+                </div>
+              </td>
+              <td><span class="mini-pill blue">{{ sw.flowCount }}</span></td>
+              <td><span class="mini-pill purple">{{ sw.tableCount }}</span></td>
+              <td><span class="mini-pill green">{{ sw.portCount }}</span></td>
+              <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted)">{{ formatNum(sw.totalLookups) }}</td>
+              <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--text-muted)">{{ formatNum(sw.totalMatched) }}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="select-hint" v-if="!loading && switchList.length > 0 && !selectedDpid">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v5h-1.5V5zm0 6h1.5v1.5h-1.5V11z"/></svg>
+          Click a row to view full switch details
+        </div>
+      </div>
+
+      <!-- Detail panel -->
+      <div v-if="selectedSw" class="detail-panel">
+        <div class="detail-header">
+          <div class="detail-title">
+            <div class="dot"></div>
+            {{ formatDpid(selectedSw.dpid) }}
+            <span style="font-family:'DM Mono',monospace;font-size:10px;opacity:0.5;font-weight:400;letter-spacing:0.08em">SWITCH DETAILS</span>
+          </div>
+          <button class="detail-close" @click="selectedDpid = null" title="Close">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          </button>
+        </div>
+        <div class="detail-tabs">
+          <button class="detail-tab" :class="{ active: detailTab === 'tables' }" @click="detailTab = 'tables'">Flow Tables</button>
+          <button class="detail-tab" :class="{ active: detailTab === 'ports' }"  @click="detailTab = 'ports'">Port Statistics</button>
+          <button class="detail-tab" :class="{ active: detailTab === 'desc' }"   @click="detailTab = 'desc'">Switch Description</button>
+        </div>
+
+        <!-- Flow Tables -->
+        <div v-show="detailTab === 'tables'">
+          <div v-if="!selectedSw.tables || selectedSw.tables.length === 0" class="detail-empty">No active flow tables found for this switch.</div>
+          <!--div v-if="!selectedSw.tables || selectedSw.tables.length === 0" class="detail-empty">Not implemented yet.</div-->
+          <table v-else class="detail-table">
+            <thead><tr><th>Table ID</th><th class="num">Active Flows</th><th class="num">Pkts Looked Up</th><th class="num">Pkts Matched</th></tr></thead>
+            <tbody>
+              <tr v-for="t in selectedSw.tables" :key="t.table_id">
+                <td class="mono">{{ t.table_id }}</td>
+                <td class="num">{{ formatNum(t.active_count) }}</td>
+                <td class="num">{{ formatNum(t.lookup_count) }}</td>
+                <td class="num">{{ formatNum(t.matched_count) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Port Statistics -->
+        <div v-show="detailTab === 'ports'">
+          <div v-if="!selectedSw.ports || selectedSw.ports.length === 0" class="detail-empty">No port statistics available for this switch.</div>
+          <!--div v-if="!selectedSw.ports || selectedSw.ports.length === 0" class="detail-empty">Not implemented yet.</div-->
+          <table v-else class="detail-table">
+            <thead><tr><th>Port</th><th class="num">RX Pkts</th><th class="num">TX Pkts</th><th class="num">RX Bytes</th><th class="num">TX Bytes</th><th class="num">RX Errors</th><th class="num">TX Errors</th><th class="num">RX Dropped</th><th class="num">TX Dropped</th></tr></thead>
+            <tbody>
+              <tr v-for="p in selectedSw.ports" :key="p.port_no">
+                <td class="mono">{{ p.port_no }}</td>
+                <td class="num">{{ formatNum(p.rx_packets) }}</td>
+                <td class="num">{{ formatNum(p.tx_packets) }}</td>
+                <td class="num">{{ formatBytes(p.rx_bytes) }}</td>
+                <td class="num">{{ formatBytes(p.tx_bytes) }}</td>
+                <td class="num">{{ formatNum(p.rx_errors) }}</td>
+                <td class="num">{{ formatNum(p.tx_errors) }}</td>
+                <td class="num">{{ formatNum(p.rx_dropped) }}</td>
+                <td class="num">{{ formatNum(p.tx_dropped) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Switch Description -->
+        <div v-show="detailTab === 'desc'">
+          <div v-if="!selectedSw.desc || Object.keys(selectedSw.desc).length === 0" class="detail-empty">No description data available for this switch.</div>
+          <table v-else class="detail-table">
+            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr v-for="(val, key) in selectedSw.desc" :key="key">
+                <td class="mono">{{ key }}</td>
+                <td>{{ val }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="snackbar" ref="snackbar"></div>
 </div>
-<div id="menu" class="grid_2"></div>
-<div id="main" class="grid_14"></div>
-</div>
-</div>
-<script src="js\mainmenu.js"></script>
-<script>console.log("finished!");</script>
+
+<script>
+new Vue({
+  el: '#app',
+  data: {
+    loading: false, error: null, lastUpdated: null, currentTime: '',
+    switchList: [], selectedDpid: null, detailTab: 'tables',
+    refreshTimer: null, clockTimer: null, REFRESH_INTERVAL: 30000,
+  },
+  computed: {
+    totalSwitches() { return this.switchList.length; },
+    totalFlows()    { return this.switchList.reduce((s,sw) => s + (sw.flowCount  || 0), 0); },
+    totalTables()   { return this.switchList.reduce((s,sw) => s + (sw.tableCount || 0), 0); },
+    totalPorts()    { return this.switchList.reduce((s,sw) => s + (sw.portCount  || 0), 0); },
+    selectedSw()    { return this.switchList.find(sw => sw.dpid === this.selectedDpid) || null; },
+  },
+  methods: {
+    async loadData() {
+      this.loading = true; this.error = null;
+      try {
+        const swRes = await fetch('/data?list=switches');
+        if (!swRes.ok) throw new Error('Cannot reach controller.');
+        const switches = await swRes.json();
+        if (!switches || Object.keys(switches).length === 0) {
+          this.switchList = []; this.selectedDpid = null;
+          this.lastUpdated = this.timeStr(); return;
+        }
+        const dpids   = Object.values(switches);
+        const results = await Promise.all(dpids.map(dpid => this.fetchSwitchData(dpid)));
+        this.switchList = results;
+        if (this.selectedDpid && !results.find(sw => sw.dpid === this.selectedDpid)) this.selectedDpid = null;
+        this.lastUpdated = this.timeStr();
+      } catch(err) {
+        this.error = err.message || 'Failed to load data.';
+        this.showMessage(this.error);
+      } finally { this.loading = false; }
+    },
+    async fetchSwitchData(dpid) {
+      const sw = { dpid, flowCount:0, tableCount:0, portCount:0, totalLookups:0, totalMatched:0, tables:[], ports:[], desc:{} };
+      const [flowsRes, tableRes, portRes, descRes] = await Promise.allSettled([
+        fetch(`/status?status=flows&dpid=${dpid}`),
+        fetch(`/data?tablestat=${dpid}`),
+        fetch(`/data?portstat=${dpid}`),
+        fetch(`/data?switchdesc=${dpid}`),
+      ]);
+      if (flowsRes.status === 'fulfilled' && flowsRes.value.ok) {
+        try {
+          const data = await flowsRes.value.json();
+          const flows = data[dpid] || data[String(dpid)] || [];
+          sw.flowCount = flows.length;
+          sw.tableCount = new Set(flows.map(f => f.table_id)).size;
+        } catch(e) {}
+      }
+      if (tableRes.status === 'fulfilled' && tableRes.value.ok) {
+        try {
+          const data = await tableRes.value.json();
+          const tables = data[dpid] || data[String(dpid)] || [];
+          sw.tables = tables.filter(t => t.active_count > 0 || t.lookup_count > 0);
+          if (sw.tableCount === 0) sw.tableCount = sw.tables.length;
+          sw.totalLookups = sw.tables.reduce((s,t) => s + (parseInt(t.lookup_count) || 0), 0);
+          sw.totalMatched = sw.tables.reduce((s,t) => s + (parseInt(t.matched_count) || 0), 0);
+        } catch(e) {}
+      }
+      if (portRes.status === 'fulfilled' && portRes.value.ok) {
+        try {
+          const data = await portRes.value.json();
+          const ports = data[dpid] || data[String(dpid)] || [];
+          sw.ports = ports.filter(p => p.port_no < 0xffffff00);
+          sw.portCount = sw.ports.length;
+        } catch(e) {}
+      }
+      if (descRes.status === 'fulfilled' && descRes.value.ok) {
+        try {
+          const data = await descRes.value.json();
+          const inner = data[dpid] || data[String(dpid)] || data;
+          if (inner && typeof inner === 'object') {
+            const val = Object.values(inner)[0];
+            sw.desc = (val && typeof val === 'object') ? val : inner;
+          }
+        } catch(e) {}
+      }
+      return sw;
+    },
+    selectSwitch(dpid) {
+      if (this.selectedDpid === dpid) { this.selectedDpid = null; }
+      else { this.selectedDpid = dpid; this.detailTab = 'tables'; }
+    },
+    formatDpid(dpid) {
+      const n = parseInt(dpid);
+      return (!isNaN(n) && n > 9) ? '0x' + n.toString(16).toUpperCase().padStart(4,'0') : String(dpid);
+    },
+    formatNum(n) {
+      if (n == null) return '—';
+      const num = parseInt(n);
+      return isNaN(num) ? String(n) : num.toLocaleString();
+    },
+    formatBytes(n) {
+      if (n == null) return '—';
+      const num = parseInt(n);
+      if (isNaN(num)) return String(n);
+      if (num >= 1e9) return (num/1e9).toFixed(1)+' GB';
+      if (num >= 1e6) return (num/1e6).toFixed(1)+' MB';
+      if (num >= 1e3) return (num/1e3).toFixed(1)+' KB';
+      return num+' B';
+    },
+    timeStr() { return new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'}); },
+    updateClock() { this.currentTime = this.timeStr(); },
+    showMessage(msg) {
+      const el = this.$refs.snackbar;
+      el.textContent = msg; el.classList.remove('show');
+      void el.offsetWidth; el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3200);
+    },
+  },
+  mounted() {
+    this.loadData(); this.updateClock();
+    this.clockTimer   = setInterval(this.updateClock, 1000);
+    this.refreshTimer = setInterval(this.loadData, this.REFRESH_INTERVAL);
+  },
+  beforeDestroy() { clearInterval(this.refreshTimer); clearInterval(this.clockTimer); },
+});
+</script>
 </body>
 </html>
