@@ -1,0 +1,337 @@
+:root {
+  --pcolor-0: #185FA5;
+  --pcolor-1: #85B7EB;
+  --pcolor-2: #378ADD;
+  --pcolor-3: #0C447C;
+  --pcolor-4: #042C53;
+  --scolor-0: #7F77DD;
+  --scolor-1: #EEEDFE;
+  --scolor-2: #AFA9EC;
+  --scolor-3: #534AB7;
+  --scolor-4: #3C3489;
+  --white: #ffffff;
+  --bg: #f0f4fa;
+  --bg-card: #ffffff;
+  --bg-sidebar: var(--pcolor-4);
+  --text-main: var(--pcolor-4);
+  --text-muted: #6b7fa3;
+  --text-light: #a0aec0;
+  --border: #dde3f0;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(24,95,165,0.08);
+  --shadow-md: 0 4px 24px rgba(24,95,165,0.13);
+  --green: #2ab08e;
+  --orange: #e07b3a;
+  --danger: #b91c1c;
+  --danger-bg: #fef2f2;
+  --danger-bdr: #fecaca;
+  --success: #166534;
+  --success-bg: #f0fdf4;
+  --success-bdr: #bbf7d0;
+  --warn-text: #92400e;
+  --warn-bg: #fffbeb;
+  --warn-bdr: #fde68a;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 200px;
+  min-height: 100vh;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-brand svg, .sidebar-brand img {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.sidebar-brand-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.sidebar-brand-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  color: var(--pcolor-1);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+}
+
+.nav-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pcolor-2);
+  padding: 10px 20px 4px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 400;
+  transition: background 0.15s, color 0.15s;
+  border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+  background: rgba(255,255,255,0.06);
+  color: var(--white);
+}
+
+.nav-link.active {
+  background: rgba(133,183,235,0.15);
+  color: var(--white);
+  border-left-color: var(--pcolor-1);
+  font-weight: 500;
+}
+
+.nav-link svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.nav-link.active svg {
+  opacity: 1;
+}
+
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-clock {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--pcolor-1);
+}
+
+/* ── Main ── */
+.main {
+  margin-left: 200px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── Topbar ── */
+.topbar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.topbar-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.last-updated {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* ── Page body ── */
+.page-body {
+  padding: 28px 32px 40px;
+  flex: 1;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.btn-primary {
+  background: var(--pcolor-0);
+  color: var(--white);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--pcolor-3);
+}
+
+.btn-secondary {
+  background: var(--bg);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--border);
+  color: var(--text-main);
+}
+
+.btn-danger {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-bdr);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #fee2e2;
+}
+
+.spinning svg {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Snackbar ── */
+#snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  background: var(--pcolor-4);
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  padding: 12px 20px;
+  position: fixed;
+  z-index: 999;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%);
+  font-size: 13px;
+  box-shadow: 0 4px 20px rgba(4, 44, 83, 0.25);
+}
+
+#snackbar.show {
+  visibility: visible;
+  animation: fadein 0.3s, fadeout 0.4s 2.6s;
+}
+
+@keyframes fadein {
+  from { bottom: 10px; opacity: 0; }
+  to { bottom: 30px; opacity: 1; }
+}
+
+/* ── State banners ── */
+.state-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.state-banner.error {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-bdr);
+}
+
+.state-banner.info {
+  background: var(--scolor-1);
+  color: var(--scolor-3);
+  border: 1px solid var(--scolor-2);
+}
+
+.state-banner svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}

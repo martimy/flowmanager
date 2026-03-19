@@ -9,7 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
-  <script src="js/d3/d3.min.js"></script>
+  <script src="classic/js/d3/d3.min.js"></script>
+  <script src="js/layout.js"></script>
   <style>
     :root {
       --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
@@ -141,7 +142,7 @@
 <div id="app">
 
   <!-- ── Sidebar ── -->
-  <aside class="sidebar">
+  <!--aside class="sidebar">
     <div class="sidebar-brand">
       <img src="img/logo.svg" width="28" height="28">
       <div>
@@ -168,8 +169,9 @@
     <div class="sidebar-footer">
       <div class="sidebar-clock">{{ currentTime }}</div>
     </div>
-  </aside>
-
+  </aside-->
+  <app-sidebar :current-time=currentTime></app-sidebar>
+  
   <!-- ── Main ── -->
   <div class="main">
     <header class="topbar">
