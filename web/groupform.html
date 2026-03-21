@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
   <script src="js/layout.js"></script>
+  <script src="js/autocomplete-input.js"></script> 
   <style>
     :root {
       --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
@@ -274,9 +275,16 @@
                   <tbody>
                     <tr v-for="(row, rIdx) in bucket.actions" :key="rIdx">
                       <td style="width:46%">
-                        <input list="actionlist" class="act-input" v-model="row.action"
+                        <!--input list="actionlist" class="act-input" v-model="row.action"
                           @change="onActionChange(row)"
-                          placeholder="e.g. OUTPUT">
+                          placeholder="e.g. OUTPUT"-->
+                        <autocomplete-input
+                          :value="row.action"
+                          :options="actionOptions"
+                          placeholder="e.g. OUTPUT"
+                          @input="row.action = $event"
+                          @change="onActionChange(row)">
+                        </autocomplete-input>
                         <div class="act-hint" v-if="row.hint">{{ row.hint }}</div>
                       </td>
                       <td style="width:46%">
@@ -293,9 +301,9 @@
                   </tbody>
                 </table>
 
-                <datalist id="actionlist">
+                <!--datalist id="actionlist">
                   <option v-for="(info, key) in actionDefs" :key="key" :value="key">{{ info[2] }}</option>
-                </datalist>
+                </datalist-->
 
                 <div class="add-action-row">
                   <button class="btn btn-secondary btn-sm" @click="addAction(bucket)">
@@ -384,6 +392,19 @@ new Vue({
     currentTime: '',
     clockTimer:  null,
     OPERATIONS,
+  },
+
+  computed: {
+    matchOptions() {
+      return Object.entries(this.matchDefs).map(([key, info]) => ({
+        key, label: info[1] || ''
+      }));
+    },
+    actionOptions() {
+      return Object.entries(this.actionDefs).map(([key, info]) => ({
+        key, label: info[2] || ''
+      }));
+    }
   },
 
   methods: {
