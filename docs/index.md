@@ -15,7 +15,7 @@ Here are some quick notes about using the app:
 
 ## Components
 
-![Components](http://adhocnode.com/wp-content/uploads/2018/06/FlowManager.png)
+![Components](img/components.png)
 
 ## Recommended Environments
 
