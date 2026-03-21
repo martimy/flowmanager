@@ -15,8 +15,7 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 - View network topology.
 - Track flow entries.
 
-![[SCREEN1](docs/img/Screenshot_dash.png)](docs/img/screen_dash.png) ![SCREEN2](docs/img/screen_flows.png)
-![SCREEN3](docs/img/screen_ctrl.png) ![SCREEN4](docs/img/screen_topo.png)
+[![Main Dashboard](docs/img/screen_dash.png)](docs/img/Screenshot_dash.png) [![Flow Tables](docs/img/screen_flows.png)](docs/img/Screenshot_flows.png) [![Flow Modification Form](docs/img/screen_ctrl.png)](docs/img/Screenshot_ctrl.png) [![Network Topology](docs/img/screen_topo.png)](docs/img/Screenshot_topo.png)
 
 ### New in V0.5.0
 
