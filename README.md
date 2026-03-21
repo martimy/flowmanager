@@ -15,17 +15,19 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 - View network topology.
 - Track flow entries.
 
-![SCREEN1](web/img/screen1.png) ![SCREEN2](web/img/screen2.png)
-![SCREEN3](web/img/screen3.png) ![SCREEN4](web/img/screen4.png)
+![[SCREEN1](docs/img/Screenshot_dash.png)](docs/img/screen_dash.png) ![SCREEN2](docs/img/screen_flows.png)
+![SCREEN3](docs/img/screen_ctrl.png) ![SCREEN4](docs/img/screen_topo.png)
 
 ### New in V0.5.0
 
 - Migrated from Ryu to OS-Ken for better maintenance and Python 3 compatibility.
-- Replaced legacy WSGI/RPC stack with **FastAPI**.
-- Introduced **Pydantic models** for robust API data validation and type safety.
-- Refactored API to return **structured JSON responses** instead of raw strings.
+- Replaced legacy WSGI/RPC stack with FastAPI.
+- Introduced Pydantic models for robust API data validation and type safety.
+- Refactored API to return structured JSON responses instead of raw strings.
 - Replaced `post` with `ajax` in js code.
 - Removed Python 2 compatibility layers.
+- Migrated JQuery to Vue
+- Updated colour scheme
 
 ### New in V0.4.2
 
