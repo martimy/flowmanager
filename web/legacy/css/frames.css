@@ -145,7 +145,7 @@
 
 /******************** icons ***********/
 .icon {
-    background: url('../img/all_icons.svg') no-repeat;
+    background: url('../../img/all_icons.svg') no-repeat;
 }
 
 .icon-menu {

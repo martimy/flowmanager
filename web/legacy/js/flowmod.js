@@ -211,7 +211,7 @@ $(function () {
   // Get data lists from server
   function read_dataLists() {
     // Get accepatble action types
-    $.getJSON("data/actions.json").done( function(response) {
+    $.getJSON("../data/actions.json").done( function(response) {
       actions = response; // assign to global var
       init_dataList(actions, "actionlist");
     })
@@ -220,7 +220,7 @@ $(function () {
     })
 
     // Get accepatble match fields
-    $.getJSON("data/matches.json").done( function(response) {
+    $.getJSON("../data/matches.json").done( function(response) {
       matches = response; // assign to global var
       init_dataList(matches, "matchlist");
     })

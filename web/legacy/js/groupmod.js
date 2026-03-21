@@ -177,7 +177,7 @@ $(function () {
   // Get data lists from the controller
   function init_form() {
     // Get accepatble action types
-    $.getJSON("data/actions.json").done( function(response) {
+    $.getJSON("../data/actions.json").done( function(response) {
       actions = response; // assign to global var
       init_dataList(actions, "actionlist");
     })

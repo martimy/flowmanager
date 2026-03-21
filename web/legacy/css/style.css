@@ -29,7 +29,7 @@
 }
 
 #header {
-	background: transparent url("../img/switch.svg") no-repeat;
+	background: transparent url("../../img/switch.svg") no-repeat;
 	background-size: 40px 40px;
 	background-position: 10px 10px;
 	background-color: var(--pcolor-0);
