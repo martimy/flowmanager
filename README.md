@@ -3,7 +3,9 @@
 [![Static Badge](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
 
-The FlowManager is an OS-Ken (formerly RYU) controller application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
+The FlowManager is a software-defined networking (SDN) application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
+
+The FlowManager was originally based on RYU controller. In its latest version (0.5.0), the application was migrated to [OS-Ken](https://github.com/osrg/os-ken) (a fork of RYU) for better maintenance and Python 3 compatibility
 
 ## Features
 
@@ -19,13 +21,13 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 
 ### New in V0.5.0
 
-- Migrated from Ryu to OS-Ken for better maintenance and Python 3 compatibility.
+- Migrated from Ryu to OS-Ken.
 - Replaced legacy WSGI/RPC stack with FastAPI.
 - Introduced Pydantic models for robust API data validation and type safety.
 - Refactored API to return structured JSON responses instead of raw strings.
 - Replaced `post` with `ajax` in js code.
 - Removed Python 2 compatibility layers.
-- Migrated JQuery to Vue
+- Migrated the UI form JQuery to Vue 2
 - Updated colour scheme
 
 ### New in V0.4.2
@@ -45,35 +47,25 @@ The FlowManager is an OS-Ken (formerly RYU) controller application that gives th
 
 ## Installation
 
-### OS-Ken Controller
-
-FlowManager is an [OS-Ken Controller](https://github.com/osrg/os-ken) application, so make sure that the controller is installed properly before you proceed. OS-Ken is a maintained fork of the Ryu SDN Framework.
-Also, if you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
-
-To install OS-Ken on Ubuntu/Debian:
-
-```bash
-$ sudo apt install python3-os-ken
-```
-(This will install version 2.3.1)
-
-Alternatively, using pip:
-```bash
-$ pip install os-ken==3.1.1
-```
-
-Install FastAPI and Uvicorn:
-```bash
-$ pip install fastapi uvicorn
-```
-
-### FlowManager
-
-Install FlowManager using the following steps:
+Clone the FlowManager repository:
 
 ```bash
 $ git clone https://github.com/martimy/flowmanager
+cd flowmanager
 ```
+
+Install the software requirements (preferably in Python virtual environment):
+
+```bash
+python3 -m venv .flwmgr
+source ./flWmgr/bin/source
+pip install -r requirements.txt
+```
+
+### Mininet
+
+If you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
+
 
 ## Running the app
 
@@ -84,7 +76,7 @@ Run the FlowManager alone:
 $ python3 run_osken.py flowmanager.py
 ```
 
-or with another OS-Ken application:
+or with another SDN application:
 
 ```bash
 $ python3 run_osken.py flowmanager.py \<application>\
@@ -96,22 +88,18 @@ and to display the topology:
 $ python3 run_osken.py --observe-links flowmanager.py \<application\>
 ```
 
-Use a web broswer to launch the site http://localhost:8080/home/index.html
+Use a web browser to launch the site `http://localhost:8080/home/index.html`
+
+For legacy UI, use `http://localhost:8080/home/legacy/index.html`
+
 
 
 ## Documentation
 
-You can find some useful documention in [here](https://martimy.github.io/flowmanager/), but it is still a work-in-progress.
+You can find some useful documentation in [here](https://martimy.github.io/flowmanager/).
 
 
-## Built With
-
-* [Python](https://www.python.org/) - A programming language ideal for SDN applications.
-* [FastAPI](https://fastapi.tiangolo.com/) - A modern, fast web framework for building APIs.
-* [jQuery](https://jquery.com/) - A JavaScript library for event handling, animation.
-* [D3.js](https://d3js.org/) - A JavaScript library for data visulization. 
-
-## Authors
+## Author
 
 * Created by **Maen Artimy** - [Personal blog](http://adhocnode.com)
 
