@@ -73,30 +73,64 @@ To avoid `eventlet` related issues (like the "RLock was not greened" error), use
 
 Run the FlowManager alone:
 ```bash
-$ python3 run_osken.py flowmanager.py
+$ python3 controller.py flowmanager.py
 ```
 
 or with another SDN application:
 
 ```bash
-$ python3 run_osken.py flowmanager.py \<application>\
+$ python3 controller.py flowmanager.py \<application>\
 ```
 
 and to display the topology:
 
 ```bash
-$ python3 run_osken.py --observe-links flowmanager.py \<application\>
+$ python3 controller.py --observe-links flowmanager.py \<application\>
 ```
 
-Use a web browser to launch the site `http://localhost:8080/home/index.html`
+Use a web browser to launch the site `http://host_address:8080/home/index.html`
 
-For legacy UI, use `http://localhost:8080/home/legacy/index.html`
+For legacy UI, use `http://host_address:8080/home/legacy/index.html`
 
+### Examples
 
+To use the examples in this repository:
+
+In one terminal run the countroller, FlowManager, and the application:
+
+```bash
+python3 controller.py flowmanager.py examples/learning_switch_2.py
+```
+
+In another terminal, start Mininet topology:
+
+```bash
+sudo examples/mn_threeswitch_topo.py
+```
 
 ## Documentation
 
 You can find some useful documentation in [here](https://martimy.github.io/flowmanager/).
+
+## Migrating Ryu-based Applications
+
+You can upgrade applications written for the Ryu applications by changing all imports from `ryu` to `os_ken`. For example:
+
+Replace:
+
+```python
+from ryu.base import app_manager 
+```
+
+with:
+
+```python
+from os_ken.base import app_manager 
+```
+
+## Using v0.4.0
+
+If you still want to use the older verion of FlowManager, you can clone this repository then switch to the `legacy` branch.
 
 
 ## Author
@@ -106,5 +140,8 @@ You can find some useful documentation in [here](https://martimy.github.io/flowm
 ## License
 
 FlowManager is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details
+
+
+
 
 
