@@ -1,538 +1,1139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messages</title>
-  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
-  <script src="legacy/js/d3/d3.min.js"></script>
-  <script src="js/layout.js"></script>
-  <style>
-    :root {
-      --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
-      --pcolor-3: #0C447C; --pcolor-4: #042C53;
-      --scolor-0: #7F77DD; --scolor-1: #EEEDFE; --scolor-2: #AFA9EC;
-      --scolor-3: #534AB7; --scolor-4: #3C3489;
-      --white: #ffffff;
-      --bg:         #f0f4fa;
-      --bg-card:    #ffffff;
-      --bg-sidebar: var(--pcolor-4);
-      --text-main:  var(--pcolor-4);
-      --text-muted: #6b7fa3;
-      --text-light: #a0aec0;
-      --border:     #dde3f0;
-      --radius:     10px;
-      --shadow:     0 2px 12px rgba(24,95,165,0.08);
-      --shadow-md:  0 4px 24px rgba(24,95,165,0.13);
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages</title>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+    <script src="legacy/js/d3/d3.min.js"></script>
+    <script src="js/layout.js"></script>
+    <style>
+      :root {
+        --pcolor-0: #185fa5;
+        --pcolor-1: #85b7eb;
+        --pcolor-2: #378add;
+        --pcolor-3: #0c447c;
+        --pcolor-4: #042c53;
+        --scolor-0: #7f77dd;
+        --scolor-1: #eeedfe;
+        --scolor-2: #afa9ec;
+        --scolor-3: #534ab7;
+        --scolor-4: #3c3489;
+        --white: #ffffff;
+        --bg: #f0f4fa;
+        --bg-card: #ffffff;
+        --bg-sidebar: var(--pcolor-4);
+        --text-main: var(--pcolor-4);
+        --text-muted: #6b7fa3;
+        --text-light: #a0aec0;
+        --border: #dde3f0;
+        --radius: 10px;
+        --shadow: 0 2px 12px rgba(24, 95, 165, 0.08);
+        --shadow-md: 0 4px 24px rgba(24, 95, 165, 0.13);
+      }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+      }
 
-    /* ── Sidebar ── */
-    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
-    .sidebar-brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; line-height: 1.2; }
-    .sidebar-brand-sub  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--pcolor-1); letter-spacing: 0.12em; text-transform: uppercase; }
-    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
-    .nav-section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pcolor-2); padding: 10px 20px 4px; }
-    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
-    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
-    .nav-link.active { background: rgba(133,183,235,0.15); color: var(--white); border-left-color: var(--pcolor-1); font-weight: 500; }
-    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
-    .nav-link.active svg { opacity: 1; }
-    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-clock { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--pcolor-1); }
+      /* ── Sidebar ── */
+      .sidebar {
+        width: 200px;
+        min-height: 100vh;
+        background: var(--bg-sidebar);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 24px 20px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-brand svg {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .sidebar-brand-name {
+        font-family: "Syne", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+      }
+      .sidebar-brand-sub {
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        color: var(--pcolor-1);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .sidebar-nav {
+        flex: 1;
+        padding: 16px 0;
+        overflow-y: auto;
+      }
+      .nav-section-label {
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--pcolor-2);
+        padding: 10px 20px 4px;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 20px;
+        color: rgba(255, 255, 255, 0.65);
+        text-decoration: none;
+        font-size: 13.5px;
+        font-weight: 400;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        border-left: 3px solid transparent;
+      }
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+      }
+      .nav-link.active {
+        background: rgba(133, 183, 235, 0.15);
+        color: var(--white);
+        border-left-color: var(--pcolor-1);
+        font-weight: 500;
+      }
+      .nav-link svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+      .nav-link.active svg {
+        opacity: 1;
+      }
+      .sidebar-footer {
+        padding: 16px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-clock {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--pcolor-1);
+      }
 
-    /* ── Main ── */
-    .main { margin-left: 200px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+      /* ── Main ── */
+      .main {
+        margin-left: 200px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
-    /* ── Topbar ── */
-    .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-    .topbar-right  { display: flex; align-items: center; gap: 10px; }
+      /* ── Topbar ── */
+      .topbar {
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        padding: 0 32px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .topbar-title {
+        font-family: "Syne", sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
 
-    /* ── Connection status badge ── */
-    .ws-badge { display: flex; align-items: center; gap: 6px; font-family: 'DM Mono', monospace; font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
-    .ws-badge.connected    { background: #d1fae5; color: #065f46; }
-    .ws-badge.disconnected { background: #fee2e2; color: #991b1b; }
-    .ws-badge.connecting   { background: #fef3c7; color: #92400e; }
-    .ws-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-    .ws-badge.connected    .ws-dot { background: #059669; }
-    .ws-badge.disconnected .ws-dot { background: #dc2626; }
-    .ws-badge.connecting   .ws-dot { background: #d97706; animation: pulse 1s ease infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+      /* ── Connection status badge ── */
+      .ws-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+      .ws-badge.connected {
+        background: #d1fae5;
+        color: #065f46;
+      }
+      .ws-badge.disconnected {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .ws-badge.connecting {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .ws-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .ws-badge.connected .ws-dot {
+        background: #059669;
+      }
+      .ws-badge.disconnected .ws-dot {
+        background: #dc2626;
+      }
+      .ws-badge.connecting .ws-dot {
+        background: #d97706;
+        animation: pulse 1s ease infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
 
-    /* ── Buttons ── */
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
-    .btn:active { transform: scale(0.97); }
-    .btn svg { width: 13px; height: 13px; }
-    .btn-primary   { background: var(--pcolor-0); color: var(--white); }
-    .btn-primary:hover { background: var(--pcolor-3); }
-    .btn-secondary { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--border); color: var(--text-main); }
-    .btn-warning   { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
-    .btn-warning:hover { background: #fef3c7; }
-    .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 5px; }
+      /* ── Buttons ── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 14px;
+        border: none;
+        border-radius: 6px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn svg {
+        width: 13px;
+        height: 13px;
+      }
+      .btn-primary {
+        background: var(--pcolor-0);
+        color: var(--white);
+      }
+      .btn-primary:hover {
+        background: var(--pcolor-3);
+      }
+      .btn-secondary {
+        background: var(--bg);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        background: var(--border);
+        color: var(--text-main);
+      }
+      .btn-warning {
+        background: #fffbeb;
+        color: #92400e;
+        border: 1px solid #fde68a;
+      }
+      .btn-warning:hover {
+        background: #fef3c7;
+      }
+      .btn-sm {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 5px;
+      }
 
-    /* ── Page body ── */
-    .page-body { padding: 20px 32px 40px; flex: 1; }
+      /* ── Page body ── */
+      .page-body {
+        padding: 20px 32px 40px;
+        flex: 1;
+      }
 
-    /* ── Tabs ── */
-    .tab-bar { display: flex; align-items: center; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
-    .tab-btn { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; padding: 8px 18px; border: none; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; letter-spacing: 0.04em; position: relative; bottom: -2px; border-bottom: 2px solid transparent; }
-    .tab-btn:hover  { background: var(--scolor-1); color: var(--scolor-3); }
-    .tab-btn.active { color: var(--pcolor-0); font-weight: 600; border-bottom: 2px solid var(--pcolor-0); background: transparent; }
+      /* ── Tabs ── */
+      .tab-bar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--border);
+      }
+      .tab-btn {
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border: none;
+        border-radius: 6px 6px 0 0;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        letter-spacing: 0.04em;
+        position: relative;
+        bottom: -2px;
+        border-bottom: 2px solid transparent;
+      }
+      .tab-btn:hover {
+        background: var(--scolor-1);
+        color: var(--scolor-3);
+      }
+      .tab-btn.active {
+        color: var(--pcolor-0);
+        font-weight: 600;
+        border-bottom: 2px solid var(--pcolor-0);
+        background: transparent;
+      }
 
-    /* ── Messages tab toolbar ── */
-    .msg-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
-    .toolbar-group { display: flex; align-items: center; gap: 8px; }
-    .toolbar-label { font-size: 12.5px; color: var(--text-muted); }
-    .toolbar-select { font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 5px 10px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text-main); cursor: pointer; outline: none; transition: border-color 0.15s; }
-    .toolbar-select:focus { border-color: var(--pcolor-1); }
+      /* ── Messages tab toolbar ── */
+      .msg-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .toolbar-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .toolbar-label {
+        font-size: 12.5px;
+        color: var(--text-muted);
+      }
+      .toolbar-select {
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        padding: 5px 10px;
+        border: 1.5px solid var(--border);
+        border-radius: 6px;
+        background: var(--bg);
+        color: var(--text-main);
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .toolbar-select:focus {
+        border-color: var(--pcolor-1);
+      }
 
-    /* ── Message log table ── */
-    .log-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
-    .log-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-    .log-table thead th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white); text-align: left; padding: 8px 10px; background: var(--scolor-3); border-right: 1px solid rgba(255,255,255,0.15); white-space: nowrap; }
-    .log-table tbody td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 12px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .log-table tbody td.content-cell { position: relative; cursor: help; }
-    .log-table tbody td.content-cell .tooltip-text { display: none; position: absolute; left: 0; top: 100%; z-index: 50; background: var(--pcolor-4); color: white; padding: 8px 12px; border-radius: 6px; font-size: 11px; white-space: pre-wrap; max-width: 360px; box-shadow: var(--shadow-md); }
-    .log-table tbody td.content-cell:hover .tooltip-text { display: block; }
-    .log-table tbody tr:nth-child(even) td { background: var(--scolor-1); }
-    .log-table tbody tr:hover td { background: #dbeafe !important; }
-    .log-table tbody tr.new-row td { animation: highlight 1s ease; }
-    @keyframes highlight { from{background:#bfdbfe} to{background:transparent} }
+      /* ── Message log table ── */
+      .log-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .log-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .log-table thead th {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--white);
+        text-align: left;
+        padding: 8px 10px;
+        background: var(--scolor-3);
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+        white-space: nowrap;
+      }
+      .log-table tbody td {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        font-size: 12px;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .log-table tbody td.content-cell {
+        position: relative;
+        cursor: help;
+      }
+      .log-table tbody td.content-cell .tooltip-text {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 100%;
+        z-index: 50;
+        background: var(--pcolor-4);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 11px;
+        white-space: pre-wrap;
+        max-width: 360px;
+        box-shadow: var(--shadow-md);
+      }
+      .log-table tbody td.content-cell:hover .tooltip-text {
+        display: block;
+      }
+      .log-table tbody tr:nth-child(even) td {
+        background: var(--scolor-1);
+      }
+      .log-table tbody tr:hover td {
+        background: #dbeafe !important;
+      }
+      .log-table tbody tr.new-row td {
+        animation: highlight 1s ease;
+      }
+      @keyframes highlight {
+        from {
+          background: #bfdbfe;
+        }
+        to {
+          background: transparent;
+        }
+      }
 
-    /* ── Type badges ── */
-    .type-badge { display: inline-block; font-family: 'DM Mono', monospace; font-size: 10px; padding: 1px 6px; border-radius: 4px; font-weight: 500; white-space: nowrap; }
-    .type-badge.packet-in  { background: #dbeafe; color: var(--pcolor-3); }
-    .type-badge.flow-removed { background: #fef3c7; color: #92400e; }
-    .type-badge.other      { background: var(--scolor-1); color: var(--scolor-3); }
+      /* ── Type badges ── */
+      .type-badge {
+        display: inline-block;
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-weight: 500;
+        white-space: nowrap;
+      }
+      .type-badge.packet-in {
+        background: #dbeafe;
+        color: var(--pcolor-3);
+      }
+      .type-badge.flow-removed {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .type-badge.other {
+        background: var(--scolor-1);
+        color: var(--scolor-3);
+      }
 
-    /* ── Empty state ── */
-    .log-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 13px; }
-    .log-empty svg { width: 40px; height: 40px; opacity: 0.2; display: block; margin: 0 auto 12px; }
+      /* ── Empty state ── */
+      .log-empty {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+      .log-empty svg {
+        width: 40px;
+        height: 40px;
+        opacity: 0.2;
+        display: block;
+        margin: 0 auto 12px;
+      }
 
-    /* ── Stats tab ── */
-    .stats-toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-    .stats-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px; overflow: hidden; }
-    .stats-card svg { display: block; font: 11px 'DM Sans', sans-serif; }
+      /* ── Stats tab ── */
+      .stats-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+      .stats-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 8px;
+        overflow: hidden;
+      }
+      .stats-card svg {
+        display: block;
+        font:
+          11px "DM Sans",
+          sans-serif;
+      }
 
-    /* D3 tree styles */
-    .stats-card .link path, .stats-card path.link {
-      fill: none; stroke: var(--scolor-2); stroke-width: 1.5px;
-    }
-    .stats-card .node circle { fill: var(--pcolor-0); stroke: var(--pcolor-1); stroke-width: 1.5px; }
-    .stats-card .node text   { font-size: 11px; fill: var(--text-main); }
+      /* D3 tree styles */
+      .stats-card .link path,
+      .stats-card path.link {
+        fill: none;
+        stroke: var(--scolor-2);
+        stroke-width: 1.5px;
+      }
+      .stats-card .node circle {
+        fill: var(--pcolor-0);
+        stroke: var(--pcolor-1);
+        stroke-width: 1.5px;
+      }
+      .stats-card .node text {
+        font-size: 11px;
+        fill: var(--text-main);
+      }
 
-    /* ── Snackbar ── */
-    #snackbar { visibility: hidden; min-width: 250px; background: var(--pcolor-4); color: white; text-align: center; border-radius: 8px; padding: 12px 20px; position: fixed; z-index: 999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 13px; box-shadow: 0 4px 20px rgba(4,44,83,0.25); }
-    #snackbar.show { visibility: visible; animation: fadein 0.3s, fadeout 0.4s 2.6s; }
-    @keyframes fadein  { from{bottom:10px;opacity:0} to{bottom:30px;opacity:1} }
-    @keyframes fadeout { from{bottom:30px;opacity:1} to{bottom:10px;opacity:0} }
-  </style>
-</head>
-<body>
-<div id="app">
+      /* ── Snackbar ── */
+      #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background: var(--pcolor-4);
+        color: white;
+        text-align: center;
+        border-radius: 8px;
+        padding: 12px 20px;
+        position: fixed;
+        z-index: 999;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        font-size: 13px;
+        box-shadow: 0 4px 20px rgba(4, 44, 83, 0.25);
+      }
+      #snackbar.show {
+        visibility: visible;
+        animation:
+          fadein 0.3s,
+          fadeout 0.4s 2.6s;
+      }
+      @keyframes fadein {
+        from {
+          bottom: 10px;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 10px;
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- ── Sidebar ── -->
+      <app-sidebar :current-time="currentTime"></app-sidebar>
 
-  <!-- ── Sidebar ── -->
-  <app-sidebar :current-time=currentTime></app-sidebar>
-  
-  <!-- ── Main ── -->
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-title">Messages</div>
-      <div class="topbar-right">
-        <div class="ws-badge" :class="wsStatus">
-          <div class="ws-dot"></div>
-          {{ wsStatusLabel }}
-        </div>
-      </div>
-    </header>
-
-    <main class="page-body">
-
-      <!-- Tabs -->
-      <div class="tab-bar">
-        <button class="tab-btn" :class="{ active: activeTab === 'messages' }" @click="activeTab = 'messages'">
-          Messages
-          <span v-if="rows.length" style="font-family:'DM Mono',monospace;font-size:10px;margin-left:4px;opacity:0.7">({{ rows.length }})</span>
-        </button>
-        <button class="tab-btn" :class="{ active: activeTab === 'stats' }" @click="activeTab = 'stats'">Stats</button>
-      </div>
-
-      <!-- ── Messages tab ── -->
-      <div v-show="activeTab === 'messages'">
-        <div class="msg-toolbar">
-          <button class="btn btn-sm" :class="paused ? 'btn-primary' : 'btn-warning'" @click="togglePause">
-            <svg v-if="paused" viewBox="0 0 16 16" fill="currentColor"><path d="M4 3l9 5-9 5V3z"/></svg>
-            <svg v-else viewBox="0 0 16 16" fill="currentColor"><path d="M4 3h3v10H4zm5 0h3v10H9z"/></svg>
-            {{ paused ? 'Resume' : 'Pause' }}
-          </button>
-
-          <button class="btn btn-sm btn-secondary" @click="clearRows">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3h6l1 1H4L5 3zm-1 2h8l-.75 8H4.75L4 5z"/></svg>
-            Clear
-          </button>
-
-          <div class="toolbar-group">
-            <span class="toolbar-label">Show</span>
-            <select class="toolbar-select" v-model.number="maxRows">
-              <option :value="10">10 rows</option>
-              <option :value="25">25 rows</option>
-              <option :value="50">50 rows</option>
-              <option :value="100">100 rows</option>
-            </select>
+      <!-- ── Main ── -->
+      <div class="main">
+        <header class="topbar">
+          <div class="topbar-title">Messages</div>
+          <div class="topbar-right">
+            <div class="ws-badge" :class="wsStatus">
+              <div class="ws-dot"></div>
+              {{ wsStatusLabel }}
+            </div>
           </div>
-        </div>
+        </header>
 
-        <div class="log-card">
-          <div v-if="rows.length === 0" class="log-empty">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M8 8h32a2 2 0 012 2v24a2 2 0 01-2 2H16l-8 6V10a2 2 0 012-2z"/>
-            </svg>
-            Waiting for messages from controller…
+        <main class="page-body">
+          <!-- Tabs -->
+          <div class="tab-bar">
+            <button
+              class="tab-btn"
+              :class="{ active: activeTab === 'messages' }"
+              @click="activeTab = 'messages'"
+            >
+              Messages
+              <span
+                v-if="rows.length"
+                style="
+                  font-family: &quot;DM Mono&quot;, monospace;
+                  font-size: 10px;
+                  margin-left: 4px;
+                  opacity: 0.7;
+                "
+                >({{ rows.length }})</span
+              >
+            </button>
+            <button
+              class="tab-btn"
+              :class="{ active: activeTab === 'stats' }"
+              @click="activeTab = 'stats'"
+            >
+              Stats
+            </button>
           </div>
-          <table v-else class="log-table">
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Type</th>
-                <th>Datapath</th>
-                <th>Table</th>
-                <th>Reason</th>
-                <th>Match</th>
-                <th>Buffer ID</th>
-                <th>Cookie</th>
-                <th>Content</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(row, idx) in rows" :key="row._id" :class="{ 'new-row': idx === 0 && row._new }">
-                <td style="font-family:'DM Mono',monospace;font-size:11px;white-space:nowrap">{{ row[0] }}</td>
-                <td><span class="type-badge" :class="typeBadge(row[1])">{{ row[1] }}</span></td>
-                <td style="font-family:'DM Mono',monospace;font-size:11px">{{ row[2] }}</td>
-                <td style="text-align:center">{{ row[3] }}</td>
-                <td>{{ row[4] }}</td>
-                <td style="font-family:'DM Mono',monospace;font-size:11px">{{ formatMatch(row[5]) }}</td>
-                <td style="font-family:'DM Mono',monospace;font-size:11px;text-align:center">{{ row[6] }}</td>
-                <td style="font-family:'DM Mono',monospace;font-size:11px">{{ row[7] }}</td>
-                <td class="content-cell">
-                  {{ truncate(row[8]) }}
-                  <div class="tooltip-text">{{ row[8] }}</div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+
+          <!-- ── Messages tab ── -->
+          <div v-show="activeTab === 'messages'">
+            <div class="msg-toolbar">
+              <button
+                class="btn btn-sm"
+                :class="paused ? 'btn-primary' : 'btn-warning'"
+                @click="togglePause"
+              >
+                <svg v-if="paused" viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M4 3l9 5-9 5V3z" />
+                </svg>
+                <svg v-else viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M4 3h3v10H4zm5 0h3v10H9z" />
+                </svg>
+                {{ paused ? 'Resume' : 'Pause' }}
+              </button>
+
+              <button class="btn btn-sm btn-secondary" @click="clearRows">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                  <path d="M5 3h6l1 1H4L5 3zm-1 2h8l-.75 8H4.75L4 5z" />
+                </svg>
+                Clear
+              </button>
+
+              <div class="toolbar-group">
+                <span class="toolbar-label">Show</span>
+                <select class="toolbar-select" v-model.number="maxRows">
+                  <option :value="10">10 rows</option>
+                  <option :value="25">25 rows</option>
+                  <option :value="50">50 rows</option>
+                  <option :value="100">100 rows</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="log-card">
+              <div v-if="rows.length === 0" class="log-empty">
+                <svg
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M8 8h32a2 2 0 012 2v24a2 2 0 01-2 2H16l-8 6V10a2 2 0 012-2z"
+                  />
+                </svg>
+                Waiting for messages from controller…
+              </div>
+              <table v-else class="log-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Datapath</th>
+                    <th>Table</th>
+                    <th>Reason</th>
+                    <th>Match</th>
+                    <th>Buffer ID</th>
+                    <th>Cookie</th>
+                    <th>Content</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="(row, idx) in rows"
+                    :key="row._id"
+                    :class="{ 'new-row': idx === 0 && row._new }"
+                  >
+                    <td
+                      style="
+                        font-family: &quot;DM Mono&quot;, monospace;
+                        font-size: 11px;
+                        white-space: nowrap;
+                      "
+                    >
+                      {{ row[0] }}
+                    </td>
+                    <td>
+                      <span class="type-badge" :class="typeBadge(row[1])"
+                        >{{ row[1] }}</span
+                      >
+                    </td>
+                    <td
+                      style="
+                        font-family: &quot;DM Mono&quot;, monospace;
+                        font-size: 11px;
+                      "
+                    >
+                      {{ row[2] }}
+                    </td>
+                    <td style="text-align: center">{{ row[3] }}</td>
+                    <td>{{ row[4] }}</td>
+                    <td
+                      style="
+                        font-family: &quot;DM Mono&quot;, monospace;
+                        font-size: 11px;
+                      "
+                    >
+                      {{ formatMatch(row[5]) }}
+                    </td>
+                    <td
+                      style="
+                        font-family: &quot;DM Mono&quot;, monospace;
+                        font-size: 11px;
+                        text-align: center;
+                      "
+                    >
+                      {{ row[6] }}
+                    </td>
+                    <td
+                      style="
+                        font-family: &quot;DM Mono&quot;, monospace;
+                        font-size: 11px;
+                      "
+                    >
+                      {{ row[7] }}
+                    </td>
+                    <td class="content-cell">
+                      {{ truncate(row[8]) }}
+                      <div class="tooltip-text">{{ row[8] }}</div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ── Stats tab ── -->
+          <div v-show="activeTab === 'stats'">
+            <div class="stats-toolbar">
+              <div class="toolbar-group">
+                <span class="toolbar-label">Cookie:</span>
+                <select
+                  class="toolbar-select"
+                  v-model="selectedCookie"
+                  @change="onCookieChange"
+                >
+                  <option v-for="c in cookieList" :key="c" :value="c">
+                    {{ c }}
+                  </option>
+                </select>
+              </div>
+              <button class="btn btn-sm btn-secondary" @click="resetMonitor">
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                >
+                  <path d="M3 8a5 5 0 105-5H5" />
+                  <path d="M5 1v4H1" />
+                </svg>
+                Reset
+              </button>
+            </div>
+
+            <div class="stats-card">
+              <svg
+                ref="statsSvg"
+                width="1060"
+                height="600"
+                style="display: block"
+              ></svg>
+            </div>
+          </div>
+        </main>
       </div>
 
-      <!-- ── Stats tab ── -->
-      <div v-show="activeTab === 'stats'">
-        <div class="stats-toolbar">
-          <div class="toolbar-group">
-            <span class="toolbar-label">Cookie:</span>
-            <select class="toolbar-select" v-model="selectedCookie" @change="onCookieChange">
-              <option v-for="c in cookieList" :key="c" :value="c">{{ c }}</option>
-            </select>
-          </div>
-          <button class="btn btn-sm btn-secondary" @click="resetMonitor">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 8a5 5 0 105-5H5"/><path d="M5 1v4H1"/></svg>
-            Reset
-          </button>
-        </div>
+      <div id="snackbar" ref="snackbar"></div>
+    </div>
 
-        <div class="stats-card">
-          <svg ref="statsSvg" width="1060" height="600" style="display:block"></svg>
-        </div>
-      </div>
+    <script>
+      // ── D3 BigTree (kept as-is from tree.js logic, adapted for Vue ref) ─────────
+      function BigTree(svgEl) {
+        const svg = d3.select(svgEl);
+        const margin = { top: 50, right: 50, bottom: 50, left: 75 };
+        const width = +svg.attr("width") - margin.left - margin.right;
+        const height = +svg.attr("height") - margin.top - margin.bottom;
 
-    </main>
-  </div>
+        const dx = 40;
+        const dy = width / 5;
 
-  <div id="snackbar" ref="snackbar"></div>
-</div>
+        const diagonal = d3
+          .linkHorizontal()
+          .x((d) => d.y)
+          .y((d) => d.x);
+        const tree = d3.tree().size([width, height]).nodeSize([dx, dy]);
 
-<script>
-// ── D3 BigTree (kept as-is from tree.js logic, adapted for Vue ref) ─────────
-function BigTree(svgEl) {
-  const svg = d3.select(svgEl);
-  const margin = { top: 50, right: 50, bottom: 50, left: 75 };
-  const width  = +svg.attr('width')  - margin.left - margin.right;
-  const height = +svg.attr('height') - margin.top  - margin.bottom;
+        svg
+          .style("font", "11px 'DM Sans', sans-serif")
+          .style("user-select", "none");
 
-  const dx = 40;
-  const dy = width / 5;
+        const ids = [];
+        function getID(d) {
+          let key =
+            typeof d.data.name === "number"
+              ? d.data.name.toString()
+              : d.data.name;
+          let p = d.parent;
+          while (p) {
+            key += d.parent.data.name;
+            p = p.parent;
+          }
+          let id = ids.indexOf(key);
+          if (id >= 0) return id;
+          ids.push(key);
+          return ids.length;
+        }
 
-  const diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
-  const tree     = d3.tree().size([width, height]).nodeSize([dx, dy]);
+        const gLink = svg
+          .append("g")
+          .attr("fill", "none")
+          .attr("stroke", "#AFA9EC")
+          .attr("stroke-width", 1.5);
+        const gNode = svg
+          .append("g")
+          .attr("cursor", "pointer")
+          .attr("pointer-events", "all");
 
-  svg.style('font', "11px 'DM Sans', sans-serif").style('user-select', 'none');
+        function draw(data) {
+          const root = d3.hierarchy(data);
+          root.y0 = height / 2;
+          root.x0 = 0;
+          root.descendants().forEach((d) => {
+            d.id = getID(d);
+            d._children = d.children;
+          });
 
-  const ids   = [];
-  function getID(d) {
-    let key = typeof d.data.name === 'number' ? d.data.name.toString() : d.data.name;
-    let p = d.parent;
-    while (p) { key += d.parent.data.name; p = p.parent; }
-    let id = ids.indexOf(key);
-    if (id >= 0) return id;
-    ids.push(key);
-    return ids.length;
-  }
+          function update(source) {
+            const duration = 750;
+            const nodes = root.descendants().reverse();
+            const links = root.links();
+            tree(root);
 
-  const gLink = svg.append('g').attr('fill', 'none').attr('stroke', '#AFA9EC').attr('stroke-width', 1.5);
-  const gNode = svg.append('g').attr('cursor', 'pointer').attr('pointer-events', 'all');
+            let left = root,
+              right = root;
+            root.eachBefore((node) => {
+              if (node.x < left.x) left = node;
+              if (node.x > right.x) right = node;
+            });
+            const h = right.x - left.x + margin.top + margin.bottom;
 
-  function draw(data) {
-    const root = d3.hierarchy(data);
-    root.y0 = height / 2;
-    root.x0 = 0;
-    root.descendants().forEach((d) => {
-      d.id = getID(d);
-      d._children = d.children;
-    });
+            const transition = svg
+              .transition()
+              .duration(duration)
+              .attr("viewBox", [-margin.left, left.x - margin.top, width, h])
+              .tween(
+                "resize",
+                window.ResizeObserver
+                  ? null
+                  : () => () => svg.dispatch("toggle"),
+              );
 
-    function update(source) {
-      const duration = 750;
-      const nodes    = root.descendants().reverse();
-      const links    = root.links();
-      tree(root);
+            const node = gNode.selectAll("g").data(nodes, (d) => {
+              return (d.id = getID(d));
+            });
 
-      let left = root, right = root;
-      root.eachBefore(node => {
-        if (node.x < left.x)  left  = node;
-        if (node.x > right.x) right = node;
+            const nodeEnter = node
+              .enter()
+              .append("g")
+              .attr("class", "node")
+              .attr("transform", () => `translate(${source.y0},${source.x0})`);
+
+            nodeEnter
+              .append("circle")
+              .attr("r", 5)
+              .attr("fill", (d) => (d._children ? "#185FA5" : "#fff"))
+              .attr("stroke", "#85B7EB")
+              .attr("stroke-width", 2);
+
+            nodeEnter
+              .append("text")
+              .attr("dy", (d) => `${d.depth % 2 === 0 ? 1.5 : -0.5}em`)
+              .attr("text-anchor", (d) => (d.children ? "middle" : "start"))
+              .text((d) => d.data.name);
+
+            const leaves = node.filter((d) => d.data.count !== undefined);
+            leaves.select("text").remove();
+            leaves
+              .append("text")
+              .attr("dy", ".35em")
+              .attr("x", (d) => (d.children ? -10 : 10))
+              .text((d) => `${d.data.name} (${d.data.count})`);
+
+            node
+              .merge(nodeEnter)
+              .transition(transition)
+              .attr("transform", (d) => `translate(${d.y},${d.x})`)
+              .attr("fill-opacity", 1)
+              .attr("stroke-opacity", 1);
+
+            node
+              .exit()
+              .transition(transition)
+              .remove()
+              .attr("transform", (d) => `translate(${source.y},${source.x})`)
+              .attr("fill-opacity", 0)
+              .attr("stroke-opacity", 0);
+
+            const link = gLink
+              .selectAll("path")
+              .data(links, (d) => d.target.id);
+            const linkEnter = link
+              .enter()
+              .append("path")
+              .attr("d", () => {
+                const o = { x: source.x0, y: source.y0 };
+                return diagonal({ source: o, target: o });
+              });
+            link.merge(linkEnter).transition(transition).attr("d", diagonal);
+            link
+              .exit()
+              .transition(transition)
+              .remove()
+              .attr("d", (d) => {
+                const o = { x: source.x, y: source.y };
+                return diagonal({ source: o, target: o });
+              });
+
+            root.eachBefore((d) => {
+              d.x0 = d.x;
+              d.y0 = d.y;
+            });
+          }
+          update(root);
+        }
+
+        return { draw };
+      }
+
+      // ── Vue app ──────────────────────────────────────────────────────────────────
+      let _rowId = 0;
+
+      new Vue({
+        el: "#app",
+
+        data: {
+          activeTab: "messages",
+          wsStatus: "connecting",
+          rows: [],
+          maxRows: 10,
+          paused: false,
+          cookieList: ["Default"],
+          selectedCookie: "Default",
+          currentTime: "",
+          clockTimer: null,
+          ws: null,
+          bigTree: null,
+          statsData: null,
+        },
+
+        computed: {
+          wsStatusLabel() {
+            return {
+              connected: "Connected",
+              disconnected: "Disconnected",
+              connecting: "Connecting…",
+            }[this.wsStatus];
+          },
+        },
+
+        methods: {
+          // ── WebSocket ────────────────────────────────
+          openWebSocket() {
+            this.wsStatus = "connecting";
+            const ws = new WebSocket("ws://" + location.host + "/ws");
+
+            ws.onopen = () => {
+              this.wsStatus = "connected";
+            };
+
+            ws.onmessage = (event) => {
+              try {
+                const data = JSON.parse(event.data);
+                if (data.method === "update")
+                  this.handleStatsUpdate(data.params);
+                if (data.method === "log") this.handleLog(data.params);
+              } catch (e) {}
+            };
+
+            ws.onclose = () => {
+              this.wsStatus = "disconnected";
+              // Reconnect after 3s
+              setTimeout(() => this.openWebSocket(), 3000);
+            };
+
+            ws.onerror = () => {
+              this.wsStatus = "disconnected";
+            };
+            this.ws = ws;
+          },
+
+          handleLog(params) {
+            if (this.paused) return;
+            const row = [...params];
+            row._id = ++_rowId;
+            row._new = true;
+            this.rows.unshift(row);
+            setTimeout(() => {
+              row._new = false;
+            }, 1000);
+            // Trim to maxRows
+            if (this.rows.length > this.maxRows) {
+              this.rows = this.rows.slice(0, this.maxRows);
+            }
+          },
+
+          handleStatsUpdate(params) {
+            this.statsData = params;
+            // Update cookie list
+            params.forEach((element) => {
+              const x = element.name.toString();
+              if (!this.cookieList.includes(x)) this.cookieList.push(x);
+            });
+
+            // Restore saved cookie selection
+            const savedCookie = sessionStorage.getItem("selectedCookie");
+            const idx = this.cookieList.indexOf(savedCookie);
+            if (idx >= 0) {
+              this.selectedCookie = savedCookie;
+              this.drawTree(params[idx]);
+            } else {
+              this.drawTree(params[0]);
+            }
+          },
+
+          drawTree(data) {
+            if (!this.bigTree) {
+              this.bigTree = BigTree(this.$refs.statsSvg);
+            }
+            this.bigTree.draw(data);
+          },
+
+          onCookieChange() {
+            sessionStorage.setItem("selectedCookie", this.selectedCookie);
+            if (!this.statsData) return;
+            const idx = this.cookieList.indexOf(this.selectedCookie);
+            if (idx >= 0 && this.statsData[idx]) {
+              this.drawTree(this.statsData[idx]);
+            }
+          },
+
+          async resetMonitor() {
+            try {
+              const res = await fetch("/resetmonitor", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cookie: this.selectedCookie }),
+              });
+              const data = await res.json();
+              this.showMessage(data.message || "Reset sent.");
+            } catch (e) {
+              this.showMessage("No response from controller.");
+            }
+          },
+
+          // ── Controls ─────────────────────────────────
+          togglePause() {
+            this.paused = !this.paused;
+          },
+          clearRows() {
+            this.rows = [];
+          },
+
+          // ── Formatters ────────────────────────────────
+          formatMatch(val) {
+            if (!val) return "";
+            return String(val)
+              .replace("OFPMatch", "")
+              .replace(/[()]/g, "")
+              .trim();
+          },
+          truncate(val, n = 40) {
+            if (!val) return "";
+            const s = String(val);
+            return s.length > n ? s.substring(0, n) + "…" : s;
+          },
+          typeBadge(type) {
+            if (!type) return "other";
+            const t = String(type).toLowerCase();
+            if (t.includes("packet_in") || t.includes("packet-in"))
+              return "packet-in";
+            if (t.includes("flow_removed") || t.includes("flow-removed"))
+              return "flow-removed";
+            return "other";
+          },
+
+          // ── Helpers ───────────────────────────────────
+          showMessage(msg) {
+            const el = this.$refs.snackbar;
+            el.textContent = msg;
+            el.classList.remove("show");
+            void el.offsetWidth;
+            el.classList.add("show");
+            setTimeout(() => el.classList.remove("show"), 3200);
+          },
+          updateClock() {
+            this.currentTime = new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+          },
+        },
+
+        watch: {
+          // When maxRows changes, trim existing rows
+          maxRows(newMax) {
+            if (this.rows.length > newMax) {
+              this.rows = this.rows.slice(0, newMax);
+            }
+          },
+        },
+
+        mounted() {
+          this.openWebSocket();
+          this.updateClock();
+          this.clockTimer = setInterval(this.updateClock, 1000);
+        },
+
+        beforeDestroy() {
+          clearInterval(this.clockTimer);
+          if (this.ws) this.ws.close();
+        },
       });
-      const h = right.x - left.x + margin.top + margin.bottom;
-
-      const transition = svg.transition().duration(duration)
-        .attr('viewBox', [-margin.left, left.x - margin.top, width, h])
-        .tween('resize', window.ResizeObserver ? null : () => () => svg.dispatch('toggle'));
-
-      const node = gNode.selectAll('g').data(nodes, d => { return d.id = getID(d); });
-
-      const nodeEnter = node.enter().append('g')
-        .attr('class', 'node')
-        .attr('transform', () => `translate(${source.y0},${source.x0})`);
-
-      nodeEnter.append('circle')
-        .attr('r', 5)
-        .attr('fill', d => d._children ? '#185FA5' : '#fff')
-        .attr('stroke', '#85B7EB')
-        .attr('stroke-width', 2);
-
-      nodeEnter.append('text')
-        .attr('dy', d => `${d.depth % 2 === 0 ? 1.5 : -0.5}em`)
-        .attr('text-anchor', d => d.children ? 'middle' : 'start')
-        .text(d => d.data.name);
-
-      const leaves = node.filter(d => d.data.count !== undefined);
-      leaves.select('text').remove();
-      leaves.append('text')
-        .attr('dy', '.35em')
-        .attr('x', d => d.children ? -10 : 10)
-        .text(d => `${d.data.name} (${d.data.count})`);
-
-      node.merge(nodeEnter).transition(transition)
-        .attr('transform', d => `translate(${d.y},${d.x})`)
-        .attr('fill-opacity', 1).attr('stroke-opacity', 1);
-
-      node.exit().transition(transition).remove()
-        .attr('transform', d => `translate(${source.y},${source.x})`)
-        .attr('fill-opacity', 0).attr('stroke-opacity', 0);
-
-      const link = gLink.selectAll('path').data(links, d => d.target.id);
-      const linkEnter = link.enter().append('path')
-        .attr('d', () => { const o = { x: source.x0, y: source.y0 }; return diagonal({ source: o, target: o }); });
-      link.merge(linkEnter).transition(transition).attr('d', diagonal);
-      link.exit().transition(transition).remove()
-        .attr('d', d => { const o = { x: source.x, y: source.y }; return diagonal({ source: o, target: o }); });
-
-      root.eachBefore(d => { d.x0 = d.x; d.y0 = d.y; });
-    }
-    update(root);
-  }
-
-  return { draw };
-}
-
-// ── Vue app ──────────────────────────────────────────────────────────────────
-let _rowId = 0;
-
-new Vue({
-  el: '#app',
-
-  data: {
-    activeTab:     'messages',
-    wsStatus:      'connecting',
-    rows:          [],
-    maxRows:       10,
-    paused:        false,
-    cookieList:    ['Default'],
-    selectedCookie: 'Default',
-    currentTime:   '',
-    clockTimer:    null,
-    ws:            null,
-    bigTree:       null,
-    statsData:     null,
-  },
-
-  computed: {
-    wsStatusLabel() {
-      return { connected: 'Connected', disconnected: 'Disconnected', connecting: 'Connecting…' }[this.wsStatus];
-    },
-  },
-
-  methods: {
-    // ── WebSocket ────────────────────────────────
-    openWebSocket() {
-      this.wsStatus = 'connecting';
-      const ws = new WebSocket('ws://' + location.host + '/ws');
-
-      ws.onopen = () => { this.wsStatus = 'connected'; };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.method === 'update') this.handleStatsUpdate(data.params);
-          if (data.method === 'log')    this.handleLog(data.params);
-        } catch(e) {}
-      };
-
-      ws.onclose = () => {
-        this.wsStatus = 'disconnected';
-        // Reconnect after 3s
-        setTimeout(() => this.openWebSocket(), 3000);
-      };
-
-      ws.onerror = () => { this.wsStatus = 'disconnected'; };
-      this.ws = ws;
-    },
-
-    handleLog(params) {
-      if (this.paused) return;
-      const row = [...params];
-      row._id  = ++_rowId;
-      row._new = true;
-      this.rows.unshift(row);
-      setTimeout(() => { row._new = false; }, 1000);
-      // Trim to maxRows
-      if (this.rows.length > this.maxRows) {
-        this.rows = this.rows.slice(0, this.maxRows);
-      }
-    },
-
-    handleStatsUpdate(params) {
-      this.statsData = params;
-      // Update cookie list
-      params.forEach(element => {
-        const x = element.name.toString();
-        if (!this.cookieList.includes(x)) this.cookieList.push(x);
-      });
-
-      // Restore saved cookie selection
-      const savedCookie = sessionStorage.getItem('selectedCookie');
-      const idx = this.cookieList.indexOf(savedCookie);
-      if (idx >= 0) {
-        this.selectedCookie = savedCookie;
-        this.drawTree(params[idx]);
-      } else {
-        this.drawTree(params[0]);
-      }
-    },
-
-    drawTree(data) {
-      if (!this.bigTree) {
-        this.bigTree = BigTree(this.$refs.statsSvg);
-      }
-      this.bigTree.draw(data);
-    },
-
-    onCookieChange() {
-      sessionStorage.setItem('selectedCookie', this.selectedCookie);
-      if (!this.statsData) return;
-      const idx = this.cookieList.indexOf(this.selectedCookie);
-      if (idx >= 0 && this.statsData[idx]) {
-        this.drawTree(this.statsData[idx]);
-      }
-    },
-
-    async resetMonitor() {
-      try {
-        const res  = await fetch('/resetmonitor', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ cookie: this.selectedCookie }),
-        });
-        const data = await res.json();
-        this.showMessage(data.message || 'Reset sent.');
-      } catch(e) {
-        this.showMessage('No response from controller.');
-      }
-    },
-
-    // ── Controls ─────────────────────────────────
-    togglePause() { this.paused = !this.paused; },
-    clearRows()   { this.rows = []; },
-
-    // ── Formatters ────────────────────────────────
-    formatMatch(val) {
-      if (!val) return '';
-      return String(val).replace('OFPMatch', '').replace(/[()]/g, '').trim();
-    },
-    truncate(val, n = 40) {
-      if (!val) return '';
-      const s = String(val);
-      return s.length > n ? s.substring(0, n) + '…' : s;
-    },
-    typeBadge(type) {
-      if (!type) return 'other';
-      const t = String(type).toLowerCase();
-      if (t.includes('packet_in') || t.includes('packet-in')) return 'packet-in';
-      if (t.includes('flow_removed') || t.includes('flow-removed')) return 'flow-removed';
-      return 'other';
-    },
-
-    // ── Helpers ───────────────────────────────────
-    showMessage(msg) {
-      const el = this.$refs.snackbar;
-      el.textContent = msg;
-      el.classList.remove('show');
-      void el.offsetWidth;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 3200);
-    },
-    updateClock() {
-      this.currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    },
-  },
-
-  watch: {
-    // When maxRows changes, trim existing rows
-    maxRows(newMax) {
-      if (this.rows.length > newMax) {
-        this.rows = this.rows.slice(0, newMax);
-      }
-    },
-  },
-
-  mounted() {
-    this.openWebSocket();
-    this.updateClock();
-    this.clockTimer = setInterval(this.updateClock, 1000);
-  },
-
-  beforeDestroy() {
-    clearInterval(this.clockTimer);
-    if (this.ws) this.ws.close();
-  },
-});
-</script>
-</body>
+    </script>
+  </body>
 </html>

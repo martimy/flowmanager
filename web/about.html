@@ -1,201 +1,581 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About FlowManager</title>
-  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
-      --pcolor-3: #0C447C; --pcolor-4: #042C53;
-      --scolor-0: #7F77DD; --scolor-1: #EEEDFE; --scolor-2: #AFA9EC;
-      --scolor-3: #534AB7;
-      --white: #ffffff;
-      --bg:         #f0f4fa;
-      --bg-card:    #ffffff;
-      --bg-sidebar: var(--pcolor-4);
-      --text-main:  var(--pcolor-4);
-      --text-muted: #6b7fa3;
-      --text-light: #a0aec0;
-      --border:     #dde3f0;
-      --radius:     10px;
-      --shadow:     0 2px 12px rgba(24,95,165,0.08);
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>About FlowManager</title>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --pcolor-0: #185fa5;
+        --pcolor-1: #85b7eb;
+        --pcolor-2: #378add;
+        --pcolor-3: #0c447c;
+        --pcolor-4: #042c53;
+        --scolor-0: #7f77dd;
+        --scolor-1: #eeedfe;
+        --scolor-2: #afa9ec;
+        --scolor-3: #534ab7;
+        --white: #ffffff;
+        --bg: #f0f4fa;
+        --bg-card: #ffffff;
+        --bg-sidebar: var(--pcolor-4);
+        --text-main: var(--pcolor-4);
+        --text-muted: #6b7fa3;
+        --text-light: #a0aec0;
+        --border: #dde3f0;
+        --radius: 10px;
+        --shadow: 0 2px 12px rgba(24, 95, 165, 0.08);
+      }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+      }
 
-    /* ── Sidebar ── */
-    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
-    .sidebar-brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; line-height: 1.2; }
-    .sidebar-brand-sub  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--pcolor-1); letter-spacing: 0.12em; text-transform: uppercase; }
-    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
-    .nav-section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pcolor-2); padding: 10px 20px 4px; }
-    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
-    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
-    .nav-link.active { background: rgba(133,183,235,0.15); color: var(--white); border-left-color: var(--pcolor-1); font-weight: 500; }
-    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
-    .nav-link.active svg { opacity: 1; }
-    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-clock { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--pcolor-1); }
+      /* ── Sidebar ── */
+      .sidebar {
+        width: 200px;
+        min-height: 100vh;
+        background: var(--bg-sidebar);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 24px 20px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-brand svg {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .sidebar-brand-name {
+        font-family: "Syne", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+      }
+      .sidebar-brand-sub {
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        color: var(--pcolor-1);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .sidebar-nav {
+        flex: 1;
+        padding: 16px 0;
+        overflow-y: auto;
+      }
+      .nav-section-label {
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--pcolor-2);
+        padding: 10px 20px 4px;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 20px;
+        color: rgba(255, 255, 255, 0.65);
+        text-decoration: none;
+        font-size: 13.5px;
+        font-weight: 400;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        border-left: 3px solid transparent;
+      }
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+      }
+      .nav-link.active {
+        background: rgba(133, 183, 235, 0.15);
+        color: var(--white);
+        border-left-color: var(--pcolor-1);
+        font-weight: 500;
+      }
+      .nav-link svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+      .nav-link.active svg {
+        opacity: 1;
+      }
+      .sidebar-footer {
+        padding: 16px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-clock {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--pcolor-1);
+      }
 
-    /* ── Main ── */
-    .main { margin-left: 200px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+      /* ── Main ── */
+      .main {
+        margin-left: 200px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
-    /* ── Topbar ── */
-    .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; position: sticky; top: 0; z-index: 50; }
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+      /* ── Topbar ── */
+      .topbar {
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        padding: 0 32px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .topbar-title {
+        font-family: "Syne", sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
 
-    /* ── Page body ── */
-    .page-body { padding: 32px 32px 60px; flex: 1; max-width: 780px; }
+      /* ── Page body ── */
+      .page-body {
+        padding: 32px 32px 60px;
+        flex: 1;
+        max-width: 780px;
+      }
 
-    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    /* ── Hero ── */
-    .hero {
-      background: var(--pcolor-4);
-      border-radius: 14px;
-      padding: 32px 36px;
-      margin-bottom: 24px;
-      display: flex; align-items: center; gap: 28px;
-      animation: fadeUp 0.4s ease both;
-    }
-    .hero-icon {
-      width: 64px; height: 64px; flex-shrink: 0;
-      background: rgba(133,183,235,0.12);
-      border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .hero-icon svg { width: 36px; height: 36px; }
-    .hero-name {
-      font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800;
-      color: var(--white); letter-spacing: -0.02em; line-height: 1.1;
-    }
-    .hero-version {
-      font-family: 'DM Mono', monospace; font-size: 11px;
-      color: var(--pcolor-1); letter-spacing: 0.1em;
-      text-transform: uppercase; margin-top: 4px;
-    }
-    .hero-desc {
-      font-size: 14px; color: rgba(255,255,255,0.65);
-      line-height: 1.6; margin-top: 10px; max-width: 480px;
-    }
+      /* ── Hero ── */
+      .hero {
+        background: var(--pcolor-4);
+        border-radius: 14px;
+        padding: 32px 36px;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        animation: fadeUp 0.4s ease both;
+      }
+      .hero-icon {
+        width: 64px;
+        height: 64px;
+        flex-shrink: 0;
+        background: rgba(133, 183, 235, 0.12);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .hero-icon svg {
+        width: 36px;
+        height: 36px;
+      }
+      .hero-name {
+        font-family: "Syne", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--white);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+      }
+      .hero-version {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--pcolor-1);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: 4px;
+      }
+      .hero-desc {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.65);
+        line-height: 1.6;
+        margin-top: 10px;
+        max-width: 480px;
+      }
 
-    /* ── Cards ── */
-    .card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow);
-      margin-bottom: 18px; overflow: hidden;
-      animation: fadeUp 0.4s ease both;
-    }
-    .card:nth-child(2) { animation-delay: 0.06s; }
-    .card:nth-child(3) { animation-delay: 0.10s; }
-    .card:nth-child(4) { animation-delay: 0.14s; }
-    .card:nth-child(5) { animation-delay: 0.18s; }
+      /* ── Cards ── */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 18px;
+        overflow: hidden;
+        animation: fadeUp 0.4s ease both;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.06s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(4) {
+        animation-delay: 0.14s;
+      }
+      .card:nth-child(5) {
+        animation-delay: 0.18s;
+      }
 
-    .card-head { padding: 14px 20px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-    .card-head-icon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .card-head-icon.blue   { background: #dbeafe; color: var(--pcolor-0); }
-    .card-head-icon.purple { background: var(--scolor-1); color: var(--scolor-3); }
-    .card-head-icon.green  { background: #d1fae5; color: #059669; }
-    .card-head-icon svg { width: 14px; height: 14px; }
-    .card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.04em; }
-    .card-body { padding: 18px 20px; }
+      .card-head {
+        padding: 14px 20px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .card-head-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 7px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .card-head-icon.blue {
+        background: #dbeafe;
+        color: var(--pcolor-0);
+      }
+      .card-head-icon.purple {
+        background: var(--scolor-1);
+        color: var(--scolor-3);
+      }
+      .card-head-icon.green {
+        background: #d1fae5;
+        color: #059669;
+      }
+      .card-head-icon svg {
+        width: 14px;
+        height: 14px;
+      }
+      .card-title {
+        font-family: "Syne", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-main);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .card-body {
+        padding: 18px 20px;
+      }
 
-    /* ── Feature list ── */
-    .feature-list { display: flex; flex-direction: column; gap: 10px; }
-    .feature-item { display: flex; align-items: flex-start; gap: 10px; }
-    .feature-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pcolor-0); flex-shrink: 0; margin-top: 7px; }
-    .feature-text { font-size: 13.5px; line-height: 1.55; color: var(--text-main); }
+      /* ── Feature list ── */
+      .feature-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .feature-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .feature-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--pcolor-0);
+        flex-shrink: 0;
+        margin-top: 7px;
+      }
+      .feature-text {
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--text-main);
+      }
 
-    /* ── Links ── */
-    .link-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-    .ext-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 8px 14px; border-radius: 7px;
-      background: var(--bg); border: 1px solid var(--border);
-      font-size: 13px; color: var(--pcolor-0); text-decoration: none;
-      font-weight: 500; transition: background 0.15s, border-color 0.15s;
-    }
-    .ext-link:hover { background: #dbeafe; border-color: var(--pcolor-1); }
-    .ext-link svg { width: 13px; height: 13px; opacity: 0.7; }
+      /* ── Links ── */
+      .link-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .ext-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 7px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        font-size: 13px;
+        color: var(--pcolor-0);
+        text-decoration: none;
+        font-weight: 500;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
+      }
+      .ext-link:hover {
+        background: #dbeafe;
+        border-color: var(--pcolor-1);
+      }
+      .ext-link svg {
+        width: 13px;
+        height: 13px;
+        opacity: 0.7;
+      }
 
-    /* ── License block ── */
-    .license-block {
-      font-family: 'DM Mono', monospace; font-size: 11.5px;
-      line-height: 1.7; color: var(--text-muted);
-      background: var(--bg); border-radius: 8px;
-      padding: 16px 18px; white-space: pre-wrap;
-      border: 1px solid var(--border);
-    }
+      /* ── License block ── */
+      .license-block {
+        font-family: "DM Mono", monospace;
+        font-size: 11.5px;
+        line-height: 1.7;
+        color: var(--text-muted);
+        background: var(--bg);
+        border-radius: 8px;
+        padding: 16px 18px;
+        white-space: pre-wrap;
+        border: 1px solid var(--border);
+      }
 
-    /* ── Stack pills ── */
-    .stack-list { display: flex; flex-wrap: wrap; gap: 8px; }
-    .stack-pill {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 5px 12px; border-radius: 20px;
-      font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
-      border: 1px solid var(--border); color: var(--text-muted);
-      background: var(--bg);
-    }
-    .stack-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .dot-blue   { background: var(--pcolor-0); }
-    .dot-purple { background: var(--scolor-3); }
-    .dot-green  { background: #059669; }
-    .dot-orange { background: #d97706; }
-  </style>
-</head>
-<body>
-<div id="page">
-  <!-- Vue is not used in this page -->
-  <!-- ── Sidebar ── -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <img src="img/logo.svg" width="28" height="28">
-      <div>
-        <div class="sidebar-brand-name">FlowManager</div>
-        <div class="sidebar-brand-sub">SDN Application</div>
-      </div>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">Monitor</div>
-      <a href="index.html"    class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg>Dashboard</a>
-      <a href="flows.html"    class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z"/></svg>Flows</a>
-      <a href="groups.html"   class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a3 3 0 110 6A3 3 0 018 1zm-5 9a5 5 0 0110 0v1H3v-1z"/></svg>Groups</a>
-      <a href="meters.html"   class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 2a6 6 0 100 12A6 6 0 008 2zM7 5h2v4H7zm0 5h2v2H7z"/></svg>Meters</a>
-      <a href="topology.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="2"/><circle cx="2" cy="3" r="1.5"/><circle cx="14" cy="3" r="1.5"/><circle cx="2" cy="13" r="1.5"/><circle cx="14" cy="13" r="1.5"/><line x1="3.5" y1="3.5" x2="6.5" y2="7" stroke="currentColor" stroke-width="1"/><line x1="12.5" y1="3.5" x2="9.5" y2="7" stroke="currentColor" stroke-width="1"/><line x1="3.5" y1="12.5" x2="6.5" y2="9" stroke="currentColor" stroke-width="1"/><line x1="12.5" y1="12.5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1"/></svg>Topology</a>
-      <a href="messages.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M1 2h14a1 1 0 011 1v8a1 1 0 01-1 1H5l-4 3V3a1 1 0 011-1z"/></svg>Messages</a>
-      <div class="nav-section-label" style="margin-top:8px">Control</div>
-      <a href="flowform.html"  class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Flow Control</a>
-      <a href="groupform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Group Control</a>
-      <a href="meterform.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Meter Control</a>
-      <div class="nav-section-label" style="margin-top:8px">System</div>
-      <a href="config.html" class="nav-link"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 1h3l.5 2a5 5 0 011.4.8l2-.5 1.5 2.6-1.5 1.4a5 5 0 010 1.6l1.5 1.4L13.4 13l-2-.5A5 5 0 0110 13.2l-.5 2h-3l-.5-2A5 5 0 014.6 12.5l-2 .5L1.1 10.4 2.6 9A5 5 0 012.6 7.4L1.1 5.6 2.6 3l2 .5A5 5 0 016 2.8zM8 6a2 2 0 100 4A2 2 0 008 6z"/></svg>Configuration</a>
-      <a href="about.html" class="nav-link active"><svg viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" fill="none"/><path d="M8 7v5M8 5v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>About</a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="sidebar-clock" id="clock"></div>
-    </div>
-  </aside>
+      /* ── Stack pills ── */
+      .stack-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .stack-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        font-weight: 500;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: var(--bg);
+      }
+      .stack-pill .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+      }
+      .dot-blue {
+        background: var(--pcolor-0);
+      }
+      .dot-purple {
+        background: var(--scolor-3);
+      }
+      .dot-green {
+        background: #059669;
+      }
+      .dot-orange {
+        background: #d97706;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="page">
+      <!-- Vue is not used in this page -->
+      <!-- ── Sidebar ── -->
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <img src="img/logo.svg" width="28" height="28" />
+          <div>
+            <div class="sidebar-brand-name">FlowManager</div>
+            <div class="sidebar-brand-sub">SDN Application</div>
+          </div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-section-label">Monitor</div>
+          <a href="index.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z" /></svg
+            >Dashboard</a
+          >
+          <a href="flows.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path d="M1 3h14v2H1zm0 4h14v2H1zm0 4h14v2H1z" /></svg
+            >Flows</a
+          >
+          <a href="groups.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1a3 3 0 110 6A3 3 0 018 1zm-5 9a5 5 0 0110 0v1H3v-1z"
+              /></svg
+            >Groups</a
+          >
+          <a href="meters.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 2a6 6 0 100 12A6 6 0 008 2zM7 5h2v4H7zm0 5h2v2H7z"
+              /></svg
+            >Meters</a
+          >
+          <a href="topology.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="8" cy="8" r="2" />
+              <circle cx="2" cy="3" r="1.5" />
+              <circle cx="14" cy="3" r="1.5" />
+              <circle cx="2" cy="13" r="1.5" />
+              <circle cx="14" cy="13" r="1.5" />
+              <line
+                x1="3.5"
+                y1="3.5"
+                x2="6.5"
+                y2="7"
+                stroke="currentColor"
+                stroke-width="1"
+              />
+              <line
+                x1="12.5"
+                y1="3.5"
+                x2="9.5"
+                y2="7"
+                stroke="currentColor"
+                stroke-width="1"
+              />
+              <line
+                x1="3.5"
+                y1="12.5"
+                x2="6.5"
+                y2="9"
+                stroke="currentColor"
+                stroke-width="1"
+              />
+              <line
+                x1="12.5"
+                y1="12.5"
+                x2="9.5"
+                y2="9"
+                stroke="currentColor"
+                stroke-width="1"
+              /></svg
+            >Topology</a
+          >
+          <a href="messages.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M1 2h14a1 1 0 011 1v8a1 1 0 01-1 1H5l-4 3V3a1 1 0 011-1z"
+              /></svg
+            >Messages</a
+          >
+          <div class="nav-section-label" style="margin-top: 8px">Control</div>
+          <a href="flowform.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1v14M1 8h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              /></svg
+            >Flow Control</a
+          >
+          <a href="groupform.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1v14M1 8h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              /></svg
+            >Group Control</a
+          >
+          <a href="meterform.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1v14M1 8h14"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+              /></svg
+            >Meter Control</a
+          >
+          <div class="nav-section-label" style="margin-top: 8px">System</div>
+          <a href="config.html" class="nav-link"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M6.5 1h3l.5 2a5 5 0 011.4.8l2-.5 1.5 2.6-1.5 1.4a5 5 0 010 1.6l1.5 1.4L13.4 13l-2-.5A5 5 0 0110 13.2l-.5 2h-3l-.5-2A5 5 0 014.6 12.5l-2 .5L1.1 10.4 2.6 9A5 5 0 012.6 7.4L1.1 5.6 2.6 3l2 .5A5 5 0 016 2.8zM8 6a2 2 0 100 4A2 2 0 008 6z"
+              /></svg
+            >Configuration</a
+          >
+          <a href="about.html" class="nav-link active"
+            ><svg viewBox="0 0 16 16" fill="currentColor">
+              <circle
+                cx="8"
+                cy="8"
+                r="7"
+                stroke="currentColor"
+                stroke-width="1.5"
+                fill="none"
+              />
+              <path
+                d="M8 7v5M8 5v1"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              /></svg
+            >About</a
+          >
+        </nav>
+        <div class="sidebar-footer">
+          <div class="sidebar-clock" id="clock"></div>
+        </div>
+      </aside>
 
-  <!-- ── Main ── -->
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-title">About</div>
-    </header>
+      <!-- ── Main ── -->
+      <div class="main">
+        <header class="topbar">
+          <div class="topbar-title">About</div>
+        </header>
 
-    <main class="page-body">
-
-      <!-- Hero -->
-      <div class="hero">
-        <div class="hero-icon">
-          <!--svg viewBox="0 0 36 36" fill="none">
+        <main class="page-body">
+          <!-- Hero -->
+          <div class="hero">
+            <div class="hero-icon">
+              <!--svg viewBox="0 0 36 36" fill="none">
             <rect x="4" y="10" width="28" height="5" rx="2.5" fill="#85B7EB"/>
             <rect x="4" y="21" width="28" height="5" rx="2.5" fill="#85B7EB"/>
             <circle cx="28" cy="12.5" r="3" fill="#2ab08e"/>
@@ -203,100 +583,237 @@
             <circle cx="10" cy="12.5" r="2" fill="rgba(133,183,235,0.4)"/>
             <circle cx="10" cy="23.5" r="2" fill="rgba(133,183,235,0.4)"/>
           </svg-->
-          <img src="img/logo.svg" width="48" height="48">
-        </div>
-        <div>
-          <div class="hero-name">FlowManager</div>
-          <div class="hero-version">Version 0.5.0 &nbsp;·&nbsp; OpenFlow 1.3</div>
-          <div class="hero-desc">
-            An SDN application that gives users manual control over flows
-            in an OpenFlow network — create, modify, and delete flow entries without
-            any coding. Ideal for learning or using OpenFlow in a lab environment.
+              <img src="img/logo.svg" width="48" height="48" />
+            </div>
+            <div>
+              <div class="hero-name">FlowManager</div>
+              <div class="hero-version">
+                Version 0.5.0 &nbsp;·&nbsp; OpenFlow 1.3
+              </div>
+              <div class="hero-desc">
+                An SDN application that gives users manual control over flows in
+                an OpenFlow network — create, modify, and delete flow entries
+                without any coding. Ideal for learning or using OpenFlow in a
+                lab environment.
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Features -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-head-icon blue">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1zM7 11H5V7h2v4zm4 0H9V5h2v6z"/></svg>
+          <!-- Features -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-icon blue">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                  <path
+                    d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1zM7 11H5V7h2v4zm4 0H9V5h2v6z"
+                  />
+                </svg>
+              </div>
+              <span class="card-title">Features</span>
+            </div>
+            <div class="card-body">
+              <div class="feature-list">
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >Add, modify, and delete flow entries in flow tables</span
+                  >
+                </div>
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >Add, modify, and delete group tables and meters</span
+                  >
+                </div>
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >Backup and restore switch tables to and from local
+                    drive</span
+                  >
+                </div>
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >View flow tables, group tables, and meters with sortable
+                    columns</span
+                  >
+                </div>
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >View switch port and table statistics on the
+                    dashboard</span
+                  >
+                </div>
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >View network topology with interactive D3
+                    visualization</span
+                  >
+                </div>
+                <div class="feature-item">
+                  <div class="feature-dot"></div>
+                  <span class="feature-text"
+                    >Monitor live OpenFlow messages via WebSocket</span
+                  >
+                </div>
+              </div>
+            </div>
           </div>
-          <span class="card-title">Features</span>
-        </div>
-        <div class="card-body">
-          <div class="feature-list">
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">Add, modify, and delete flow entries in flow tables</span></div>
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">Add, modify, and delete group tables and meters</span></div>
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">Backup and restore switch tables to and from local drive</span></div>
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">View flow tables, group tables, and meters with sortable columns</span></div>
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">View switch port and table statistics on the dashboard</span></div>
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">View network topology with interactive D3 visualization</span></div>
-            <div class="feature-item"><div class="feature-dot"></div><span class="feature-text">Monitor live OpenFlow messages via WebSocket</span></div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Tech stack -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-head-icon purple">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5.5 1h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5zm9 0h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5zm-9 9h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5zm9 0h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5z"/></svg>
+          <!-- Tech stack -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-icon purple">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                  <path
+                    d="M5.5 1h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5zm9 0h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5zm-9 9h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5zm9 0h-4a.5.5 0 00-.5.5v4a.5.5 0 00.5.5h4a.5.5 0 00.5-.5v-4a.5.5 0 00-.5-.5z"
+                  />
+                </svg>
+              </div>
+              <span class="card-title">Technology</span>
+            </div>
+            <div class="card-body">
+              <div class="stack-list">
+                <div class="stack-pill">
+                  <div class="dot dot-blue"></div>
+                  Vue.js 2 (Options API)
+                </div>
+                <div class="stack-pill">
+                  <div class="dot dot-orange"></div>
+                  D3.js (Topology &amp; Stats)
+                </div>
+                <div class="stack-pill">
+                  <div class="dot dot-green"></div>
+                  RYU/OS-KEN SDN Framework
+                </div>
+                <div class="stack-pill">
+                  <div class="dot dot-purple"></div>
+                  OpenFlow 1.3
+                </div>
+                <div class="stack-pill">
+                  <div class="dot dot-blue"></div>
+                  WebSocket
+                </div>
+                <div class="stack-pill">
+                  <div class="dot dot-blue"></div>
+                  Fetch API
+                </div>
+              </div>
+            </div>
           </div>
-          <span class="card-title">Technology</span>
-        </div>
-        <div class="card-body">
-          <div class="stack-list">
-            <div class="stack-pill"><div class="dot dot-blue"></div>Vue.js 2 (Options API)</div>
-            <div class="stack-pill"><div class="dot dot-orange"></div>D3.js (Topology &amp; Stats)</div>
-            <div class="stack-pill"><div class="dot dot-green"></div>RYU/OS-KEN SDN Framework</div>
-            <div class="stack-pill"><div class="dot dot-purple"></div>OpenFlow 1.3</div>
-            <div class="stack-pill"><div class="dot dot-blue"></div>WebSocket</div>
-            <div class="stack-pill"><div class="dot dot-blue"></div>Fetch API</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Links -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-head-icon green">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"/></svg>
+          <!-- Links -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-icon green">
+                <svg
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                >
+                  <path
+                    d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"
+                  />
+                </svg>
+              </div>
+              <span class="card-title">Links</span>
+            </div>
+            <div class="card-body">
+              <div class="link-grid">
+                <a
+                  class="ext-link"
+                  href="https://github.com/faucetsdn/ryu"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <path
+                      d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"
+                    />
+                  </svg>
+                  RYU Controller
+                </a>
+                <a
+                  class="ext-link"
+                  href="https://github.com/openstack/os-ken"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <path
+                      d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"
+                    />
+                  </svg>
+                  OS-KEN Controller
+                </a>
+                <a
+                  class="ext-link"
+                  href="https://www.opennetworking.org/"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  >
+                    <path
+                      d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"
+                    />
+                  </svg>
+                  OpenNetworking.org
+                </a>
+                <a
+                  class="ext-link"
+                  href="https://github.com/martimy/flowmanager"
+                  target="_blank"
+                  rel="noopener"
+                >
+                  <svg viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+                    />
+                  </svg>
+                  GitHub
+                </a>
+              </div>
+            </div>
           </div>
-          <span class="card-title">Links</span>
-        </div>
-        <div class="card-body">
-          <div class="link-grid">
-            <a class="ext-link" href="https://github.com/faucetsdn/ryu" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"/></svg>
-              RYU Controller
-            </a>
-            <a class="ext-link" href="https://github.com/openstack/os-ken" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"/></svg>
-              OS-KEN Controller
-            </a>
-            <a class="ext-link" href="https://www.opennetworking.org/" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M6 3H3a1 1 0 00-1 1v9a1 1 0 001 1h9a1 1 0 001-1v-3M9 1h6v6M15 1L7 9"/></svg>
-              OpenNetworking.org
-            </a>
-            <a class="ext-link" href="https://github.com/martimy/flowmanager" target="_blank" rel="noopener">
-              <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-              GitHub
-            </a>
-          </div>
-        </div>
-      </div>
 
-      <!-- License -->
-      <div class="card">
-        <div class="card-head">
-          <div class="card-head-icon blue">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"/></svg>
-          </div>
-          <span class="card-title">License</span>
-        </div>
-        <div class="card-body">
-          <pre class="license-block">Copyright (c) Maen Artimy 2018-2026
+          <!-- License -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-icon blue">
+                <svg viewBox="0 0 16 16" fill="currentColor">
+                  <path
+                    d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"
+                  />
+                </svg>
+              </div>
+              <span class="card-title">License</span>
+            </div>
+            <div class="card-body">
+              <pre class="license-block">
+Copyright (c) Maen Artimy 2018-2026
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -308,23 +825,26 @@ Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
-limitations under the License.</pre>
-        </div>
+limitations under the License.</pre
+              >
+            </div>
+          </div>
+        </main>
       </div>
+    </div>
 
-    </main>
-  </div>
-
-</div>
-
-<script>
-  // Minimal clock — no Vue needed for a static page
-  function tick() {
-    document.getElementById('clock').textContent =
-      new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  }
-  tick();
-  setInterval(tick, 1000);
-</script>
-</body>
+    <script>
+      // Minimal clock — no Vue needed for a static page
+      function tick() {
+        document.getElementById("clock").textContent =
+          new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+      }
+      tick();
+      setInterval(tick, 1000);
+    </script>
+  </body>
 </html>

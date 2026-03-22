@@ -1,583 +1,1254 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meters</title>
-  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
-  <script src="js/layout.js"></script>
-  <style>
-    :root {
-      --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
-      --pcolor-3: #0C447C; --pcolor-4: #042C53;
-      --scolor-0: #7F77DD; --scolor-1: #EEEDFE; --scolor-2: #AFA9EC;
-      --scolor-3: #534AB7; --scolor-4: #3C3489;
-      --white: #ffffff;
-      --bg:         #f0f4fa;
-      --bg-card:    #ffffff;
-      --bg-sidebar: var(--pcolor-4);
-      --text-main:  var(--pcolor-4);
-      --text-muted: #6b7fa3;
-      --text-light: #a0aec0;
-      --border:     #dde3f0;
-      --radius:     10px;
-      --shadow:     0 2px 12px rgba(24,95,165,0.08);
-      --shadow-md:  0 4px 24px rgba(24,95,165,0.13);
-      --row-hidden-bg: #f1f5f9;
-    }
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meters</title>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+    <script src="js/layout.js"></script>
+    <style>
+      :root {
+        --pcolor-0: #185fa5;
+        --pcolor-1: #85b7eb;
+        --pcolor-2: #378add;
+        --pcolor-3: #0c447c;
+        --pcolor-4: #042c53;
+        --scolor-0: #7f77dd;
+        --scolor-1: #eeedfe;
+        --scolor-2: #afa9ec;
+        --scolor-3: #534ab7;
+        --scolor-4: #3c3489;
+        --white: #ffffff;
+        --bg: #f0f4fa;
+        --bg-card: #ffffff;
+        --bg-sidebar: var(--pcolor-4);
+        --text-main: var(--pcolor-4);
+        --text-muted: #6b7fa3;
+        --text-light: #a0aec0;
+        --border: #dde3f0;
+        --radius: 10px;
+        --shadow: 0 2px 12px rgba(24, 95, 165, 0.08);
+        --shadow-md: 0 4px 24px rgba(24, 95, 165, 0.13);
+        --row-hidden-bg: #f1f5f9;
+      }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+      }
 
-    /* ── Sidebar ── */
-    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
-    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
-    .sidebar-brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; line-height: 1.2; }
-    .sidebar-brand-sub  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--pcolor-1); letter-spacing: 0.12em; text-transform: uppercase; }
-    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
-    .nav-section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pcolor-2); padding: 10px 20px 4px; }
-    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
-    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
-    .nav-link.active { background: rgba(133,183,235,0.15); color: var(--white); border-left-color: var(--pcolor-1); font-weight: 500; }
-    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
-    .nav-link.active svg { opacity: 1; }
-    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
-    .sidebar-clock { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--pcolor-1); }
+      /* ── Sidebar ── */
+      .sidebar {
+        width: 200px;
+        min-height: 100vh;
+        background: var(--bg-sidebar);
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        z-index: 100;
+      }
+      .sidebar-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 24px 20px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-brand svg {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+      }
+      .sidebar-brand-name {
+        font-family: "Syne", sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--white);
+        letter-spacing: 0.02em;
+        line-height: 1.2;
+      }
+      .sidebar-brand-sub {
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        color: var(--pcolor-1);
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .sidebar-nav {
+        flex: 1;
+        padding: 16px 0;
+        overflow-y: auto;
+      }
+      .nav-section-label {
+        font-family: "DM Mono", monospace;
+        font-size: 9px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--pcolor-2);
+        padding: 10px 20px 4px;
+      }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 20px;
+        color: rgba(255, 255, 255, 0.65);
+        text-decoration: none;
+        font-size: 13.5px;
+        font-weight: 400;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        border-left: 3px solid transparent;
+      }
+      .nav-link:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--white);
+      }
+      .nav-link.active {
+        background: rgba(133, 183, 235, 0.15);
+        color: var(--white);
+        border-left-color: var(--pcolor-1);
+        font-weight: 500;
+      }
+      .nav-link svg {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+      .nav-link.active svg {
+        opacity: 1;
+      }
+      .sidebar-footer {
+        padding: 16px 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .sidebar-clock {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--pcolor-1);
+      }
 
-    /* ── Main ── */
-    .main { margin-left: 200px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+      /* ── Main ── */
+      .main {
+        margin-left: 200px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
 
-    /* ── Topbar ── */
-    .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
-    .topbar-right { display: flex; align-items: center; gap: 16px; }
-    .last-updated { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+      /* ── Topbar ── */
+      .topbar {
+        background: var(--bg-card);
+        border-bottom: 1px solid var(--border);
+        padding: 0 32px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 50;
+      }
+      .topbar-title {
+        font-family: "Syne", sans-serif;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .last-updated {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
 
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
-    .btn:active { transform: scale(0.97); }
-    .btn svg { width: 13px; height: 13px; }
-    .btn-primary { background: var(--pcolor-0); color: var(--white); }
-    .btn-primary:hover { background: var(--pcolor-3); }
-    .btn-primary.spinning svg { animation: spin 0.8s linear infinite; }
-    .btn-ghost { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
-    .btn-ghost:hover { background: var(--border); }
-    .btn-sm { padding: 4px 10px; font-size: 12px; }
-    .btn-sm svg { width: 11px; height: 11px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 16px;
+        border: none;
+        border-radius: 6px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn svg {
+        width: 13px;
+        height: 13px;
+      }
+      .btn-primary {
+        background: var(--pcolor-0);
+        color: var(--white);
+      }
+      .btn-primary:hover {
+        background: var(--pcolor-3);
+      }
+      .btn-primary.spinning svg {
+        animation: spin 0.8s linear infinite;
+      }
+      .btn-ghost {
+        background: var(--bg);
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+      }
+      .btn-ghost:hover {
+        background: var(--border);
+      }
+      .btn-sm {
+        padding: 4px 10px;
+        font-size: 12px;
+      }
+      .btn-sm svg {
+        width: 11px;
+        height: 11px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
 
-    /* ── Page body ── */
-    .page-body { padding: 24px 32px 40px; flex: 1; }
+      /* ── Page body ── */
+      .page-body {
+        padding: 24px 32px 40px;
+        flex: 1;
+      }
 
-    /* ── State banners ── */
-    .state-banner { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: var(--radius); margin-bottom: 20px; font-size: 13.5px; font-weight: 500; }
-    .state-banner.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+      /* ── State banners ── */
+      .state-banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 18px;
+        border-radius: var(--radius);
+        margin-bottom: 20px;
+        font-size: 13.5px;
+        font-weight: 500;
+      }
+      .state-banner.error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+      }
 
-    /* ── Switch tabs ── */
-    .tab-bar { display: flex; align-items: center; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid var(--border); flex-wrap: wrap; }
-    .tab-btn { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; padding: 8px 18px; border: none; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; letter-spacing: 0.04em; position: relative; bottom: -2px; border-bottom: 2px solid transparent; }
-    .tab-btn:hover { background: var(--scolor-1); color: var(--scolor-3); }
-    .tab-btn.active { color: var(--pcolor-0); font-weight: 600; border-bottom: 2px solid var(--pcolor-0); background: transparent; }
+      /* ── Switch tabs ── */
+      .tab-bar {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid var(--border);
+        flex-wrap: wrap;
+      }
+      .tab-btn {
+        font-family: "DM Mono", monospace;
+        font-size: 12px;
+        font-weight: 500;
+        padding: 8px 18px;
+        border: none;
+        border-radius: 6px 6px 0 0;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        letter-spacing: 0.04em;
+        position: relative;
+        bottom: -2px;
+        border-bottom: 2px solid transparent;
+      }
+      .tab-btn:hover {
+        background: var(--scolor-1);
+        color: var(--scolor-3);
+      }
+      .tab-btn.active {
+        color: var(--pcolor-0);
+        font-weight: 600;
+        border-bottom: 2px solid var(--pcolor-0);
+        background: transparent;
+      }
 
-    /* ── Meter card ── */
-    .meter-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; animation: fadeUp 0.3s ease both; }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+      /* ── Meter card ── */
+      .meter-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 20px;
+        animation: fadeUp 0.3s ease both;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-    .meter-card-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); gap: 12px; }
-    .meter-card-title { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .meter-badge { font-family: 'DM Mono', monospace; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-    .meter-badge.bands  { background: var(--scolor-1); color: var(--scolor-3); }
-    .meter-badge.flags  { background: #dbeafe; color: var(--pcolor-3); }
-    .meter-badge.hidden { font-size: 12px; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; border-radius: 4px; }
+      .meter-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 18px;
+        border-bottom: 1px solid var(--border);
+        gap: 12px;
+      }
+      .meter-card-title {
+        font-family: "Syne", sans-serif;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .meter-badge {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-weight: 500;
+      }
+      .meter-badge.bands {
+        background: var(--scolor-1);
+        color: var(--scolor-3);
+      }
+      .meter-badge.flags {
+        background: #dbeafe;
+        color: var(--pcolor-3);
+      }
+      .meter-badge.hidden {
+        font-size: 12px;
+        color: #b45309;
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 4px;
+      }
 
-    .meter-card-actions { display: flex; align-items: center; gap: 6px; }
+      .meter-card-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
 
-    .collapse-btn { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: transparent; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text-muted); transition: background 0.15s; }
-    .collapse-btn:hover { background: var(--bg); }
-    .collapse-btn svg { width: 13px; height: 13px; transition: transform 0.2s; }
-    .collapse-btn.collapsed svg { transform: rotate(-90deg); }
+      .collapse-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: background 0.15s;
+      }
+      .collapse-btn:hover {
+        background: var(--bg);
+      }
+      .collapse-btn svg {
+        width: 13px;
+        height: 13px;
+        transition: transform 0.2s;
+      }
+      .collapse-btn.collapsed svg {
+        transform: rotate(-90deg);
+      }
 
-    /* ── Table ── */
-    .table-wrap { overflow-x: auto; max-height: 2000px; transition: max-height 0.3s ease; }
-    .table-wrap.collapsed { max-height: 0; overflow: hidden; }
+      /* ── Table ── */
+      .table-wrap {
+        overflow-x: auto;
+        max-height: 2000px;
+        transition: max-height 0.3s ease;
+      }
+      .table-wrap.collapsed {
+        max-height: 0;
+        overflow: hidden;
+      }
 
-    .meter-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-    .meter-table thead th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white); text-align: left; padding: 8px 10px; background: var(--scolor-3); border-right: 1px solid rgba(255,255,255,0.15); white-space: nowrap; user-select: none; }
-    .meter-table thead th:first-child { width: 32px; padding: 8px; }
-    .meter-table thead th.sortable-col { cursor: pointer; }
-    .meter-table thead th.sortable-col:hover { background: var(--scolor-0); }
-    .meter-table thead th.sort-asc::after  { content: ' ▲'; font-size: 9px; }
-    .meter-table thead th.sort-desc::after { content: ' ▼'; font-size: 9px; }
-    .meter-table tbody td { padding: 6px 10px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 12.5px; color: var(--text-main); }
-    .meter-table tbody td:first-child { text-align: center; padding: 6px 8px; }
-    .meter-table tbody tr:nth-child(even) td { background: var(--scolor-1); }
-    .meter-table tbody tr:hover td { background: #dbeafe !important; }
-    .meter-table tbody tr.row-hidden td { opacity: 0.35; background: var(--row-hidden-bg) !important; }
-    .meter-table input[type="checkbox"] { cursor: pointer; accent-color: var(--pcolor-0); width: 13px; height: 13px; }
+      .meter-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+      }
+      .meter-table thead th {
+        font-family: "DM Mono", monospace;
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--white);
+        text-align: left;
+        padding: 8px 10px;
+        background: var(--scolor-3);
+        border-right: 1px solid rgba(255, 255, 255, 0.15);
+        white-space: nowrap;
+        user-select: none;
+      }
+      .meter-table thead th:first-child {
+        width: 32px;
+        padding: 8px;
+      }
+      .meter-table thead th.sortable-col {
+        cursor: pointer;
+      }
+      .meter-table thead th.sortable-col:hover {
+        background: var(--scolor-0);
+      }
+      .meter-table thead th.sort-asc::after {
+        content: " ▲";
+        font-size: 9px;
+      }
+      .meter-table thead th.sort-desc::after {
+        content: " ▼";
+        font-size: 9px;
+      }
+      .meter-table tbody td {
+        padding: 6px 10px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        font-size: 12.5px;
+        color: var(--text-main);
+      }
+      .meter-table tbody td:first-child {
+        text-align: center;
+        padding: 6px 8px;
+      }
+      .meter-table tbody tr:nth-child(even) td {
+        background: var(--scolor-1);
+      }
+      .meter-table tbody tr:hover td {
+        background: #dbeafe !important;
+      }
+      .meter-table tbody tr.row-hidden td {
+        opacity: 0.35;
+        background: var(--row-hidden-bg) !important;
+      }
+      .meter-table input[type="checkbox"] {
+        cursor: pointer;
+        accent-color: var(--pcolor-0);
+        width: 13px;
+        height: 13px;
+      }
 
-    /* ── Card footer ── */
-    .meter-card-footer { padding: 8px 18px; border-top: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; background: #fafbff; border-radius: 0 0 var(--radius) var(--radius); }
-    .footer-stat { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
-    .footer-stat span { color: var(--pcolor-3); font-weight: 500; }
+      /* ── Card footer ── */
+      .meter-card-footer {
+        padding: 8px 18px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        background: #fafbff;
+        border-radius: 0 0 var(--radius) var(--radius);
+      }
+      .footer-stat {
+        font-family: "DM Mono", monospace;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+      .footer-stat span {
+        color: var(--pcolor-3);
+        font-weight: 500;
+      }
 
-    /* ── Dropdown ── */
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-menu { display: none; position: absolute; right: 0; top: calc(100% + 4px); background: white; border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-md); min-width: 130px; z-index: 200; overflow: hidden; }
-    .dropdown.open .dropdown-menu { display: block; }
-    .dropdown-menu a { display: block; padding: 8px 14px; font-size: 13px; color: var(--text-main); text-decoration: none; cursor: pointer; transition: background 0.1s; }
-    .dropdown-menu a:hover { background: var(--scolor-1); color: var(--scolor-3); }
-    .dropdown-menu .divider { height: 1px; background: var(--border); margin: 4px 0; }
+      /* ── Dropdown ── */
+      .dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 4px);
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: var(--shadow-md);
+        min-width: 130px;
+        z-index: 200;
+        overflow: hidden;
+      }
+      .dropdown.open .dropdown-menu {
+        display: block;
+      }
+      .dropdown-menu a {
+        display: block;
+        padding: 8px 14px;
+        font-size: 13px;
+        color: var(--text-main);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.1s;
+      }
+      .dropdown-menu a:hover {
+        background: var(--scolor-1);
+        color: var(--scolor-3);
+      }
+      .dropdown-menu .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 4px 0;
+      }
 
-    /* ── Skeleton / empty ── */
-    .table-empty { text-align: center; padding: 32px 20px; color: var(--text-muted); font-size: 13px; }
-    .skeleton-row td { animation: pulse 1.2s ease infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-    .skel-cell { display: inline-block; height: 10px; border-radius: 4px; background: var(--border); }
-    .empty-state { text-align: center; padding: 80px 20px; color: var(--text-muted); }
-    .empty-state svg { width: 48px; height: 48px; opacity: 0.25; margin-bottom: 14px; display: block; margin-inline: auto; }
-    .empty-state p { font-size: 14px; }
+      /* ── Skeleton / empty ── */
+      .table-empty {
+        text-align: center;
+        padding: 32px 20px;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+      .skeleton-row td {
+        animation: pulse 1.2s ease infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.35;
+        }
+      }
+      .skel-cell {
+        display: inline-block;
+        height: 10px;
+        border-radius: 4px;
+        background: var(--border);
+      }
+      .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: var(--text-muted);
+      }
+      .empty-state svg {
+        width: 48px;
+        height: 48px;
+        opacity: 0.25;
+        margin-bottom: 14px;
+        display: block;
+        margin-inline: auto;
+      }
+      .empty-state p {
+        font-size: 14px;
+      }
 
-    /* ── Snackbar ── */
-    #snackbar { visibility: hidden; min-width: 250px; background: var(--pcolor-4); color: white; text-align: center; border-radius: 8px; padding: 12px 20px; position: fixed; z-index: 999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 13px; box-shadow: 0 4px 20px rgba(4,44,83,0.25); }
-    #snackbar.show { visibility: visible; animation: fadein 0.3s, fadeout 0.4s 2.6s; }
-    @keyframes fadein  { from{bottom:10px;opacity:0} to{bottom:30px;opacity:1} }
-    @keyframes fadeout { from{bottom:30px;opacity:1} to{bottom:10px;opacity:0} }
-  </style>
-</head>
-<body>
-<div id="app">
+      /* ── Snackbar ── */
+      #snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background: var(--pcolor-4);
+        color: white;
+        text-align: center;
+        border-radius: 8px;
+        padding: 12px 20px;
+        position: fixed;
+        z-index: 999;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        font-size: 13px;
+        box-shadow: 0 4px 20px rgba(4, 44, 83, 0.25);
+      }
+      #snackbar.show {
+        visibility: visible;
+        animation:
+          fadein 0.3s,
+          fadeout 0.4s 2.6s;
+      }
+      @keyframes fadein {
+        from {
+          bottom: 10px;
+          opacity: 0;
+        }
+        to {
+          bottom: 30px;
+          opacity: 1;
+        }
+      }
+      @keyframes fadeout {
+        from {
+          bottom: 30px;
+          opacity: 1;
+        }
+        to {
+          bottom: 10px;
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- ── Sidebar ── -->
+      <app-sidebar :current-time="currentTime"></app-sidebar>
 
-  <!-- ── Sidebar ── -->
-  <app-sidebar :current-time=currentTime></app-sidebar>
-
-  <!-- ── Main ── -->
-  <div class="main">
-    <app-topbar title="Meters" :last-updated="lastUpdated">
-        <button class="btn btn-primary" :class="{ spinning: loading }" @click="loadMeters">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
-            <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3"/><path d="M13.5 2v3h-3"/>
-          </svg>
-          Refresh
-        </button>
-    </app-topbar>
-
-    <main class="page-body">
-
-      <!-- Error -->
-      <div v-if="error" class="state-banner error">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"/></svg>
-        {{ error }}
-      </div>
-
-      <!-- No switches -->
-      <div v-if="!loading && switches.length === 0 && !error" class="empty-state">
-        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="6" y="14" width="36" height="8" rx="2"/>
-          <rect x="6" y="26" width="36" height="8" rx="2"/>
-          <circle cx="38" cy="18" r="2" fill="currentColor"/>
-          <circle cx="38" cy="30" r="2" fill="currentColor"/>
-        </svg>
-        <p>No switches found. Is the controller running?</p>
-      </div>
-
-      <!-- Switch tabs -->
-      <div v-if="switches.length > 0">
-        <div class="tab-bar">
+      <!-- ── Main ── -->
+      <div class="main">
+        <app-topbar title="Meters" :last-updated="lastUpdated">
           <button
-            v-for="sw in switches" :key="sw.dpid"
-            class="tab-btn" :class="{ active: activeTab === sw.dpid }"
-            @click="setTab(sw.dpid)"
-          >SW_{{ sw.dpid }}</button>
-        </div>
-
-        <!-- Tab content -->
-        <div v-for="sw in switches" :key="sw.dpid" v-show="activeTab === sw.dpid">
-
-          <!-- Skeletons -->
-          <div v-if="loading">
-            <div v-for="n in 2" :key="n" class="meter-card">
-              <div class="meter-card-head">
-                <div class="meter-card-title"><div class="skel-cell" style="width:110px"></div></div>
-              </div>
-              <table class="meter-table">
-                <tbody>
-                  <tr v-for="r in 3" :key="r" class="skeleton-row">
-                    <td v-for="c in 6" :key="c"><div class="skel-cell" :style="{ width: (40 + Math.random()*50)+'px' }"></div></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- No meters -->
-          <div v-else-if="!sw.meters || sw.meters.length === 0" class="empty-state">
-            <p>No meter entries found for SW_{{ sw.dpid }}.</p>
-          </div>
-
-          <!-- Meter cards -->
-          <div v-else>
-            <div
-              v-for="(mtr, mtrIdx) in sw.meters" :key="mtr.meterId"
-              class="meter-card"
-              :style="{ animationDelay: (mtrIdx * 0.05) + 's' }"
+            class="btn btn-primary"
+            :class="{ spinning: loading }"
+            @click="loadMeters"
+          >
+            <svg
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
             >
-              <!-- Card header -->
-              <div class="meter-card-head">
-                <div class="meter-card-title">
-                  Meter {{ mtr.meterId }}
-                  <span class="meter-badge bands">{{ visibleRows(mtr).length }} bands</span>
-                  <span v-if="mtr.flags && mtr.flags.length" class="meter-badge flags">{{ formatFlags(mtr.flags) }}</span>
-                  <span v-if="hiddenCount(mtr) > 0" class="meter-badge hidden">{{ hiddenCount(mtr) }} hidden</span>
-                </div>
+              <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3" />
+              <path d="M13.5 2v3h-3" />
+            </svg>
+            Refresh
+          </button>
+        </app-topbar>
 
-                <div class="meter-card-actions">
-                  <div class="dropdown" :class="{ open: mtr._menuOpen }">
-                    <button class="btn btn-ghost btn-sm" @click.stop="toggleMenu(mtr)">
-                      Actions
-                      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 6l4 4 4-4H4z"/></svg>
-                    </button>
-                    <div class="dropdown-menu">
-                      <a @click.prevent="editSelected(sw.dpid, mtr)">
-                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" style="margin-right:6px"><path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z"/></svg>
-                        Copy to Editor
-                      </a>
-                      <div class="divider"></div>
-                      <a @click.prevent="hideSelected(mtr)">Hide selected</a>
-                      <a @click.prevent="unhideAll(mtr)">Show all</a>
+        <main class="page-body">
+          <!-- Error -->
+          <div v-if="error" class="state-banner error">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"
+              />
+            </svg>
+            {{ error }}
+          </div>
+
+          <!-- No switches -->
+          <div
+            v-if="!loading && switches.length === 0 && !error"
+            class="empty-state"
+          >
+            <svg
+              viewBox="0 0 48 48"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+            >
+              <rect x="6" y="14" width="36" height="8" rx="2" />
+              <rect x="6" y="26" width="36" height="8" rx="2" />
+              <circle cx="38" cy="18" r="2" fill="currentColor" />
+              <circle cx="38" cy="30" r="2" fill="currentColor" />
+            </svg>
+            <p>No switches found. Is the controller running?</p>
+          </div>
+
+          <!-- Switch tabs -->
+          <div v-if="switches.length > 0">
+            <div class="tab-bar">
+              <button
+                v-for="sw in switches"
+                :key="sw.dpid"
+                class="tab-btn"
+                :class="{ active: activeTab === sw.dpid }"
+                @click="setTab(sw.dpid)"
+              >
+                SW_{{ sw.dpid }}
+              </button>
+            </div>
+
+            <!-- Tab content -->
+            <div
+              v-for="sw in switches"
+              :key="sw.dpid"
+              v-show="activeTab === sw.dpid"
+            >
+              <!-- Skeletons -->
+              <div v-if="loading">
+                <div v-for="n in 2" :key="n" class="meter-card">
+                  <div class="meter-card-head">
+                    <div class="meter-card-title">
+                      <div class="skel-cell" style="width: 110px"></div>
+                    </div>
+                  </div>
+                  <table class="meter-table">
+                    <tbody>
+                      <tr v-for="r in 3" :key="r" class="skeleton-row">
+                        <td v-for="c in 6" :key="c">
+                          <div
+                            class="skel-cell"
+                            :style="{ width: (40 + Math.random()*50)+'px' }"
+                          ></div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- No meters -->
+              <div
+                v-else-if="!sw.meters || sw.meters.length === 0"
+                class="empty-state"
+              >
+                <p>No meter entries found for SW_{{ sw.dpid }}.</p>
+              </div>
+
+              <!-- Meter cards -->
+              <div v-else>
+                <div
+                  v-for="(mtr, mtrIdx) in sw.meters"
+                  :key="mtr.meterId"
+                  class="meter-card"
+                  :style="{ animationDelay: (mtrIdx * 0.05) + 's' }"
+                >
+                  <!-- Card header -->
+                  <div class="meter-card-head">
+                    <div class="meter-card-title">
+                      Meter {{ mtr.meterId }}
+                      <span class="meter-badge bands"
+                        >{{ visibleRows(mtr).length }} bands</span
+                      >
+                      <span
+                        v-if="mtr.flags && mtr.flags.length"
+                        class="meter-badge flags"
+                        >{{ formatFlags(mtr.flags) }}</span
+                      >
+                      <span
+                        v-if="hiddenCount(mtr) > 0"
+                        class="meter-badge hidden"
+                        >{{ hiddenCount(mtr) }} hidden</span
+                      >
+                    </div>
+
+                    <div class="meter-card-actions">
+                      <div class="dropdown" :class="{ open: mtr._menuOpen }">
+                        <button
+                          class="btn btn-ghost btn-sm"
+                          @click.stop="toggleMenu(mtr)"
+                        >
+                          Actions
+                          <svg viewBox="0 0 16 16" fill="currentColor">
+                            <path d="M4 6l4 4 4-4H4z" />
+                          </svg>
+                        </button>
+                        <div class="dropdown-menu">
+                          <a @click.prevent="editSelected(sw.dpid, mtr)">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 16 16"
+                              fill="currentColor"
+                              style="margin-right: 6px"
+                            >
+                              <path d="M11.5 2.5l2 2L5 13H3v-2L11.5 2.5z" />
+                            </svg>
+                            Copy to Editor
+                          </a>
+                          <div class="divider"></div>
+                          <a @click.prevent="hideSelected(mtr)"
+                            >Hide selected</a
+                          >
+                          <a @click.prevent="unhideAll(mtr)">Show all</a>
+                        </div>
+                      </div>
+
+                      <button
+                        class="collapse-btn"
+                        :class="{ collapsed: mtr.collapsed }"
+                        @click="mtr.collapsed = !mtr.collapsed"
+                        :title="mtr.collapsed ? 'Expand' : 'Collapse'"
+                      >
+                        <svg
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                        >
+                          <path d="M4 6l4 4 4-4" />
+                        </svg>
+                      </button>
                     </div>
                   </div>
 
-                  <button class="collapse-btn" :class="{ collapsed: mtr.collapsed }" @click="mtr.collapsed = !mtr.collapsed" :title="mtr.collapsed ? 'Expand' : 'Collapse'">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
-                  </button>
+                  <!-- Table -->
+                  <div class="table-wrap" :class="{ collapsed: mtr.collapsed }">
+                    <table class="meter-table">
+                      <thead>
+                        <tr>
+                          <th>
+                            <input
+                              type="checkbox"
+                              :checked="allChecked(mtr)"
+                              @change="toggleAll(mtr, $event)"
+                            />
+                          </th>
+                          <th
+                            v-for="col in COLUMNS"
+                            :key="col.key"
+                            class="sortable-col"
+                            :class="sortClass(mtr, col.key)"
+                            @click="sortBy(mtr, col.key)"
+                          >
+                            {{ col.label }}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr
+                          v-for="(row, rowIdx) in sortedRows(mtr)"
+                          :key="rowIdx"
+                          :class="{ 'row-hidden': row._hidden }"
+                        >
+                          <td>
+                            <input
+                              type="checkbox"
+                              v-model="row._selected"
+                              :disabled="row._hidden"
+                            />
+                          </td>
+                          <td v-for="col in COLUMNS" :key="col.key">
+                            {{ formatCell(row[col.key]) }}
+                          </td>
+                        </tr>
+                        <tr v-if="mtr.rows.length === 0">
+                          <td :colspan="COLUMNS.length + 1" class="table-empty">
+                            No bands
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <!-- Card footer -->
+                  <div class="meter-card-footer" v-if="!mtr.collapsed">
+                    <div class="footer-stat">
+                      Flow Count:
+                      <span
+                        >{{ mtr.flow_count != null ? mtr.flow_count : '—'
+                        }}</span
+                      >
+                    </div>
+                    <div class="footer-stat">
+                      Packets In:
+                      <span>{{ formatNum(mtr.packet_in_count) }}</span>
+                    </div>
+                    <div class="footer-stat">
+                      Bytes In:
+                      <span>{{ formatBytes(mtr.byte_in_count) }}</span>
+                    </div>
+                    <div class="footer-stat">
+                      Duration:
+                      <span
+                        >{{ mtr.duration_sec != null ? mtr.duration_sec + 's' :
+                        '—' }}</span
+                      >
+                    </div>
+                    <div class="footer-stat">
+                      Flags: <span>{{ formatFlags(mtr.flags) || '—' }}</span>
+                    </div>
+                  </div>
                 </div>
+                <!-- /meter-card -->
               </div>
-
-              <!-- Table -->
-              <div class="table-wrap" :class="{ collapsed: mtr.collapsed }">
-                <table class="meter-table">
-                  <thead>
-                    <tr>
-                      <th><input type="checkbox" :checked="allChecked(mtr)" @change="toggleAll(mtr, $event)"></th>
-                      <th
-                        v-for="col in COLUMNS" :key="col.key"
-                        class="sortable-col"
-                        :class="sortClass(mtr, col.key)"
-                        @click="sortBy(mtr, col.key)"
-                      >{{ col.label }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="(row, rowIdx) in sortedRows(mtr)" :key="rowIdx"
-                      :class="{ 'row-hidden': row._hidden }"
-                    >
-                      <td><input type="checkbox" v-model="row._selected" :disabled="row._hidden"></td>
-                      <td v-for="col in COLUMNS" :key="col.key">{{ formatCell(row[col.key]) }}</td>
-                    </tr>
-                    <tr v-if="mtr.rows.length === 0">
-                      <td :colspan="COLUMNS.length + 1" class="table-empty">No bands</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Card footer -->
-              <div class="meter-card-footer" v-if="!mtr.collapsed">
-                <div class="footer-stat">Flow Count: <span>{{ mtr.flow_count != null ? mtr.flow_count : '—' }}</span></div>
-                <div class="footer-stat">Packets In: <span>{{ formatNum(mtr.packet_in_count) }}</span></div>
-                <div class="footer-stat">Bytes In: <span>{{ formatBytes(mtr.byte_in_count) }}</span></div>
-                <div class="footer-stat">Duration: <span>{{ mtr.duration_sec != null ? mtr.duration_sec + 's' : '—' }}</span></div>
-                <div class="footer-stat">Flags: <span>{{ formatFlags(mtr.flags) || '—' }}</span></div>
-              </div>
-
-            </div><!-- /meter-card -->
+            </div>
+            <!-- /tab content -->
           </div>
-
-        </div><!-- /tab content -->
+        </main>
       </div>
 
-    </main>
-  </div>
+      <div id="snackbar" ref="snackbar"></div>
+    </div>
 
-  <div id="snackbar" ref="snackbar"></div>
-</div>
+    <script>
+      const COLUMNS = [
+        { key: "band", label: "Band", sort: "number" },
+        { key: "type", label: "Type", sort: "alphanum" },
+        { key: "rate", label: "Rate", sort: "number" },
+        { key: "burst_size", label: "Burst Size", sort: "number" },
+        { key: "prec_level", label: "Prec Level", sort: "number" },
+      ];
 
-<script>
-const COLUMNS = [
-  { key: 'band',       label: 'Band',       sort: 'number'   },
-  { key: 'type',       label: 'Type',       sort: 'alphanum' },
-  { key: 'rate',       label: 'Rate',       sort: 'number'   },
-  { key: 'burst_size', label: 'Burst Size', sort: 'number'   },
-  { key: 'prec_level', label: 'Prec Level', sort: 'number'   },
-];
+      function fixCompatibility(str) {
+        return str
+          .replace(/dl_/g, "eth_")
+          .replace(/nw_/g, "ipv4_")
+          .replace(/eth_vlan/g, "vlan_vid")
+          .replace(/ipv4_proto/g, "ip_proto");
+      }
 
-function fixCompatibility(str) {
-  return str
-    .replace(/dl_/g, 'eth_').replace(/nw_/g, 'ipv4_')
-    .replace(/eth_vlan/g, 'vlan_vid').replace(/ipv4_proto/g, 'ip_proto');
-}
-
-function formatCell(cell) {
-  if (cell == null) return '';
-  if (Array.isArray(cell)) {
-    return JSON.stringify(cell).replace(/^\[/, '').replace(/\]$/, '').replace(/"/g, '');
-  }
-  if (typeof cell === 'object') {
-    return JSON.stringify(cell)
-      .replace('{}', 'ANY').replace(/{/g, '').replace(/}/g, '')
-      .replace(/":/g, '" = ').replace(/"/g, '').replace(/,/g, '\n');
-  }
-  return String(cell);
-}
-
-function compareValues(type, a, b) {
-  if (type === 'number') return Number(a) - Number(b);
-  if (a < b) return -1;
-  return a > b ? 1 : 0;
-}
-
-const PAGE_KEY = 'MeterTables';
-function sessionGet(key) { try { return JSON.parse(sessionStorage.getItem(key)); } catch(e) { return null; } }
-function sessionSet(key, val) { try { sessionStorage.setItem(key, JSON.stringify(val)); } catch(e) {} }
-
-new Vue({
-  el: '#app',
-
-  data: {
-    loading:     false,
-    error:       null,
-    lastUpdated: null,
-    currentTime: '',
-    switches:    [],
-    activeTab:   null,
-    COLUMNS,
-    clockTimer:  null,
-  },
-
-  methods: {
-    // ── Data loading ──────────────────────────────
-    async loadMeters() {
-      this.loading = true;
-      this.error   = null;
-      try {
-        const swRes = await fetch('/data?list=switches');
-        if (!swRes.ok) throw new Error('Cannot reach controller.');
-        const switchMap = await swRes.json();
-
-        if (!switchMap || Object.keys(switchMap).length === 0) {
-          this.switches = [];
-          this.loading  = false;
-          this.lastUpdated = this.timeStr();
-          return;
+      function formatCell(cell) {
+        if (cell == null) return "";
+        if (Array.isArray(cell)) {
+          return JSON.stringify(cell)
+            .replace(/^\[/, "")
+            .replace(/\]$/, "")
+            .replace(/"/g, "");
         }
+        if (typeof cell === "object") {
+          return JSON.stringify(cell)
+            .replace("{}", "ANY")
+            .replace(/{/g, "")
+            .replace(/}/g, "")
+            .replace(/":/g, '" = ')
+            .replace(/"/g, "")
+            .replace(/,/g, "\n");
+        }
+        return String(cell);
+      }
 
-        const dpids   = Object.values(switchMap);
-        const results = await Promise.all(dpids.map(dpid => this.fetchMetersForSwitch(dpid)));
+      function compareValues(type, a, b) {
+        if (type === "number") return Number(a) - Number(b);
+        if (a < b) return -1;
+        return a > b ? 1 : 0;
+      }
 
-        // Preserve UI state across refreshes
-        const prevMap = {};
-        this.switches.forEach(sw => {
-          prevMap[sw.dpid] = {};
-          sw.meters.forEach(m => { prevMap[sw.dpid][m.meterId] = m; });
-        });
+      const PAGE_KEY = "MeterTables";
+      function sessionGet(key) {
+        try {
+          return JSON.parse(sessionStorage.getItem(key));
+        } catch (e) {
+          return null;
+        }
+      }
+      function sessionSet(key, val) {
+        try {
+          sessionStorage.setItem(key, JSON.stringify(val));
+        } catch (e) {}
+      }
 
-        this.switches = results.map(sw => {
-          sw.meters.forEach(mtr => {
-            const prev = (prevMap[sw.dpid] || {})[mtr.meterId];
-            if (prev) {
-              mtr.collapsed = prev.collapsed;
-              mtr.sortKey   = prev.sortKey;
-              mtr.sortDir   = prev.sortDir;
+      new Vue({
+        el: "#app",
+
+        data: {
+          loading: false,
+          error: null,
+          lastUpdated: null,
+          currentTime: "",
+          switches: [],
+          activeTab: null,
+          COLUMNS,
+          clockTimer: null,
+        },
+
+        methods: {
+          // ── Data loading ──────────────────────────────
+          async loadMeters() {
+            this.loading = true;
+            this.error = null;
+            try {
+              const swRes = await fetch("/data?list=switches");
+              if (!swRes.ok) throw new Error("Cannot reach controller.");
+              const switchMap = await swRes.json();
+
+              if (!switchMap || Object.keys(switchMap).length === 0) {
+                this.switches = [];
+                this.loading = false;
+                this.lastUpdated = this.timeStr();
+                return;
+              }
+
+              const dpids = Object.values(switchMap);
+              const results = await Promise.all(
+                dpids.map((dpid) => this.fetchMetersForSwitch(dpid)),
+              );
+
+              // Preserve UI state across refreshes
+              const prevMap = {};
+              this.switches.forEach((sw) => {
+                prevMap[sw.dpid] = {};
+                sw.meters.forEach((m) => {
+                  prevMap[sw.dpid][m.meterId] = m;
+                });
+              });
+
+              this.switches = results.map((sw) => {
+                sw.meters.forEach((mtr) => {
+                  const prev = (prevMap[sw.dpid] || {})[mtr.meterId];
+                  if (prev) {
+                    mtr.collapsed = prev.collapsed;
+                    mtr.sortKey = prev.sortKey;
+                    mtr.sortDir = prev.sortDir;
+                  }
+                });
+                return sw;
+              });
+
+              const savedTab = sessionGet("activeTab_" + PAGE_KEY);
+              this.activeTab =
+                savedTab && dpids.includes(savedTab)
+                  ? savedTab
+                  : this.switches.length > 0
+                    ? this.switches[0].dpid
+                    : null;
+
+              this.lastUpdated = this.timeStr();
+            } catch (err) {
+              this.error = err.message || "Failed to load meter data.";
+              this.showMessage(this.error);
+            } finally {
+              this.loading = false;
             }
+          },
+
+          async fetchMetersForSwitch(dpid) {
+            const sw = { dpid, meters: [] };
+            try {
+              const res = await fetch(`/status?status=meters&dpid=${dpid}`);
+              if (!res.ok) return sw;
+              const data = await res.json();
+
+              // API returns { desc: { dpid: [...] }, stats: { dpid: [...] } }
+              const desc =
+                (data.desc || {})[dpid] ||
+                (data.desc || {})[String(dpid)] ||
+                [];
+              const stats =
+                (data.stats || {})[dpid] ||
+                (data.stats || {})[String(dpid)] ||
+                [];
+
+              const fixed = JSON.parse(
+                fixCompatibility(
+                  JSON.stringify(
+                    desc.map((d, i) => Object.assign({}, d, stats[i] || {})),
+                  ),
+                ),
+              );
+
+              sw.meters = fixed.map((meter) => {
+                const bands = meter.bands || [];
+                const bandStats = meter.band_stats || [];
+
+                const rows = bands.map((b, i) => {
+                  const row = Object.assign({}, b, bandStats[i] || {});
+                  row.band = i;
+                  row._selected = false;
+                  row._hidden = false;
+                  return row;
+                });
+
+                return {
+                  meterId: meter.meter_id,
+                  flags: meter.flags,
+                  flow_count: meter.flow_count,
+                  packet_in_count: meter.packet_in_count,
+                  byte_in_count: meter.byte_in_count,
+                  duration_sec: meter.duration_sec,
+                  rows,
+                  collapsed: false,
+                  sortKey: "band",
+                  sortDir: "asc",
+                  _menuOpen: false,
+                };
+              });
+            } catch (e) {
+              this.showMessage(`Could not read meters for SW_${dpid}`);
+            }
+            return sw;
+          },
+
+          // ── Tab ───────────────────────────────────────
+          setTab(dpid) {
+            this.activeTab = dpid;
+            sessionSet("activeTab_" + PAGE_KEY, dpid);
+          },
+
+          // ── Dropdown ──────────────────────────────────
+          toggleMenu(mtr) {
+            const wasOpen = mtr._menuOpen;
+            this.switches.forEach((sw) =>
+              sw.meters.forEach((m) => {
+                m._menuOpen = false;
+              }),
+            );
+            this.$set(mtr, "_menuOpen", !wasOpen);
+          },
+
+          // ── Row helpers ───────────────────────────────
+          visibleRows(mtr) {
+            return mtr.rows.filter((r) => !r._hidden);
+          },
+          hiddenCount(mtr) {
+            return mtr.rows.filter((r) => r._hidden).length;
+          },
+          selectedRows(mtr) {
+            return mtr.rows.filter((r) => r._selected && !r._hidden);
+          },
+          allChecked(mtr) {
+            const visible = this.visibleRows(mtr);
+            return visible.length > 0 && visible.every((r) => r._selected);
+          },
+          toggleAll(mtr, e) {
+            this.visibleRows(mtr).forEach((r) => {
+              r._selected = e.target.checked;
+            });
+          },
+
+          // ── Sorting ───────────────────────────────────
+          sortBy(mtr, key) {
+            if (mtr.sortKey === key) {
+              mtr.sortDir = mtr.sortDir === "asc" ? "desc" : "asc";
+            } else {
+              mtr.sortKey = key;
+              mtr.sortDir = "asc";
+            }
+          },
+          sortClass(mtr, key) {
+            if (mtr.sortKey !== key) return "sortable-col";
+            return mtr.sortDir === "asc"
+              ? "sortable-col sort-asc"
+              : "sortable-col sort-desc";
+          },
+          sortedRows(mtr) {
+            const col = COLUMNS.find((c) => c.key === mtr.sortKey);
+            const type = col ? col.sort : "number";
+            const dir = mtr.sortDir === "asc" ? 1 : -1;
+            return [...mtr.rows].sort(
+              (a, b) =>
+                dir *
+                compareValues(
+                  type,
+                  formatCell(a[mtr.sortKey]),
+                  formatCell(b[mtr.sortKey]),
+                ),
+            );
+          },
+
+          // ── Actions ───────────────────────────────────
+          hideSelected(mtr) {
+            const sel = this.selectedRows(mtr);
+            if (!sel.length) {
+              this.showMessage("No rows selected.");
+              return;
+            }
+            sel.forEach((r) => {
+              r._hidden = true;
+              r._selected = false;
+            });
+            mtr._menuOpen = false;
+            this.showMessage(`${sel.length} row(s) hidden.`);
+          },
+          unhideAll(mtr) {
+            mtr.rows.forEach((r) => {
+              r._hidden = false;
+            });
+            mtr._menuOpen = false;
+            this.showMessage("All rows visible.");
+          },
+          editSelected(dpid, mtr) {
+            const sel = this.selectedRows(mtr);
+            if (!sel.length) {
+              this.showMessage("No row selected.");
+              return;
+            }
+            const { _selected, _hidden, ...row } = sel[0];
+            sessionStorage.setItem(
+              "meter",
+              JSON.stringify({
+                meterId: mtr.meterId,
+                dpid,
+                flags: mtr.flags,
+                ...row,
+              }),
+            );
+            mtr._menuOpen = false;
+            this.showMessage("Meter entry copied to session storage.");
+          },
+
+          // ── Formatters ────────────────────────────────
+          formatCell,
+          formatFlags(flags) {
+            if (!flags) return "";
+            if (Array.isArray(flags)) return flags.join(", ");
+            return String(flags);
+          },
+          formatNum(n) {
+            if (n == null) return "—";
+            const num = parseInt(n);
+            return isNaN(num) ? String(n) : num.toLocaleString();
+          },
+          formatBytes(n) {
+            if (n == null) return "—";
+            const num = parseInt(n);
+            if (isNaN(num)) return String(n);
+            if (num >= 1e9) return (num / 1e9).toFixed(1) + " GB";
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + " MB";
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + " KB";
+            return num + " B";
+          },
+          timeStr() {
+            return new Date().toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+          },
+          updateClock() {
+            this.currentTime = this.timeStr();
+          },
+
+          showMessage(msg) {
+            const el = this.$refs.snackbar;
+            el.textContent = msg;
+            el.classList.remove("show");
+            void el.offsetWidth;
+            el.classList.add("show");
+            setTimeout(() => el.classList.remove("show"), 3200);
+          },
+        },
+
+        mounted() {
+          document.addEventListener("click", () => {
+            this.switches.forEach((sw) =>
+              sw.meters.forEach((m) => {
+                m._menuOpen = false;
+              }),
+            );
           });
-          return sw;
-        });
+          this.loadMeters();
+          this.updateClock();
+          this.clockTimer = setInterval(this.updateClock, 1000);
+        },
 
-        const savedTab = sessionGet('activeTab_' + PAGE_KEY);
-        this.activeTab = (savedTab && dpids.includes(savedTab))
-          ? savedTab
-          : (this.switches.length > 0 ? this.switches[0].dpid : null);
-
-        this.lastUpdated = this.timeStr();
-      } catch(err) {
-        this.error = err.message || 'Failed to load meter data.';
-        this.showMessage(this.error);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async fetchMetersForSwitch(dpid) {
-      const sw = { dpid, meters: [] };
-      try {
-        const res = await fetch(`/status?status=meters&dpid=${dpid}`);
-        if (!res.ok) return sw;
-        const data = await res.json();
-
-        // API returns { desc: { dpid: [...] }, stats: { dpid: [...] } }
-        const desc  = (data.desc  || {})[dpid] || (data.desc  || {})[String(dpid)] || [];
-        const stats = (data.stats || {})[dpid] || (data.stats || {})[String(dpid)] || [];
-
-        const fixed = JSON.parse(fixCompatibility(JSON.stringify(
-          desc.map((d, i) => Object.assign({}, d, stats[i] || {}))
-        )));
-
-        sw.meters = fixed.map(meter => {
-          const bands      = meter.bands      || [];
-          const bandStats  = meter.band_stats || [];
-
-          const rows = bands.map((b, i) => {
-            const row = Object.assign({}, b, bandStats[i] || {});
-            row.band      = i;
-            row._selected = false;
-            row._hidden   = false;
-            return row;
-          });
-
-          return {
-            meterId:        meter.meter_id,
-            flags:          meter.flags,
-            flow_count:     meter.flow_count,
-            packet_in_count: meter.packet_in_count,
-            byte_in_count:  meter.byte_in_count,
-            duration_sec:   meter.duration_sec,
-            rows,
-            collapsed: false,
-            sortKey:   'band',
-            sortDir:   'asc',
-            _menuOpen: false,
-          };
-        });
-
-      } catch(e) {
-        this.showMessage(`Could not read meters for SW_${dpid}`);
-      }
-      return sw;
-    },
-
-    // ── Tab ───────────────────────────────────────
-    setTab(dpid) {
-      this.activeTab = dpid;
-      sessionSet('activeTab_' + PAGE_KEY, dpid);
-    },
-
-    // ── Dropdown ──────────────────────────────────
-    toggleMenu(mtr) {
-      const wasOpen = mtr._menuOpen;
-      this.switches.forEach(sw => sw.meters.forEach(m => { m._menuOpen = false; }));
-      this.$set(mtr, '_menuOpen', !wasOpen);
-    },
-
-    // ── Row helpers ───────────────────────────────
-    visibleRows(mtr)  { return mtr.rows.filter(r => !r._hidden); },
-    hiddenCount(mtr)  { return mtr.rows.filter(r => r._hidden).length; },
-    selectedRows(mtr) { return mtr.rows.filter(r => r._selected && !r._hidden); },
-    allChecked(mtr) {
-      const visible = this.visibleRows(mtr);
-      return visible.length > 0 && visible.every(r => r._selected);
-    },
-    toggleAll(mtr, e) {
-      this.visibleRows(mtr).forEach(r => { r._selected = e.target.checked; });
-    },
-
-    // ── Sorting ───────────────────────────────────
-    sortBy(mtr, key) {
-      if (mtr.sortKey === key) {
-        mtr.sortDir = mtr.sortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        mtr.sortKey = key;
-        mtr.sortDir = 'asc';
-      }
-    },
-    sortClass(mtr, key) {
-      if (mtr.sortKey !== key) return 'sortable-col';
-      return mtr.sortDir === 'asc' ? 'sortable-col sort-asc' : 'sortable-col sort-desc';
-    },
-    sortedRows(mtr) {
-      const col  = COLUMNS.find(c => c.key === mtr.sortKey);
-      const type = col ? col.sort : 'number';
-      const dir  = mtr.sortDir === 'asc' ? 1 : -1;
-      return [...mtr.rows].sort((a, b) =>
-        dir * compareValues(type, formatCell(a[mtr.sortKey]), formatCell(b[mtr.sortKey]))
-      );
-    },
-
-    // ── Actions ───────────────────────────────────
-    hideSelected(mtr) {
-      const sel = this.selectedRows(mtr);
-      if (!sel.length) { this.showMessage('No rows selected.'); return; }
-      sel.forEach(r => { r._hidden = true; r._selected = false; });
-      mtr._menuOpen = false;
-      this.showMessage(`${sel.length} row(s) hidden.`);
-    },
-    unhideAll(mtr) {
-      mtr.rows.forEach(r => { r._hidden = false; });
-      mtr._menuOpen = false;
-      this.showMessage('All rows visible.');
-    },
-    editSelected(dpid, mtr) {
-      const sel = this.selectedRows(mtr);
-      if (!sel.length) { this.showMessage('No row selected.'); return; }
-      const { _selected, _hidden, ...row } = sel[0];
-      sessionStorage.setItem('meter', JSON.stringify({ meterId: mtr.meterId, dpid, flags: mtr.flags, ...row }));
-      mtr._menuOpen = false;
-      this.showMessage('Meter entry copied to session storage.');
-    },
-
-    // ── Formatters ────────────────────────────────
-    formatCell,
-    formatFlags(flags) {
-      if (!flags) return '';
-      if (Array.isArray(flags)) return flags.join(', ');
-      return String(flags);
-    },
-    formatNum(n) {
-      if (n == null) return '—';
-      const num = parseInt(n);
-      return isNaN(num) ? String(n) : num.toLocaleString();
-    },
-    formatBytes(n) {
-      if (n == null) return '—';
-      const num = parseInt(n);
-      if (isNaN(num)) return String(n);
-      if (num >= 1e9) return (num / 1e9).toFixed(1) + ' GB';
-      if (num >= 1e6) return (num / 1e6).toFixed(1) + ' MB';
-      if (num >= 1e3) return (num / 1e3).toFixed(1) + ' KB';
-      return num + ' B';
-    },
-    timeStr() {
-      return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    },
-    updateClock() { this.currentTime = this.timeStr(); },
-
-    showMessage(msg) {
-      const el = this.$refs.snackbar;
-      el.textContent = msg;
-      el.classList.remove('show');
-      void el.offsetWidth;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 3200);
-    },
-  },
-
-  mounted() {
-    document.addEventListener('click', () => {
-      this.switches.forEach(sw => sw.meters.forEach(m => { m._menuOpen = false; }));
-    });
-    this.loadMeters();
-    this.updateClock();
-    this.clockTimer = setInterval(this.updateClock, 1000);
-  },
-
-  beforeDestroy() {
-    clearInterval(this.clockTimer);
-  },
-});
-</script>
-</body>
+        beforeDestroy() {
+          clearInterval(this.clockTimer);
+        },
+      });
+    </script>
+  </body>
 </html>
