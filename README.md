@@ -42,7 +42,7 @@ The FlowManager was originally based on RYU controller. In its latest version (0
 
 - Fixed a bug tracking flow entries.
 - Editing Python code style closer to PEP-8 (more work is needed).
-- Spliting Python code into four modules for easier management.
+- Splitting Python code into four modules for easier management.
 - Reorganized folders. 
 
 ## Installation
@@ -61,6 +61,16 @@ python3 -m venv .flwmgr
 source ./flWmgr/bin/source
 pip install -r requirements.txt
 ```
+
+### Docker Image
+
+If you prefer to use Docker image instead:
+
+```bash
+docker pull martimy/flowmanager
+```
+
+See usage examples below.
 
 ### Mininet
 
@@ -108,6 +118,12 @@ In another terminal, start Mininet topology:
 sudo examples/mn_threeswitch_topo.py
 ```
 
+To run an example application using the Docker image:
+
+```bash
+docker run -d -p 6653:6653 -p 8080:8080 -v <path/to/examples>:/home/auser/app martimy/flowmanager app/<example>
+```
+
 ## Documentation
 
 You can find some useful documentation in [here](https://martimy.github.io/flowmanager/).
@@ -130,7 +146,7 @@ from os_ken.base import app_manager
 
 ## Using v0.4.0
 
-If you still want to use the older verion of FlowManager, you can clone this repository then switch to the `legacy` branch.
+If you still want to use the older version of FlowManager, you can clone this repository then switch to the `legacy` branch.
 
 
 ## Author
@@ -140,8 +156,3 @@ If you still want to use the older verion of FlowManager, you can clone this rep
 ## License
 
 FlowManager is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details
-
-
-
-
-
