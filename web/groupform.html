@@ -1,1332 +1,582 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Group Control</title>
-    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
-      rel="stylesheet"
-    />
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
-    <script src="js/layout.js"></script>
-    <script src="js/autocomplete-input.js"></script>
-    <style>
-      :root {
-        --pcolor-0: #185fa5;
-        --pcolor-1: #85b7eb;
-        --pcolor-2: #378add;
-        --pcolor-3: #0c447c;
-        --pcolor-4: #042c53;
-        --scolor-0: #7f77dd;
-        --scolor-1: #eeedfe;
-        --scolor-2: #afa9ec;
-        --scolor-3: #534ab7;
-        --scolor-4: #3c3489;
-        --white: #ffffff;
-        --bg: #f0f4fa;
-        --bg-card: #ffffff;
-        --bg-sidebar: var(--pcolor-4);
-        --text-main: var(--pcolor-4);
-        --text-muted: #6b7fa3;
-        --text-light: #a0aec0;
-        --border: #dde3f0;
-        --radius: 10px;
-        --shadow: 0 2px 12px rgba(24, 95, 165, 0.08);
-        --shadow-md: 0 4px 24px rgba(24, 95, 165, 0.13);
-        --danger: #b91c1c;
-        --danger-bg: #fef2f2;
-        --danger-bdr: #fecaca;
-        --success-bg: #f0fdf4;
-        --success-bdr: #bbf7d0;
-        --success: #166534;
-        --warn-bg: #fffbeb;
-        --warn-bdr: #fde68a;
-        --warn-text: #92400e;
-      }
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Group Control</title>
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14/dist/vue.min.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/autocomplete-input.js"></script> 
+  <style>
+    :root {
+      --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
+      --pcolor-3: #0C447C; --pcolor-4: #042C53;
+      --scolor-0: #7F77DD; --scolor-1: #EEEDFE; --scolor-2: #AFA9EC;
+      --scolor-3: #534AB7; --scolor-4: #3C3489;
+      --white: #ffffff;
+      --bg:          #f0f4fa;
+      --bg-card:     #ffffff;
+      --bg-sidebar:  var(--pcolor-4);
+      --text-main:   var(--pcolor-4);
+      --text-muted:  #6b7fa3;
+      --text-light:  #a0aec0;
+      --border:      #dde3f0;
+      --radius:      10px;
+      --shadow:      0 2px 12px rgba(24,95,165,0.08);
+      --shadow-md:   0 4px 24px rgba(24,95,165,0.13);
+      --danger:      #b91c1c;
+      --danger-bg:   #fef2f2;
+      --danger-bdr:  #fecaca;
+      --success-bg:  #f0fdf4;
+      --success-bdr: #bbf7d0;
+      --success:     #166534;
+      --warn-bg:     #fffbeb;
+      --warn-bdr:    #fde68a;
+      --warn-text:   #92400e;
+    }
 
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: "DM Sans", sans-serif;
-        background: var(--bg);
-        color: var(--text-main);
-        min-height: 100vh;
-        display: flex;
-      }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
 
-      /* ── Sidebar ── */
-      .sidebar {
-        width: 200px;
-        min-height: 100vh;
-        background: var(--bg-sidebar);
-        display: flex;
-        flex-direction: column;
-        flex-shrink: 0;
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        z-index: 100;
-      }
-      .sidebar-brand {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 24px 20px 20px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      .sidebar-brand svg {
-        width: 28px;
-        height: 28px;
-        flex-shrink: 0;
-      }
-      .sidebar-brand-name {
-        font-family: "Syne", sans-serif;
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--white);
-        letter-spacing: 0.02em;
-        line-height: 1.2;
-      }
-      .sidebar-brand-sub {
-        font-family: "DM Mono", monospace;
-        font-size: 9px;
-        color: var(--pcolor-1);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-      .sidebar-nav {
-        flex: 1;
-        padding: 16px 0;
-        overflow-y: auto;
-      }
-      .nav-section-label {
-        font-family: "DM Mono", monospace;
-        font-size: 9px;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-        color: var(--pcolor-2);
-        padding: 10px 20px 4px;
-      }
-      .nav-link {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 9px 20px;
-        color: rgba(255, 255, 255, 0.65);
-        text-decoration: none;
-        font-size: 13.5px;
-        font-weight: 400;
-        transition:
-          background 0.15s,
-          color 0.15s;
-        border-left: 3px solid transparent;
-      }
-      .nav-link:hover {
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--white);
-      }
-      .nav-link.active {
-        background: rgba(133, 183, 235, 0.15);
-        color: var(--white);
-        border-left-color: var(--pcolor-1);
-        font-weight: 500;
-      }
-      .nav-link svg {
-        width: 15px;
-        height: 15px;
-        flex-shrink: 0;
-        opacity: 0.7;
-      }
-      .nav-link.active svg {
-        opacity: 1;
-      }
-      .sidebar-footer {
-        padding: 16px 20px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-      }
-      .sidebar-clock {
-        font-family: "DM Mono", monospace;
-        font-size: 11px;
-        color: var(--pcolor-1);
-      }
+    /* ── Sidebar ── */
+    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .sidebar-brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; line-height: 1.2; }
+    .sidebar-brand-sub  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--pcolor-1); letter-spacing: 0.12em; text-transform: uppercase; }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pcolor-2); padding: 10px 20px 4px; }
+    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
+    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .nav-link.active { background: rgba(133,183,235,0.15); color: var(--white); border-left-color: var(--pcolor-1); font-weight: 500; }
+    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+    .nav-link.active svg { opacity: 1; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-clock { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--pcolor-1); }
 
-      /* ── Main ── */
-      .main {
-        margin-left: 200px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
+    /* ── Main ── */
+    .main { margin-left: 200px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
 
-      /* ── Topbar ── */
-      .topbar {
-        background: var(--bg-card);
-        border-bottom: 1px solid var(--border);
-        padding: 0 32px;
-        height: 60px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: sticky;
-        top: 0;
-        z-index: 50;
-      }
-      .topbar-title {
-        font-family: "Syne", sans-serif;
-        font-size: 18px;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-      }
-      .topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
+    /* ── Topbar ── */
+    .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+    .topbar-right  { display: flex; align-items: center; gap: 10px; }
 
-      /* ── Buttons ── */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 18px;
-        border: none;
-        border-radius: 7px;
-        font-family: "DM Sans", sans-serif;
-        font-size: 13.5px;
-        font-weight: 500;
-        cursor: pointer;
-        transition:
-          background 0.15s,
-          transform 0.1s;
-        white-space: nowrap;
-      }
-      .btn:active {
-        transform: scale(0.97);
-      }
-      .btn svg {
-        width: 14px;
-        height: 14px;
-        flex-shrink: 0;
-      }
-      .btn-primary {
-        background: var(--pcolor-0);
-        color: var(--white);
-        box-shadow: 0 1px 4px rgba(24, 95, 165, 0.18);
-      }
-      .btn-primary:hover {
-        background: var(--pcolor-3);
-      }
-      .btn-primary:disabled {
-        background: #a0aec0;
-        cursor: not-allowed;
-        box-shadow: none;
-      }
-      .btn-secondary {
-        background: var(--bg);
-        color: var(--text-muted);
-        border: 1px solid var(--border);
-      }
-      .btn-secondary:hover {
-        background: var(--border);
-        color: var(--text-main);
-      }
-      .btn-danger-soft {
-        background: var(--danger-bg);
-        color: var(--danger);
-        border: 1px solid var(--danger-bdr);
-      }
-      .btn-danger-soft:hover {
-        background: #fee2e2;
-      }
-      .btn-sm {
-        padding: 5px 11px;
-        font-size: 12px;
-        border-radius: 5px;
-      }
-      .btn-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        padding: 0;
-        border: 1px solid var(--border);
-        border-radius: 5px;
-        background: var(--bg);
-        color: var(--text-muted);
-        cursor: pointer;
-        transition:
-          background 0.12s,
-          color 0.12s;
-      }
-      .btn-icon:hover {
-        background: var(--danger-bg);
-        color: var(--danger);
-        border-color: var(--danger-bdr);
-      }
-      .btn-icon svg {
-        width: 12px;
-        height: 12px;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; border: none; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; white-space: nowrap; }
+    .btn:active { transform: scale(0.97); }
+    .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .btn-primary   { background: var(--pcolor-0); color: var(--white); box-shadow: 0 1px 4px rgba(24,95,165,0.18); }
+    .btn-primary:hover { background: var(--pcolor-3); }
+    .btn-primary:disabled { background: #a0aec0; cursor: not-allowed; box-shadow: none; }
+    .btn-secondary { background: var(--bg); color: var(--text-muted); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--border); color: var(--text-main); }
+    .btn-danger-soft { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-bdr); }
+    .btn-danger-soft:hover { background: #fee2e2; }
+    .btn-sm  { padding: 5px 11px; font-size: 12px; border-radius: 5px; }
+    .btn-icon { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; border: 1px solid var(--border); border-radius: 5px; background: var(--bg); color: var(--text-muted); cursor: pointer; transition: background 0.12s, color 0.12s; }
+    .btn-icon:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-bdr); }
+    .btn-icon svg { width: 12px; height: 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-      /* ── Page body ── */
-      .page-body {
-        padding: 24px 32px 60px;
-        flex: 1;
-        max-width: 900px;
-      }
+    /* ── Page body ── */
+    .page-body { padding: 24px 32px 60px; flex: 1; max-width: 900px; }
 
-      /* ── Import banner ── */
-      .import-banner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 18px;
-        border-radius: var(--radius);
-        margin-bottom: 22px;
-        background: var(--warn-bg);
-        border: 1px solid var(--warn-bdr);
-        color: var(--warn-text);
-        font-size: 13px;
-        animation: fadeUp 0.3s ease;
-      }
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(6px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
+    /* ── Import banner ── */
+    .import-banner { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-radius: var(--radius); margin-bottom: 22px; background: var(--warn-bg); border: 1px solid var(--warn-bdr); color: var(--warn-text); font-size: 13px; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-      /* ── Section card ── */
-      .section-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        margin-bottom: 18px;
-        overflow: hidden;
-        animation: fadeUp 0.3s ease both;
-      }
-      .section-card:nth-child(1) {
-        animation-delay: 0.04s;
-      }
-      .section-card:nth-child(2) {
-        animation-delay: 0.08s;
-      }
-      .section-card:nth-child(3) {
-        animation-delay: 0.12s;
-      }
-      .section-card:nth-child(4) {
-        animation-delay: 0.16s;
-      }
-      .section-head {
-        padding: 12px 18px 10px;
-        border-bottom: 1px solid var(--border);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-      .section-head-left {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .section-title {
-        font-family: "Syne", sans-serif;
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--text-main);
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-      }
-      .section-body {
-        padding: 16px 18px;
-      }
+    /* ── Section card ── */
+    .section-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 18px; overflow: hidden; animation: fadeUp 0.3s ease both; }
+    .section-card:nth-child(1){animation-delay:0.04s} .section-card:nth-child(2){animation-delay:0.08s}
+    .section-card:nth-child(3){animation-delay:0.12s} .section-card:nth-child(4){animation-delay:0.16s}
+    .section-head { padding: 12px 18px 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .section-head-left { display: flex; align-items: center; gap: 8px; }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; color: var(--text-main); letter-spacing: 0.05em; text-transform: uppercase; }
+    .section-body  { padding: 16px 18px; }
 
-      /* ── Field rows ── */
-      .field-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 13px;
-      }
-      .field-row:last-child {
-        margin-bottom: 0;
-      }
-      .field-label {
-        font-size: 12.5px;
-        font-weight: 500;
-        color: var(--text-muted);
-        width: 100px;
-        flex-shrink: 0;
-      }
-      .field-input {
-        flex: 1;
-        font-family: "DM Sans", sans-serif;
-        font-size: 13px;
-        padding: 7px 11px;
-        border: 1.5px solid var(--border);
-        border-radius: 6px;
-        background: var(--bg);
-        color: var(--text-main);
-        transition:
-          border-color 0.15s,
-          box-shadow 0.15s;
-        outline: none;
-      }
-      .field-input:focus {
-        border-color: var(--pcolor-1);
-        box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.09);
-        background: var(--white);
-      }
-      .field-input.invalid {
-        border-color: var(--danger);
-        background: var(--danger-bg);
-      }
-      select.field-input {
-        cursor: pointer;
-        height: 34px;
-      }
-      .field-error {
-        font-size: 11px;
-        color: var(--danger);
-      }
+    /* ── Field rows ── */
+    .field-row { display: flex; align-items: center; gap: 12px; margin-bottom: 13px; }
+    .field-row:last-child { margin-bottom: 0; }
+    .field-label { font-size: 12.5px; font-weight: 500; color: var(--text-muted); width: 100px; flex-shrink: 0; }
+    .field-input { flex: 1; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 7px 11px; border: 1.5px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text-main); transition: border-color 0.15s, box-shadow 0.15s; outline: none; }
+    .field-input:focus { border-color: var(--pcolor-1); box-shadow: 0 0 0 3px rgba(24,95,165,0.09); background: var(--white); }
+    .field-input.invalid { border-color: var(--danger); background: var(--danger-bg); }
+    select.field-input { cursor: pointer; height: 34px; }
+    .field-error { font-size: 11px; color: var(--danger); }
 
-      /* ── Operation radio ── */
-      .op-grid {
-        display: flex;
-        gap: 8px;
-      }
-      .op-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 14px;
-        border-radius: 7px;
-        border: 1.5px solid var(--border);
-        cursor: pointer;
-        transition:
-          border-color 0.15s,
-          background 0.15s;
-        user-select: none;
-        font-size: 13px;
-      }
-      .op-item:hover {
-        border-color: var(--pcolor-1);
-        background: #f0f7ff;
-      }
-      .op-item.selected {
-        border-color: var(--pcolor-0);
-        background: #eff6ff;
-        font-weight: 500;
-      }
-      .op-item.op-del.selected {
-        border-color: var(--danger);
-        background: var(--danger-bg);
-      }
-      .op-item input[type="radio"] {
-        display: none;
-      }
-      .op-dot {
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        border: 2px solid var(--border);
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: border-color 0.15s;
-      }
-      .op-item.selected .op-dot {
-        border-color: var(--pcolor-0);
-      }
-      .op-item.op-del.selected .op-dot {
-        border-color: var(--danger);
-      }
-      .op-inner {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: transparent;
-        transition: background 0.15s;
-      }
-      .op-item.selected .op-inner {
-        background: var(--pcolor-0);
-      }
-      .op-item.op-del.selected .op-inner {
-        background: var(--danger);
-      }
+    /* ── Operation radio ── */
+    .op-grid { display: flex; gap: 8px; }
+    .op-item { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 7px; border: 1.5px solid var(--border); cursor: pointer; transition: border-color 0.15s, background 0.15s; user-select: none; font-size: 13px; }
+    .op-item:hover { border-color: var(--pcolor-1); background: #f0f7ff; }
+    .op-item.selected { border-color: var(--pcolor-0); background: #eff6ff; font-weight: 500; }
+    .op-item.op-del.selected { border-color: var(--danger); background: var(--danger-bg); }
+    .op-item input[type="radio"] { display: none; }
+    .op-dot { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: border-color 0.15s; }
+    .op-item.selected .op-dot { border-color: var(--pcolor-0); }
+    .op-item.op-del.selected .op-dot { border-color: var(--danger); }
+    .op-inner { width: 6px; height: 6px; border-radius: 50%; background: transparent; transition: background 0.15s; }
+    .op-item.selected .op-inner { background: var(--pcolor-0); }
+    .op-item.op-del.selected .op-inner { background: var(--danger); }
 
-      /* ── Bucket cards ── */
-      .buckets-list {
-        display: flex;
-        flex-direction: column;
-        gap: 14px;
-      }
+    /* ── Bucket cards ── */
+    .buckets-list { display: flex; flex-direction: column; gap: 14px; }
 
-      .bucket-card {
-        border: 1.5px solid var(--border);
-        border-radius: 8px;
-        overflow: hidden;
-        transition: border-color 0.15s;
-      }
-      .bucket-card:hover {
-        border-color: var(--scolor-2);
-      }
+    .bucket-card { border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; transition: border-color 0.15s; }
+    .bucket-card:hover { border-color: var(--scolor-2); }
 
-      .bucket-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 9px 14px;
-        background: var(--scolor-1);
-        border-bottom: 1px solid var(--scolor-2);
-      }
-      .bucket-label {
-        font-family: "DM Mono", monospace;
-        font-size: 11px;
-        font-weight: 500;
-        color: var(--scolor-3);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-      .bucket-body {
-        padding: 12px 14px;
-      }
+    .bucket-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; background: var(--scolor-1); border-bottom: 1px solid var(--scolor-2); }
+    .bucket-label { font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; color: var(--scolor-3); letter-spacing: 0.06em; text-transform: uppercase; }
+    .bucket-body { padding: 12px 14px; }
 
-      /* ── Action rows within a bucket ── */
-      .action-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      .action-table th {
-        font-family: "DM Mono", monospace;
-        font-size: 10px;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--text-muted);
-        text-align: left;
-        padding: 4px 6px 6px;
-        border-bottom: 2px solid var(--border);
-        font-weight: 500;
-      }
-      .action-table td {
-        padding: 5px 4px;
-        border-bottom: 1px solid #f0f4fa;
-        vertical-align: middle;
-      }
-      .action-table tr:last-child td {
-        border-bottom: none;
-      }
-      .action-table tr:hover td {
-        background: #f8faff;
-      }
+    /* ── Action rows within a bucket ── */
+    .action-table { width: 100%; border-collapse: collapse; }
+    .action-table th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 4px 6px 6px; border-bottom: 2px solid var(--border); font-weight: 500; }
+    .action-table td { padding: 5px 4px; border-bottom: 1px solid #f0f4fa; vertical-align: middle; }
+    .action-table tr:last-child td { border-bottom: none; }
+    .action-table tr:hover td { background: #f8faff; }
 
-      .act-input {
-        font-family: "DM Sans", sans-serif;
-        font-size: 12.5px;
-        padding: 5px 8px;
-        border: 1.5px solid var(--border);
-        border-radius: 5px;
-        background: var(--bg);
-        color: var(--text-main);
-        width: 100%;
-        outline: none;
-        transition: border-color 0.15s;
-      }
-      .act-input:focus {
-        border-color: var(--pcolor-1);
-        background: var(--white);
-      }
-      .act-input:disabled {
-        background: var(--border);
-        color: var(--text-light);
-        cursor: not-allowed;
-      }
-      .act-hint {
-        font-size: 10.5px;
-        color: var(--text-light);
-        font-style: italic;
-        margin-top: 2px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+    .act-input { font-family: 'DM Sans', sans-serif; font-size: 12.5px; padding: 5px 8px; border: 1.5px solid var(--border); border-radius: 5px; background: var(--bg); color: var(--text-main); width: 100%; outline: none; transition: border-color 0.15s; }
+    .act-input:focus { border-color: var(--pcolor-1); background: var(--white); }
+    .act-input:disabled { background: var(--border); color: var(--text-light); cursor: not-allowed; }
+    .act-hint { font-size: 10.5px; color: var(--text-light); font-style: italic; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-      .add-action-row {
-        margin-top: 10px;
-      }
-      .add-bucket-row {
-        margin-top: 4px;
-      }
+    .add-action-row { margin-top: 10px; }
+    .add-bucket-row { margin-top: 4px; }
 
-      /* ── Form actions ── */
-      .form-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 20px 0 0;
-        border-top: 1px solid var(--border);
-        margin-top: 4px;
-      }
+    /* ── Form actions ── */
+    .form-actions { display: flex; align-items: center; gap: 10px; padding: 20px 0 0; border-top: 1px solid var(--border); margin-top: 4px; }
 
-      /* ── Result banner ── */
-      .result-banner {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 12px 18px;
-        border-radius: var(--radius);
-        margin-top: 18px;
-        font-size: 13px;
-        font-weight: 500;
-        animation: fadeUp 0.3s ease;
-      }
-      .result-banner.success {
-        background: var(--success-bg);
-        color: var(--success);
-        border: 1px solid var(--success-bdr);
-      }
-      .result-banner.error {
-        background: var(--danger-bg);
-        color: var(--danger);
-        border: 1px solid var(--danger-bdr);
-      }
-      .result-banner svg {
-        width: 16px;
-        height: 16px;
-        flex-shrink: 0;
-        margin-top: 1px;
-      }
+    /* ── Result banner ── */
+    .result-banner { display: flex; align-items: flex-start; gap: 10px; padding: 12px 18px; border-radius: var(--radius); margin-top: 18px; font-size: 13px; font-weight: 500; animation: fadeUp 0.3s ease; }
+    .result-banner.success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-bdr); }
+    .result-banner.error   { background: var(--danger-bg);  color: var(--danger);  border: 1px solid var(--danger-bdr); }
+    .result-banner svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
 
-      /* ── Snackbar ── */
-      #snackbar {
-        visibility: hidden;
-        min-width: 250px;
-        background: var(--pcolor-4);
-        color: white;
-        text-align: center;
-        border-radius: 8px;
-        padding: 12px 20px;
-        position: fixed;
-        z-index: 999;
-        left: 50%;
-        bottom: 30px;
-        transform: translateX(-50%);
-        font-size: 13px;
-        box-shadow: 0 4px 20px rgba(4, 44, 83, 0.25);
-      }
-      #snackbar.show {
-        visibility: visible;
-        animation:
-          snackin 0.3s,
-          snackout 0.4s 2.6s;
-      }
-      @keyframes snackin {
-        from {
-          bottom: 10px;
-          opacity: 0;
-        }
-        to {
-          bottom: 30px;
-          opacity: 1;
-        }
-      }
-      @keyframes snackout {
-        from {
-          bottom: 30px;
-          opacity: 1;
-        }
-        to {
-          bottom: 10px;
-          opacity: 0;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="app">
-      <!-- ── Sidebar ── -->
-      <app-sidebar :current-time="currentTime"></app-sidebar>
+    /* ── Snackbar ── */
+    #snackbar { visibility: hidden; min-width: 250px; background: var(--pcolor-4); color: white; text-align: center; border-radius: 8px; padding: 12px 20px; position: fixed; z-index: 999; left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 13px; box-shadow: 0 4px 20px rgba(4,44,83,0.25); }
+    #snackbar.show { visibility: visible; animation: snackin 0.3s, snackout 0.4s 2.6s; }
+    @keyframes snackin  { from{bottom:10px;opacity:0} to{bottom:30px;opacity:1} }
+    @keyframes snackout { from{bottom:30px;opacity:1} to{bottom:10px;opacity:0} }
+  </style>
+</head>
+<body>
+<div id="app">
 
-      <!-- ── Main ── -->
-      <div class="main">
-        <app-topbar-sw
-          title="Group Control"
-          :num-switches="switches.length"
-        ></app-topbar-sw>
+  <!-- ── Sidebar ── -->
+  <app-sidebar :current-time=currentTime></app-sidebar>
 
-        <main class="page-body">
-          <!-- Import banner -->
-          <div v-if="hasImport" class="import-banner">
-            <div>
-              <strong>Saved group entry available.</strong> Import it to
-              pre-fill this form.
-            </div>
-            <button class="btn btn-sm btn-secondary" @click="importFromSession">
-              <svg
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              >
-                <path d="M8 2v8M4 7l4 4 4-4M2 13h12" />
-              </svg>
-              Import
-            </button>
+  <!-- ── Main ── -->
+  <div class="main">
+    <app-topbar-sw title="Group Control" :num-switches="switches.length"></app-topbar-sw>
+
+    <main class="page-body">
+
+      <!-- Import banner -->
+      <div v-if="hasImport" class="import-banner">
+        <div><strong>Saved group entry available.</strong> Import it to pre-fill this form.</div>
+        <button class="btn btn-sm btn-secondary" @click="importFromSession">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 2v8M4 7l4 4 4-4M2 13h12"/></svg>
+          Import
+        </button>
+      </div>
+
+      <!-- ── Target ── -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-left">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="var(--scolor-3)"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" fill="none"/><circle cx="8" cy="8" r="2.5" fill="currentColor"/></svg>
+            <span class="section-title">Target</span>
           </div>
-
-          <!-- ── Target ── -->
-          <div class="section-card">
-            <div class="section-head">
-              <div class="section-head-left">
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 16 16"
-                  fill="var(--scolor-3)"
-                >
-                  <circle
-                    cx="8"
-                    cy="8"
-                    r="6"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    fill="none"
-                  />
-                  <circle cx="8" cy="8" r="2.5" fill="currentColor" />
-                </svg>
-                <span class="section-title">Target</span>
-              </div>
-            </div>
-            <div class="section-body">
-              <div class="field-row">
-                <label class="field-label">Switch</label>
-                <select
-                  class="field-input"
-                  v-model="form.dpid"
-                  :class="{ invalid: errors.dpid }"
-                >
-                  <option value="" disabled>Select a switch…</option>
-                  <option v-for="sw in switches" :key="sw" :value="sw">
-                    SW_{{ sw }}
-                  </option>
-                </select>
-                <span v-if="errors.dpid" class="field-error"
-                  >{{ errors.dpid }}</span
-                >
-              </div>
-              <div class="field-row">
-                <label class="field-label">Group ID</label>
-                <input
-                  type="number"
-                  class="field-input"
-                  v-model.number="form.group_id"
-                  :class="{ invalid: errors.group_id }"
-                  min="1"
-                  placeholder="e.g. 1"
-                />
-                <span v-if="errors.group_id" class="field-error"
-                  >{{ errors.group_id }}</span
-                >
-              </div>
-              <div class="field-row">
-                <label class="field-label">Group Type</label>
-                <select class="field-input" v-model="form.type">
-                  <option value="ALL">ALL — Multicast/broadcast</option>
-                  <option value="SELECT">SELECT — Load balancing</option>
-                  <option value="INDIRECT">INDIRECT — Single bucket</option>
-                  <option value="FAST_FAILOVER">
-                    FAST_FAILOVER — Failover
-                  </option>
-                </select>
-              </div>
-            </div>
+        </div>
+        <div class="section-body">
+          <div class="field-row">
+            <label class="field-label">Switch</label>
+            <select class="field-input" v-model="form.dpid" :class="{ invalid: errors.dpid }">
+              <option value="" disabled>Select a switch…</option>
+              <option v-for="sw in switches" :key="sw" :value="sw">SW_{{ sw }}</option>
+            </select>
+            <span v-if="errors.dpid" class="field-error">{{ errors.dpid }}</span>
           </div>
-
-          <!-- ── Operation ── -->
-          <div class="section-card">
-            <div class="section-head">
-              <div class="section-head-left">
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 16 16"
-                  fill="var(--scolor-3)"
-                >
-                  <path
-                    d="M8 2v12M2 8h12"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                    fill="none"
-                  />
-                </svg>
-                <span class="section-title">Operation</span>
-              </div>
-            </div>
-            <div class="section-body">
-              <div class="op-grid">
-                <label
-                  v-for="op in OPERATIONS"
-                  :key="op.value"
-                  class="op-item"
-                  :class="{ selected: form.operation === op.value, 'op-del': op.value === 'del' && form.operation === 'del' }"
-                  @click="form.operation = op.value"
-                >
-                  <input
-                    type="radio"
-                    :value="op.value"
-                    v-model="form.operation"
-                  />
-                  <div class="op-dot"><div class="op-inner"></div></div>
-                  {{ op.label }}
-                </label>
-              </div>
-            </div>
+          <div class="field-row">
+            <label class="field-label">Group ID</label>
+            <input type="number" class="field-input" v-model.number="form.group_id"
+              :class="{ invalid: errors.group_id }"
+              min="1" placeholder="e.g. 1">
+            <span v-if="errors.group_id" class="field-error">{{ errors.group_id }}</span>
           </div>
+          <div class="field-row">
+            <label class="field-label">Group Type</label>
+            <select class="field-input" v-model="form.type">
+              <option value="ALL">ALL — Multicast/broadcast</option>
+              <option value="SELECT">SELECT — Load balancing</option>
+              <option value="INDIRECT">INDIRECT — Single bucket</option>
+              <option value="FAST_FAILOVER">FAST_FAILOVER — Failover</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-          <!-- ── Action Buckets ── -->
-          <div class="section-card" v-show="form.operation !== 'del'">
-            <div class="section-head">
-              <div class="section-head-left">
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 16 16"
-                  fill="var(--scolor-3)"
-                >
-                  <path
-                    d="M4 2h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zm0 3h8M4 8h8"
-                    stroke="currentColor"
-                    stroke-width="1.3"
-                    fill="none"
-                  />
-                </svg>
-                <span class="section-title">Action Buckets</span>
-                <span
-                  style="
-                    font-family: &quot;DM Mono&quot;, monospace;
-                    font-size: 10px;
-                    color: var(--text-light);
-                    margin-left: 6px;
-                  "
-                  >{{ form.buckets.length }} bucket{{ form.buckets.length !== 1
-                  ? 's' : '' }}</span
-                >
+      <!-- ── Operation ── -->
+      <div class="section-card">
+        <div class="section-head">
+          <div class="section-head-left">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="var(--scolor-3)"><path d="M8 2v12M2 8h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg>
+            <span class="section-title">Operation</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div class="op-grid">
+            <label v-for="op in OPERATIONS" :key="op.value"
+              class="op-item"
+              :class="{ selected: form.operation === op.value, 'op-del': op.value === 'del' && form.operation === 'del' }"
+              @click="form.operation = op.value">
+              <input type="radio" :value="op.value" v-model="form.operation">
+              <div class="op-dot"><div class="op-inner"></div></div>
+              {{ op.label }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Action Buckets ── -->
+      <div class="section-card" v-show="form.operation !== 'del'">
+        <div class="section-head">
+          <div class="section-head-left">
+            <svg width="13" height="13" viewBox="0 0 16 16" fill="var(--scolor-3)"><path d="M4 2h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zm0 3h8M4 8h8" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+            <span class="section-title">Action Buckets</span>
+            <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--text-light);margin-left:6px">{{ form.buckets.length }} bucket{{ form.buckets.length !== 1 ? 's' : '' }}</span>
+          </div>
+        </div>
+        <div class="section-body">
+          <div v-if="errors.buckets" style="font-size:11px;color:var(--danger);margin-bottom:10px">{{ errors.buckets }}</div>
+
+          <div class="buckets-list">
+            <div v-for="(bucket, bIdx) in form.buckets" :key="bIdx" class="bucket-card">
+
+              <!-- Bucket header -->
+              <div class="bucket-head">
+                <span class="bucket-label">Bucket {{ bIdx + 1 }}</span>
+                <button class="btn-icon" @click="removeBucket(bIdx)" title="Remove bucket" v-if="form.buckets.length > 1">
+                  <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3h6l1 1H4L5 3zm-1 2h8l-.75 8H4.75L4 5zm3 2v5h1V7H7zm2 0v5h1V7H9z"/></svg>
+                </button>
               </div>
-            </div>
-            <div class="section-body">
-              <div
-                v-if="errors.buckets"
-                style="
-                  font-size: 11px;
-                  color: var(--danger);
-                  margin-bottom: 10px;
-                "
-              >
-                {{ errors.buckets }}
-              </div>
 
-              <div class="buckets-list">
-                <div
-                  v-for="(bucket, bIdx) in form.buckets"
-                  :key="bIdx"
-                  class="bucket-card"
-                >
-                  <!-- Bucket header -->
-                  <div class="bucket-head">
-                    <span class="bucket-label">Bucket {{ bIdx + 1 }}</span>
-                    <button
-                      class="btn-icon"
-                      @click="removeBucket(bIdx)"
-                      title="Remove bucket"
-                      v-if="form.buckets.length > 1"
-                    >
-                      <svg viewBox="0 0 16 16" fill="currentColor">
-                        <path
-                          d="M5 3h6l1 1H4L5 3zm-1 2h8l-.75 8H4.75L4 5zm3 2v5h1V7H7zm2 0v5h1V7H9z"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-
-                  <!-- Bucket action rows -->
-                  <div class="bucket-body">
-                    <table class="action-table">
-                      <thead>
-                        <tr>
-                          <th>Action Type</th>
-                          <th>Value</th>
-                          <th></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr v-for="(row, rIdx) in bucket.actions" :key="rIdx">
-                          <td style="width: 46%">
-                            <!--input list="actionlist" class="act-input" v-model="row.action"
+              <!-- Bucket action rows -->
+              <div class="bucket-body">
+                <table class="action-table">
+                  <thead>
+                    <tr><th>Action Type</th><th>Value</th><th></th></tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="(row, rIdx) in bucket.actions" :key="rIdx">
+                      <td style="width:46%">
+                        <!--input list="actionlist" class="act-input" v-model="row.action"
                           @change="onActionChange(row)"
                           placeholder="e.g. OUTPUT"-->
-                            <autocomplete-input
-                              :value="row.action"
-                              :options="actionOptions"
-                              placeholder="e.g. OUTPUT"
-                              @input="row.action = $event"
-                              @change="onActionChange(row)"
-                            >
-                            </autocomplete-input>
-                            <div class="act-hint" v-if="row.hint">
-                              {{ row.hint }}
-                            </div>
-                          </td>
-                          <td style="width: 46%">
-                            <input
-                              type="text"
-                              class="act-input"
-                              v-model="row.value"
-                              :placeholder="row.placeholder || 'value'"
-                              :disabled="row.noValue"
-                            />
-                          </td>
-                          <td style="width: 8%; text-align: center">
-                            <button
-                              class="btn-icon"
-                              @click="removeAction(bucket, rIdx)"
-                            >
-                              <svg viewBox="0 0 16 16" fill="currentColor">
-                                <path
-                                  d="M5 3h6l1 1H4L5 3zm-1 2h8l-.75 8H4.75L4 5zm3 2v5h1V7H7zm2 0v5h1V7H9z"
-                                />
-                              </svg>
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                        <autocomplete-input
+                          :value="row.action"
+                          :options="actionOptions"
+                          placeholder="e.g. OUTPUT"
+                          @input="row.action = $event"
+                          @change="onActionChange(row)">
+                        </autocomplete-input>
+                        <div class="act-hint" v-if="row.hint">{{ row.hint }}</div>
+                      </td>
+                      <td style="width:46%">
+                        <input type="text" class="act-input" v-model="row.value"
+                          :placeholder="row.placeholder || 'value'"
+                          :disabled="row.noValue">
+                      </td>
+                      <td style="width:8%;text-align:center">
+                        <button class="btn-icon" @click="removeAction(bucket, rIdx)">
+                          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M5 3h6l1 1H4L5 3zm-1 2h8l-.75 8H4.75L4 5zm3 2v5h1V7H7zm2 0v5h1V7H9z"/></svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
 
-                    <!--datalist id="actionlist">
+                <!--datalist id="actionlist">
                   <option v-for="(info, key) in actionDefs" :key="key" :value="key">{{ info[2] }}</option>
                 </datalist-->
 
-                    <div class="add-action-row">
-                      <button
-                        class="btn btn-secondary btn-sm"
-                        @click="addAction(bucket)"
-                      >
-                        <svg
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                        >
-                          <path d="M8 3v10M3 8h10" />
-                        </svg>
-                        Add Action
-                      </button>
-                    </div>
-                  </div>
+                <div class="add-action-row">
+                  <button class="btn btn-secondary btn-sm" @click="addAction(bucket)">
+                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+                    Add Action
+                  </button>
                 </div>
-              </div>
-
-              <!-- Add bucket -->
-              <div class="add-bucket-row" style="margin-top: 14px">
-                <button class="btn btn-secondary btn-sm" @click="addBucket">
-                  <svg
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                  >
-                    <path d="M8 3v10M3 8h10" />
-                  </svg>
-                  Add Bucket
-                </button>
               </div>
             </div>
           </div>
 
-          <!-- ── Form actions ── -->
-          <div class="form-actions">
-            <button
-              class="btn btn-primary"
-              @click="submitForm"
-              :disabled="submitting"
-            >
-              <svg
-                v-if="submitting"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                style="animation: spin 0.8s linear infinite"
-              >
-                <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3" />
-                <path d="M13.5 2v3h-3" />
-              </svg>
-              <svg
-                v-else
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-              >
-                <path d="M2 8l4 4 7-7" />
-              </svg>
-              {{ submitting ? 'Sending…' : 'Submit' }}
-            </button>
-            <button class="btn btn-secondary" @click="resetForm">
-              <svg
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              >
-                <path d="M3 8a5 5 0 105-5H5" />
-                <path d="M5 1v4H1" />
-              </svg>
-              Clear
+          <!-- Add bucket -->
+          <div class="add-bucket-row" style="margin-top:14px">
+            <button class="btn btn-secondary btn-sm" @click="addBucket">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
+              Add Bucket
             </button>
           </div>
-
-          <!-- Result -->
-          <div v-if="result" class="result-banner" :class="result.type">
-            <svg
-              v-if="result.type==='success'"
-              viewBox="0 0 16 16"
-              fill="currentColor"
-            >
-              <path
-                d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.3 5.3l-4 4a1 1 0 01-1.4 0l-2-2 1.4-1.4L7 8.6l3.3-3.3 1.4 1.4z"
-              />
-            </svg>
-            <svg v-else viewBox="0 0 16 16" fill="currentColor">
-              <path
-                d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"
-              />
-            </svg>
-            {{ result.message }}
-          </div>
-        </main>
+        </div>
       </div>
 
-      <div id="snackbar" ref="snackbar"></div>
-    </div>
+      <!-- ── Form actions ── -->
+      <div class="form-actions">
+        <button class="btn btn-primary" @click="submitForm" :disabled="submitting">
+          <svg v-if="submitting" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="animation:spin 0.8s linear infinite"><path d="M13.5 8a5.5 5.5 0 11-1.1-3.3"/><path d="M13.5 2v3h-3"/></svg>
+          <svg v-else viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 8l4 4 7-7"/></svg>
+          {{ submitting ? 'Sending…' : 'Submit' }}
+        </button>
+        <button class="btn btn-secondary" @click="resetForm">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 8a5 5 0 105-5H5"/><path d="M5 1v4H1"/></svg>
+          Clear
+        </button>
+      </div>
 
-    <script>
-      const OPERATIONS = [
-        { value: "add", label: "Add" },
-        { value: "mod", label: "Modify" },
-        { value: "del", label: "Delete" },
-      ];
+      <!-- Result -->
+      <div v-if="result" class="result-banner" :class="result.type">
+        <svg v-if="result.type==='success'" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.3 5.3l-4 4a1 1 0 01-1.4 0l-2-2 1.4-1.4L7 8.6l3.3-3.3 1.4 1.4z"/></svg>
+        <svg v-else viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"/></svg>
+        {{ result.message }}
+      </div>
 
-      const GROUP_TYPES = ["ALL", "SELECT", "INDIRECT", "FAST_FAILOVER"];
+    </main>
+  </div>
 
-      function emptyActionRow() {
-        return {
-          action: "",
-          value: "",
-          hint: "",
-          placeholder: "",
-          noValue: false,
-        };
+  <div id="snackbar" ref="snackbar"></div>
+</div>
+
+<script>
+const OPERATIONS = [
+  { value: 'add', label: 'Add'    },
+  { value: 'mod', label: 'Modify' },
+  { value: 'del', label: 'Delete' },
+];
+
+const GROUP_TYPES = ['ALL', 'SELECT', 'INDIRECT', 'FAST_FAILOVER'];
+
+function emptyActionRow() {
+  return { action: '', value: '', hint: '', placeholder: '', noValue: false };
+}
+
+function emptyBucket() {
+  return { actions: [emptyActionRow()] };
+}
+
+function defaultForm() {
+  return {
+    dpid:      '',
+    group_id:  null,
+    type:      'ALL',
+    operation: 'add',
+    buckets:   [emptyBucket(), emptyBucket(), emptyBucket()],
+  };
+}
+
+new Vue({
+  el: '#app',
+
+  data: {
+    form:        defaultForm(),
+    switches:    [],
+    actionDefs:  {},
+    submitting:  false,
+    result:      null,
+    errors:      {},
+    hasImport:   false,
+    currentTime: '',
+    clockTimer:  null,
+    OPERATIONS,
+  },
+
+  computed: {
+    matchOptions() {
+      return Object.entries(this.matchDefs).map(([key, info]) => ({
+        key, label: info[1] || ''
+      }));
+    },
+    actionOptions() {
+      return Object.entries(this.actionDefs).map(([key, info]) => ({
+        key, label: info[2] || ''
+      }));
+    }
+  },
+
+  methods: {
+    // ── Init ──────────────────────────────────────
+    async init() {
+      await Promise.all([this.loadSwitches(), this.loadActionDefs()]);
+    },
+
+    async loadSwitches() {
+      try {
+        const res  = await fetch('/data?list=switches');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        this.switches = Object.values(data || {});
+        if (this.switches.length === 1) this.form.dpid = this.switches[0];
+      } catch(e) {
+        this.showMessage('Cannot read switches from controller.');
       }
+    },
 
-      function emptyBucket() {
-        return { actions: [emptyActionRow()] };
+    async loadActionDefs() {
+      try {
+        const res = await fetch('data/actions.json');
+        this.actionDefs = await res.json();
+      } catch(e) {}
+    },
+
+    // ── Bucket management ─────────────────────────
+    addBucket()          { this.form.buckets.push(emptyBucket()); },
+    removeBucket(idx)    { this.form.buckets.splice(idx, 1); },
+    addAction(bucket)    { bucket.actions.push(emptyActionRow()); },
+    removeAction(bucket, idx) { bucket.actions.splice(idx, 1); },
+
+    onActionChange(row) {
+      const info = this.actionDefs[row.action];
+      if (!info) { row.hint = ''; row.placeholder = ''; row.noValue = false; return; }
+      row.noValue     = info[1] === 'None';
+      row.placeholder = info[1] === 'None' ? '' : info[1];
+      row.hint        = info[2] || '';
+      if (row.noValue) row.value = '';
+    },
+
+    // ── Validation ────────────────────────────────
+    validate() {
+      const e = {};
+      if (!this.form.dpid)    e.dpid     = 'Please select a switch.';
+      if (!this.form.group_id || this.form.group_id < 1)
+        e.group_id = 'Group ID must be a positive integer.';
+      if (this.form.operation !== 'del') {
+        const hasActions = this.form.buckets.some(b => b.actions.some(a => a.action.trim()));
+        if (!hasActions) e.buckets = 'At least one action is required across the buckets.';
       }
+      this.errors = e;
+      return Object.keys(e).length === 0;
+    },
 
-      function defaultForm() {
-        return {
-          dpid: "",
-          group_id: null,
-          type: "ALL",
-          operation: "add",
-          buckets: [emptyBucket(), emptyBucket(), emptyBucket()],
-        };
+    // ── Build payload ─────────────────────────────
+    buildPayload() {
+      const buckets = this.form.buckets.map(b => ({
+        actions: b.actions
+          .filter(a => a.action.trim())
+          .map(a => {
+            const obj = {};
+            obj[a.action.trim()] = a.noValue ? '' : a.value.trim();
+            return obj;
+          }),
+      }));
+
+      return {
+        dpid:      parseInt(this.form.dpid),
+        group_id:  this.form.group_id,
+        type:      this.form.type,
+        operation: this.form.operation,
+        buckets,
+      };
+    },
+
+    // ── Submit ────────────────────────────────────
+    async submitForm() {
+      this.result = null;
+      if (!this.validate()) return;
+      this.submitting = true;
+      try {
+        const res  = await fetch('/groupform', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(this.buildPayload()),
+        });
+        const data = await res.json();
+        const msg  = data.message || (res.ok ? 'Request sent successfully.' : 'Controller returned an error.');
+        this.result = { type: res.ok ? 'success' : 'error', message: msg };
+        this.showMessage(msg);
+      } catch(e) {
+        this.result = { type: 'error', message: 'No response from controller.' };
+        this.showMessage('No response from controller.');
+      } finally {
+        this.submitting = false;
       }
+    },
 
-      new Vue({
-        el: "#app",
+    // ── Reset ─────────────────────────────────────
+    resetForm() {
+      const dpid = this.form.dpid;
+      this.form   = defaultForm();
+      this.form.dpid = dpid;
+      this.errors = {};
+      this.result = null;
+    },
 
-        data: {
-          form: defaultForm(),
-          switches: [],
-          actionDefs: {},
-          submitting: false,
-          result: null,
-          errors: {},
-          hasImport: false,
-          currentTime: "",
-          clockTimer: null,
-          OPERATIONS,
-        },
+    // ── Import from session ───────────────────────
+    importFromSession() {
+      try {
+        const data = JSON.parse(sessionStorage.getItem('group'));
+        if (!data) return;
 
-        computed: {
-          matchOptions() {
-            return Object.entries(this.matchDefs).map(([key, info]) => ({
-              key,
-              label: info[1] || "",
-            }));
-          },
-          actionOptions() {
-            return Object.entries(this.actionDefs).map(([key, info]) => ({
-              key,
-              label: info[2] || "",
-            }));
-          },
-        },
+        if (data.dpid)     this.form.dpid     = String(data.dpid);
+        if (data.groupId)  this.form.group_id = data.groupId;
+        if (data.type && GROUP_TYPES.includes(data.type)) this.form.type = data.type;
 
-        methods: {
-          // ── Init ──────────────────────────────────────
-          async init() {
-            await Promise.all([this.loadSwitches(), this.loadActionDefs()]);
-          },
-
-          async loadSwitches() {
-            try {
-              const res = await fetch("/data?list=switches");
-              if (!res.ok) throw new Error();
-              const data = await res.json();
-              this.switches = Object.values(data || {});
-              if (this.switches.length === 1) this.form.dpid = this.switches[0];
-            } catch (e) {
-              this.showMessage("Cannot read switches from controller.");
-            }
-          },
-
-          async loadActionDefs() {
-            try {
-              const res = await fetch("data/actions.json");
-              this.actionDefs = await res.json();
-            } catch (e) {}
-          },
-
-          // ── Bucket management ─────────────────────────
-          addBucket() {
-            this.form.buckets.push(emptyBucket());
-          },
-          removeBucket(idx) {
-            this.form.buckets.splice(idx, 1);
-          },
-          addAction(bucket) {
-            bucket.actions.push(emptyActionRow());
-          },
-          removeAction(bucket, idx) {
-            bucket.actions.splice(idx, 1);
-          },
-
-          onActionChange(row) {
-            const info = this.actionDefs[row.action];
-            if (!info) {
-              row.hint = "";
-              row.placeholder = "";
-              row.noValue = false;
-              return;
-            }
-            row.noValue = info[1] === "None";
-            row.placeholder = info[1] === "None" ? "" : info[1];
-            row.hint = info[2] || "";
-            if (row.noValue) row.value = "";
-          },
-
-          // ── Validation ────────────────────────────────
-          validate() {
-            const e = {};
-            if (!this.form.dpid) e.dpid = "Please select a switch.";
-            if (!this.form.group_id || this.form.group_id < 1)
-              e.group_id = "Group ID must be a positive integer.";
-            if (this.form.operation !== "del") {
-              const hasActions = this.form.buckets.some((b) =>
-                b.actions.some((a) => a.action.trim()),
-              );
-              if (!hasActions)
-                e.buckets =
-                  "At least one action is required across the buckets.";
-            }
-            this.errors = e;
-            return Object.keys(e).length === 0;
-          },
-
-          // ── Build payload ─────────────────────────────
-          buildPayload() {
-            const buckets = this.form.buckets.map((b) => ({
-              actions: b.actions
-                .filter((a) => a.action.trim())
-                .map((a) => {
-                  const obj = {};
-                  obj[a.action.trim()] = a.noValue ? "" : a.value.trim();
-                  return obj;
-                }),
-            }));
-
-            return {
-              dpid: parseInt(this.form.dpid),
-              group_id: this.form.group_id,
-              type: this.form.type,
-              operation: this.form.operation,
-              buckets,
-            };
-          },
-
-          // ── Submit ────────────────────────────────────
-          async submitForm() {
-            this.result = null;
-            if (!this.validate()) return;
-            this.submitting = true;
-            try {
-              const res = await fetch("/groupform", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(this.buildPayload()),
-              });
-              const data = await res.json();
-              const msg =
-                data.message ||
-                (res.ok
-                  ? "Request sent successfully."
-                  : "Controller returned an error.");
-              this.result = {
-                type: res.ok ? "success" : "error",
-                message: msg,
-              };
-              this.showMessage(msg);
-            } catch (e) {
-              this.result = {
-                type: "error",
-                message: "No response from controller.",
-              };
-              this.showMessage("No response from controller.");
-            } finally {
-              this.submitting = false;
-            }
-          },
-
-          // ── Reset ─────────────────────────────────────
-          resetForm() {
-            const dpid = this.form.dpid;
-            this.form = defaultForm();
-            this.form.dpid = dpid;
-            this.errors = {};
-            this.result = null;
-          },
-
-          // ── Import from session ───────────────────────
-          importFromSession() {
-            try {
-              const data = JSON.parse(sessionStorage.getItem("group"));
-              if (!data) return;
-
-              if (data.dpid) this.form.dpid = String(data.dpid);
-              if (data.groupId) this.form.group_id = data.groupId;
-              if (data.type && GROUP_TYPES.includes(data.type))
-                this.form.type = data.type;
-
-              // Reconstruct buckets from actions array if present
-              if (Array.isArray(data.actions) && data.actions.length) {
-                // actions is an array of strings like "OUTPUT:3"
-                const actionRows = data.actions.map((a) => {
-                  if (typeof a === "string") {
-                    const sep = a.indexOf(":");
-                    if (sep >= 0) {
-                      return {
-                        action: a.substring(0, sep),
-                        value: a
-                          .substring(sep + 1)
-                          .replace(" {", "")
-                          .replace("}", ""),
-                        hint: "",
-                        placeholder: "",
-                        noValue: false,
-                      };
-                    }
-                    return {
-                      action: a,
-                      value: "",
-                      hint: "",
-                      placeholder: "",
-                      noValue: true,
-                    };
-                  }
-                  if (typeof a === "object") {
-                    const key = Object.keys(a)[0];
-                    return {
-                      action: key,
-                      value: a[key] || "",
-                      hint: "",
-                      placeholder: "",
-                      noValue: !a[key],
-                    };
-                  }
-                  return emptyActionRow();
-                });
-                this.form.buckets = [{ actions: actionRows }];
+        // Reconstruct buckets from actions array if present
+        if (Array.isArray(data.actions) && data.actions.length) {
+          // actions is an array of strings like "OUTPUT:3"
+          const actionRows = data.actions.map(a => {
+            if (typeof a === 'string') {
+              const sep = a.indexOf(':');
+              if (sep >= 0) {
+                return { action: a.substring(0, sep), value: a.substring(sep + 1).replace(' {','').replace('}',''), hint: '', placeholder: '', noValue: false };
               }
-
-              sessionStorage.removeItem("group");
-              this.hasImport = false;
-              this.showMessage("Group entry imported.");
-            } catch (e) {
-              this.showMessage("Failed to import group entry.");
+              return { action: a, value: '', hint: '', placeholder: '', noValue: true };
             }
-          },
+            if (typeof a === 'object') {
+              const key = Object.keys(a)[0];
+              return { action: key, value: a[key] || '', hint: '', placeholder: '', noValue: !a[key] };
+            }
+            return emptyActionRow();
+          });
+          this.form.buckets = [{ actions: actionRows }];
+        }
 
-          // ── Helpers ───────────────────────────────────
-          showMessage(msg) {
-            const el = this.$refs.snackbar;
-            el.textContent = msg;
-            el.classList.remove("show");
-            void el.offsetWidth;
-            el.classList.add("show");
-            setTimeout(() => el.classList.remove("show"), 3200);
-          },
-          updateClock() {
-            this.currentTime = new Date().toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            });
-          },
-        },
+        sessionStorage.removeItem('group');
+        this.hasImport = false;
+        this.showMessage('Group entry imported.');
+      } catch(e) {
+        this.showMessage('Failed to import group entry.');
+      }
+    },
 
-        mounted() {
-          this.init();
-          this.hasImport = !!sessionStorage.getItem("group");
-          this.updateClock();
-          this.clockTimer = setInterval(this.updateClock, 1000);
-        },
+    // ── Helpers ───────────────────────────────────
+    showMessage(msg) {
+      const el = this.$refs.snackbar;
+      el.textContent = msg;
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3200);
+    },
+    updateClock() {
+      this.currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    },
+  },
 
-        beforeDestroy() {
-          clearInterval(this.clockTimer);
-        },
-      });
-    </script>
-  </body>
+  mounted() {
+    this.init();
+    this.hasImport = !!sessionStorage.getItem('group');
+    this.updateClock();
+    this.clockTimer = setInterval(this.updateClock, 1000);
+  },
+
+  beforeDestroy() {
+    clearInterval(this.clockTimer);
+  },
+});
+</script>
+</body>
 </html>
