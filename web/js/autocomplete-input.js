@@ -1,6 +1,6 @@
 // At the top of autocomplete-input.js, before Vue.component(...)
 (function injectStyles() {
-  const style = document.createElement('style');
+  const style = document.createElement("style");
   style.textContent = `
     .ac-wrap  { position: relative; width: 100%; }
     .ac-list  {
@@ -18,7 +18,7 @@
   document.head.appendChild(style);
 })();
 
-Vue.component('autocomplete-input', {
+Vue.component("autocomplete-input", {
   template: `
     <div class="ac-wrap">
       <input
@@ -46,36 +46,57 @@ Vue.component('autocomplete-input', {
     </div>`,
   inheritAttrs: false,
   props: {
-    value:   { type: String, default: '' },
-    options: { type: Array,  default: () => [] },
+    value: { type: String, default: "" },
+    options: { type: Array, default: () => [] },
   },
   data() {
     return { open: false, cursor: -1 };
   },
   computed: {
     filtered() {
-      const q = (this.value || '').toLowerCase();
+      const q = (this.value || "").toLowerCase();
       if (!q) return this.options.slice(0, 80);
-      return this.options.filter(o =>
-        o.key.toLowerCase().startsWith(q) //|| (o.label && o.label.toLowerCase().includes(q))
-      ).slice(0, 80);
+      return this.options
+        .filter(
+          (o) => o.key.toLowerCase().startsWith(q), //|| (o.label && o.label.toLowerCase().includes(q))
+        )
+        .slice(0, 80);
     },
   },
   methods: {
-    onInput(e)  { this.$emit('input', e.target.value); this.open = true; this.cursor = -1; },
-    onFocus()   { this.open = true; },
-    onBlur()    { setTimeout(() => { this.open = false; }, 150); },
+    onInput(e) {
+      this.$emit("input", e.target.value);
+      this.open = true;
+      this.cursor = -1;
+    },
+    onFocus() {
+      this.open = true;
+    },
+    onBlur() {
+      setTimeout(() => {
+        this.open = false;
+      }, 150);
+    },
     onKeydown(e) {
       if (!this.open) return;
-      if      (e.key === 'ArrowDown')                    { e.preventDefault(); this.cursor = Math.min(this.cursor + 1, this.filtered.length - 1); }
-      else if (e.key === 'ArrowUp')                      { e.preventDefault(); this.cursor = Math.max(this.cursor - 1, 0); }
-      else if (e.key === 'Enter' && this.cursor >= 0)    { e.preventDefault(); this.select(this.filtered[this.cursor]); }
-      else if (e.key === 'Escape')                       { this.open = false; }
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        this.cursor = Math.min(this.cursor + 1, this.filtered.length - 1);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        this.cursor = Math.max(this.cursor - 1, 0);
+      } else if (e.key === "Enter" && this.cursor >= 0) {
+        e.preventDefault();
+        this.select(this.filtered[this.cursor]);
+      } else if (e.key === "Escape") {
+        this.open = false;
+      }
     },
     select(item) {
-      this.$emit('input',  item.key);
-      this.$emit('change', item.key);
-      this.open = false; this.cursor = -1;
+      this.$emit("input", item.key);
+      this.$emit("change", item.key);
+      this.open = false;
+      this.cursor = -1;
     },
   },
 });

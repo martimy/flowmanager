@@ -1,10 +1,10 @@
 // Shared layout components for FlowManager
 // the side menu
-Vue.component('app-sidebar', {
-  props: ['currentTime'],
+Vue.component("app-sidebar", {
+  props: ["currentTime"],
   data() {
     return {
-      currentPath: window.location.pathname.split('/').pop() || 'index.html'
+      currentPath: window.location.pathname.split("/").pop() || "index.html",
     };
   },
   template: `
@@ -60,12 +60,12 @@ Vue.component('app-sidebar', {
         <div class="sidebar-clock">{{ currentTime }}</div>
       </div>
     </aside>
-  `
+  `,
 });
 
 // Title and Clock
-Vue.component('app-topbar', {
-  props: ['title', 'lastUpdated'],
+Vue.component("app-topbar", {
+  props: ["title", "lastUpdated"],
   template: `
     <header class="topbar">
       <div class="topbar-title">{{ title }}</div>
@@ -74,12 +74,12 @@ Vue.component('app-topbar', {
         <slot></slot>
       </div>
     </header>
-  `
+  `,
 });
 
 // Title and number of switches
-Vue.component('app-topbar-sw', {
-  props: ['title', 'numSwitches'],
+Vue.component("app-topbar-sw", {
+  props: ["title", "numSwitches"],
   template: `
     <header class="topbar">
       <div class="topbar-title">{{ title }}</div>
@@ -89,5 +89,5 @@ Vue.component('app-topbar-sw', {
         </span>
       </div>
     </header>
-  `
+  `,
 });
