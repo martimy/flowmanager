@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Maen Artimy
+# Copyright (c) 2018-2026 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -95,6 +95,7 @@ def broadcast_sync(message: str):
     """Module-level convenience wrapper used by flowmanager.py."""
     manager.broadcast_sync(message)
 
+
 @app.get("/status")
 async def get_flow_stats(status: str, dpid: str):
     """Get stats"""
@@ -103,12 +104,15 @@ async def get_flow_stats(status: str, dpid: str):
         return JSONResponse(content=data)
     return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
 
+
 @app.get("/data")
 async def get_switch_data(request: Request):
     """Get switch data"""
     if not ctrl_api:
-        return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
-    
+        return JSONResponse(
+            content={"error": "ctrl_api not initialized"}, status_code=500
+        )
+
     params = request.query_params
     if params.get("list") == "switches":
         lst = {t[0]: t[0] for t in ctrl_api.get_switches()}
@@ -118,12 +122,14 @@ async def get_switch_data(request: Request):
         lst = ctrl_api.get_stats_request(req_type, dpid)
     return JSONResponse(content=lst)
 
+
 @app.get("/topology")
 async def get_topology():
     """Get topology info"""
     if ctrl_api:
         return JSONResponse(content=ctrl_api.get_topology_data())
     return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
+
 
 @app.get("/logs")
 async def get_logs():
@@ -132,20 +138,24 @@ async def get_logs():
         return JSONResponse(content=ctrl_api.read_logs())
     return JSONResponse(content={"error": "ctrl_api not initialized"}, status_code=500)
 
+
 @app.post("/meterform")
 async def post_meter_form(entry: MeterEntry):
     """Connect with meter form"""
     return ctrl_api.process_meter_message(entry.dict(exclude_unset=True))
+
 
 @app.post("/groupform")
 async def post_group_form(entry: GroupEntry):
     """Connect with group form"""
     return ctrl_api.process_group_message(entry.dict(exclude_unset=True))
 
+
 @app.post("/flowform")
 async def post_flow_form(entry: FlowEntry):
     """Connect with flow control form"""
     return ctrl_api.process_flow_message(entry.dict(exclude_unset=True))
+
 
 @app.post("/upload")
 async def post_config_upload(config: ConfigUpload):
@@ -159,20 +169,24 @@ async def post_config_upload(config: ConfigUpload):
     response_flows = ctrl_api.process_flow_upload(flows) if flows else ""
     return f"{response_meters}, {response_groups}, {response_flows}"
 
+
 @app.post("/flowdel")
 async def post_flow_delete(entries: List[FlowEntry]):
     """Receive flows delete request"""
     return ctrl_api.delete_flow_list([e.dict(exclude_unset=True) for e in entries])
+
 
 @app.post("/flowmonitor")
 async def post_flow_monitor(entries: List[FlowEntry]):
     """Receive flows monitor request"""
     return ctrl_api.monitor_flow_list([e.dict(exclude_unset=True) for e in entries])
 
+
 @app.post("/resetmonitor")
 async def post_reset_flow_monitor(data: dict):
     """Reset flows monitoring data"""
     return ctrl_api.rest_flow_monitoring(data)
+
 
 @app.websocket("/ws")
 async def websocket_handler(websocket: WebSocket):
@@ -189,8 +203,14 @@ async def websocket_handler(websocket: WebSocket):
     finally:
         manager.unregister(websocket)
 
+
 # Mount static files AFTER all other routes to avoid shadowing
-app.mount("/home", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "web"), html=True), name="web")
+app.mount(
+    "/home",
+    StaticFiles(directory=os.path.join(os.path.dirname(__file__), "web"), html=True),
+    name="web",
+)
+
 
 def run_server(ctrl, host, port):
     global ctrl_api
@@ -201,8 +221,10 @@ def run_server(ctrl, host, port):
     @app.on_event("startup")
     async def _on_startup():
         import asyncio
+
         manager.set_loop(asyncio.get_running_loop())
         app.state.manager = manager  # also available via app.state if needed
 
     import uvicorn
+
     uvicorn.run(app, host=host, port=port, log_level="info")

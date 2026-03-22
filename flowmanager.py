@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Maen Artimy
+# Copyright (c) 2018-2026 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,9 +15,6 @@
 """
 The main module of the FlowManager Applications
 """
-
-#import eventlet
-#eventlet.monkey_patch()
 
 import os
 import sys
@@ -233,6 +230,7 @@ class FlowManager(app_manager.OSKenApp):
             broadcast_sync(json.dumps(msg_dict))
         except Exception as err:
             logger.error("Error at rpc_broadcall %s", err)
+
 
 def get_logger(logfile_name, loglevel):
     """Create a logger object."""

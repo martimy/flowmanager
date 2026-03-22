@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2023 Maen Artimy
+# Copyright (c) 2018-2026 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ logger = logging.getLogger("flowmanager")
 
 
 class CtrlApi:
-
     MAGIC_COOKIE = 0x00007AB700000000
 
     def __init__(self, app):
@@ -469,7 +468,10 @@ class CtrlApi:
         try:
             data_path.send_msg(msg)  # os_ken/os_ken/controller/controller.py
         except KeyError as err:
-            return {"status": "error", "message": "Unrecognized field " + err.__repr__()}
+            return {
+                "status": "error",
+                "message": "Unrecognized field " + err.__repr__(),
+            }
         except Exception as err:
             print(msg)
             return {"status": "error", "message": "Error " + err.__repr__()}

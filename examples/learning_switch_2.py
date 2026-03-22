@@ -54,23 +54,23 @@ class LearningSwitch2(BaseSwitch):
         # Copies of matched packets are forwarded to the controller and also
         # forwarded to the next table
         match = parser.OFPMatch()
-        actions = [parser.OFPActionOutput(
-            ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER)]
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions),
-                parser.OFPInstructionGotoTable(FORWARD_TABLE)]
+        actions = [
+            parser.OFPActionOutput(ofproto.OFPP_CONTROLLER, ofproto.OFPCML_NO_BUFFER)
+        ]
+        inst = [
+            parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions),
+            parser.OFPInstructionGotoTable(FORWARD_TABLE),
+        ]
 
-        msgs += [self.add_flow(datapath, LEARN_TABLE,
-                               LOW_PRIORITY, match, inst)]
+        msgs += [self.add_flow(datapath, LEARN_TABLE, LOW_PRIORITY, match, inst)]
 
         # Create table-miss flow entry for FORWARD_TABLE
         # Matched packets are flooded
         match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_FLOOD)]
-        inst = [parser.OFPInstructionActions(
-            ofproto.OFPIT_APPLY_ACTIONS, actions)]
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
 
-        msgs += [self.add_flow(datapath, FORWARD_TABLE,
-                               LOW_PRIORITY, match, inst)]
+        msgs += [self.add_flow(datapath, FORWARD_TABLE, LOW_PRIORITY, match, inst)]
 
         # Send all messages to the switch
         self.send_messages(datapath, msgs)
@@ -88,7 +88,7 @@ class LearningSwitch2(BaseSwitch):
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        in_port = ev.msg.match['in_port']
+        in_port = ev.msg.match["in_port"]
         pkt = packet.Packet(ev.msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
@@ -99,23 +99,23 @@ class LearningSwitch2(BaseSwitch):
         dst = eth.dst
         src = eth.src
 
-        self.logger.info("packet in %s %s %s %s",
-                         datapath.id, src, dst, in_port)
+        self.logger.info("packet in %s %s %s %s", datapath.id, src, dst, in_port)
 
         # Install a flow entry in LEARN_TABLE to forward packets to FORWARD_TABLE
         # if their input port and source MAC address match the entry
         match = parser.OFPMatch(in_port=in_port, eth_src=src)
         inst = [parser.OFPInstructionGotoTable(FORWARD_TABLE)]
-        msgs = [self.add_flow(datapath, LEARN_TABLE, MID_PRIORITY, match, inst,
-                              i_time=30)]
+        msgs = [
+            self.add_flow(datapath, LEARN_TABLE, MID_PRIORITY, match, inst, i_time=30)
+        ]
 
         # Install a flow entry in FORWARD_TABLE to forward packets to the given
         # output port if their destination MAC address matches the entry.
         match = parser.OFPMatch(eth_dst=src)
         actions = [parser.OFPActionOutput(in_port)]
-        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
-                                             actions)]
-        msgs += [self.add_flow(datapath, FORWARD_TABLE, MID_PRIORITY, match, inst,
-                               i_time=40)]
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS, actions)]
+        msgs += [
+            self.add_flow(datapath, FORWARD_TABLE, MID_PRIORITY, match, inst, i_time=40)
+        ]
 
         self.send_messages(datapath, msgs)

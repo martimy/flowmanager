@@ -1,4 +1,4 @@
-# Copyright (c) 2019-2023 Maen Artimy
+# Copyright (c) 2019-2026 Maen Artimy
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ UDP = udp.udp.__name__
 
 
 class Tracker:
-
     all_stats = []
 
     def untrack(self, id):

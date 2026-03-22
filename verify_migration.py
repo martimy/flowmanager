@@ -4,12 +4,14 @@ import time
 
 BASE_URL = "http://localhost:8080"
 
+
 def test_get_index():
     print("Testing GET /home/index.html...")
     r = requests.get(f"{BASE_URL}/home/index.html")
     assert r.status_code == 200
     assert "Flow Manager" in r.text
     print("OK")
+
 
 def test_get_topology():
     print("Testing GET /topology...")
@@ -19,11 +21,13 @@ def test_get_topology():
     assert "switches" in data
     print(f"OK: Found {len(data['switches'])} switches")
 
+
 def test_get_switches():
     print("Testing GET /data?list=switches...")
     r = requests.get(f"{BASE_URL}/data", params={"list": "switches"})
     assert r.status_code == 200
     print(f"OK: {r.json()}")
+
 
 def test_post_flow():
     print("Testing POST /flowform (Validation test)...")
@@ -33,7 +37,7 @@ def test_post_flow():
         "table_id": 0,
         "priority": 100,
         "match": {"eth_type": 2048},
-        "apply": [{"OUTPUT": "CONTROLLER"}]
+        "apply": [{"OUTPUT": "CONTROLLER"}],
     }
     r = requests.post(f"{BASE_URL}/flowform", json=flow_data)
     # Even if switch doesn't exist, it should pass FastAPI validation and return 200
@@ -43,15 +47,17 @@ def test_post_flow():
     assert "status" in data
     print(f"OK: {data}")
 
+
 def test_invalid_flow():
     print("Testing POST /flowform (Invalid data test)...")
     invalid_data = {
         "dpid": "1",
-        "priority": "not-an-int" # This should trigger FastAPI validation error
+        "priority": "not-an-int",  # This should trigger FastAPI validation error
     }
     r = requests.post(f"{BASE_URL}/flowform", json=invalid_data)
-    assert r.status_code == 422 # Unprocessable Entity
+    assert r.status_code == 422  # Unprocessable Entity
     print("OK: Correcty rejected invalid data")
+
 
 if __name__ == "__main__":
     try:
