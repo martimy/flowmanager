@@ -1,158 +1,219 @@
 # FlowManager
 
-[![Static Badge](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
+[![Docs](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
+FlowManager is a lightweight SDN application that provides direct, real-time control of OpenFlow switch tables. It is designed for teaching, experimentation, and rapid prototyping, allowing users to inspect, modify, and monitor flows in a controlled environment.
 
-The FlowManager is a software-defined networking (SDN) application that gives the user manual control over the flow tables in an OpenFlow network. The user can create, modify, or delete flows directly from the application. The user can also monitor the OpenFlow switches and view statistics. The FlowManager is ideal for learning OpenFlow in a lab environment, or in conjunction with other applications to tweak the behaviour of network flows in a test environment. 
+Originally built on Ryu, FlowManager (v0.5.0+) is now based on OS-Ken, improving maintainability and full Python 3 support.
 
-The FlowManager was originally based on RYU controller. In its latest version (0.5.0), the application was migrated to [OS-Ken](https://github.com/osrg/os-ken) (a fork of RYU) for better maintenance and Python 3 compatibility
+## Quick Start
+
+```bash
+git clone https://github.com/martimy/flowmanager
+cd flowmanager
+
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+python3 controller.py flowmanager.py
+```
+
+Open in browser:
+
+```
+http://localhost:8080/home/index.html
+```
 
 ## Features
 
-- Add/modify/delete flow entries in flow tables.
-- Add/modify/delete group tables and meters.
-- Backup/restore switch tables to/from local drive.
-- View flow tables, group tables, and meters.
-- View switch statistics.
-- View network topology.
-- Track flow entries.
+### Flow Management
 
-[![Main Dashboard](docs/img/screen_dash.png)](docs/img/Screenshot_dash.png) [![Flow Tables](docs/img/screen_flows.png)](docs/img/Screenshot_flows.png) [![Flow Modification Form](docs/img/screen_ctrl.png)](docs/img/Screenshot_ctrl.png) [![Network Topology](docs/img/screen_topo.png)](docs/img/Screenshot_topo.png)
+- Add, modify, and delete flow entries
+- Track flow changes over time
 
-### New in V0.5.0
+### Advanced Tables
 
-- Migrated from Ryu to OS-Ken.
-- Replaced legacy WSGI/RPC stack with FastAPI.
-- Introduced Pydantic models for robust API data validation and type safety.
-- Refactored API to return structured JSON responses instead of raw strings.
-- Replaced `post` with `ajax` in js code.
-- Removed Python 2 compatibility layers.
-- Migrated the UI form JQuery to Vue 2
-- Updated colour scheme
+- Manage group tables and meters
+- Backup and restore switch state
 
-### New in V0.4.2
+### Monitoring & Visibility
 
-- Upgraded jquery to v3.7.1
+- View flow, group, and meter tables
+- Monitor switch statistics
+- Visualize network topology
 
-### New in V0.4.1
 
-- Upgraded jquery to v3.5.0
+## Screenshots
 
-### New in V0.4.0
+[![Dashboard](docs/img/screen_dash.png)](docs/img/Screenshot_dash.png)
+[![Flow Tables](docs/img/screen_flows.png)](docs/img/Screenshot_flows.png)
+[![Flow Form](docs/img/screen_ctrl.png)](docs/img/Screenshot_ctrl.png)
+[![Topology](docs/img/screen_topo.png)](docs/img/Screenshot_topo.png)
 
-- Fixed a bug tracking flow entries.
-- Editing Python code style closer to PEP-8 (more work is needed).
-- Splitting Python code into four modules for easier management.
-- Reorganized folders. 
+
+
+## Architecture
+
+- Controller: OS-Ken (OpenFlow control plane)
+- Backend API: FastAPI
+- Validation: Pydantic
+- Frontend: Vue.js (v2)
+
+
+## What’s New
+
+### v0.5.0
+
+* Migrated from Ryu to OS-Ken
+* Replaced WSGI/RPC with FastAPI
+* Introduced Pydantic models for validation and type safety
+* Structured JSON API responses
+* Modernized UI (Vue 2)
+* Removed Python 2 compatibility layers
+
+### v0.4.x
+
+* jQuery upgrades and stability improvements
+* Codebase refactoring and modularization
 
 ## Installation
 
-Clone the FlowManager repository:
+Clone the repository:
 
 ```bash
-$ git clone https://github.com/martimy/flowmanager
+git clone https://github.com/martimy/flowmanager
 cd flowmanager
 ```
 
-Install the software requirements (preferably in Python virtual environment):
+Set up environment:
 
 ```bash
-python3 -m venv .flwmgr
-source ./flWmgr/bin/source
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### Docker Image
+## Docker
 
-If you prefer to use Docker image instead:
+Run without local setup:
 
 ```bash
-docker pull martimy/flowmanager
+docker run -d -p 6653:6653 -p 8080:8080 martimy/flowmanager
 ```
 
-See usage examples below.
+Then open:
 
-### Mininet
-
-If you intend to use FlowManager with [Mininet](http://mininet.org/), you will need to install that too.
-
-
-## Running the app
-
-To avoid `eventlet` related issues (like the "RLock was not greened" error), use the provided `run_osken.py` script to launch the application:
-
-Run the FlowManager alone:
-```bash
-$ python3 controller.py flowmanager.py
+```
+http://localhost:8080/home/index.html
 ```
 
-or with another SDN application:
+## Running the Application
+
+Run FlowManager:
 
 ```bash
-$ python3 controller.py flowmanager.py \<application>\
+python3 controller.py flowmanager.py
 ```
 
-and to display the topology:
+With another SDN application:
 
 ```bash
-$ python3 controller.py --observe-links flowmanager.py \<application\>
+python3 controller.py flowmanager.py <application>
 ```
 
-Use a web browser to launch the site `http://host_address:8080/home/index.html`
-
-For legacy UI, use `http://host_address:8080/home/legacy/index.html`
-
-### Examples
-
-To use the examples in this repository:
-
-In one terminal run the countroller, FlowManager, and the application:
+Enable topology discovery:
 
 ```bash
+python3 controller.py --observe-links flowmanager.py <application>
+```
+
+Legacy UI:
+
+```
+http://host:8080/home/legacy/index.html
+```
+
+## Typical Workflow
+
+1. Start FlowManager controller
+2. Launch a Mininet topology
+3. Open the web UI
+4. Inspect flows and topology
+5. Modify flows and observe behavior
+
+
+## Mininet
+
+To use FlowManager with Mininet, install Mininet separately:
+[http://mininet.org/](http://mininet.org/)
+
+Example:
+
+```bash
+# Terminal 1
 python3 controller.py flowmanager.py examples/learning_switch_2.py
-```
 
-In another terminal, start Mininet topology:
-
-```bash
+# Terminal 2
 sudo examples/mn_threeswitch_topo.py
 ```
 
-To run an example application using the Docker image:
+## Examples (Docker)
 
 ```bash
-docker run -d -p 6653:6653 -p 8080:8080 -v <path/to/examples>:/home/auser/app martimy/flowmanager app/<example>
+docker run -d -p 6653:6653 -p 8080:8080 \
+-v <path/to/examples>:/home/auser/app \
+martimy/flowmanager app/<example>
 ```
 
 ## Documentation
 
-You can find some useful documentation in [here](https://martimy.github.io/flowmanager/).
+Full documentation:
+[https://martimy.github.io/flowmanager/](https://martimy.github.io/flowmanager/)
 
-## Migrating Ryu-based Applications
+## Migrating Ryu Applications
 
-You can upgrade applications written for the Ryu applications by changing all imports from `ryu` to `os_ken`. For example:
+Most Ryu applications can be migrated by updating imports:
 
-Replace:
-
-```python
-from ryu.base import app_manager 
-```
-
-with:
+Form
 
 ```python
-from os_ken.base import app_manager 
+from ryu.base import app_manager
 ```
 
-## Using v0.4.0
+To
 
-If you still want to use the older version of FlowManager, you can clone this repository then switch to the `legacy` branch.
+```python
+from os_ken.base import app_manager
+```
+
+Some API differences may exist. Test and validate behavior after migration.
+
+
+## Using Older Versions
+
+To use the pre-0.5 version:
+
+```bash
+git checkout legacy
+```
+
+
+## Use Cases
+
+- SDN / OpenFlow teaching labs
+- Network experimentation
+- Debugging OpenFlow behavior
+- Rapid prototyping of flow rules
+
 
 
 ## Author
 
-* Created by **Maen Artimy** - [Personal blog](http://adhocnode.com)
+**Maen Artimy**
+[http://adhocnode.com](http://adhocnode.com)
+
 
 ## License
 
-FlowManager is licensed under the Apache 2 License - see the [LICENSE](LICENSE) file for details
+Licensed under the Apache 2.0 License. See [LICENSE](LICENSE).
