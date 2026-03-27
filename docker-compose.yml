@@ -1,25 +1,47 @@
-# Docker Compose for SDN Lab
 services:
-  # Define a service named "flowmanager"
+  # FlowManager controller (OpenFlow + Web UI on port 8080)
   flowmanager:
     image: martimy/flowmanager:latest
-    # Edit the command if another application is used
-    command: "app/learning_switch_2.py --observe-links"
+    # Change via .env file or command line
+    command: ${FLOWMANAGER_COMMAND:-app/learning_switch_2.py --observe-links}
     volumes:
-     - ./examples:/home/auser/app       # Mounts examples folder
+      - ./examples:/home/auser/app
     network_mode: "host"
+    restart: unless-stopped
 
-  # Define a service named "mininet"
+  # Mininet topology container
+#  mininet:
+#    image: martimy/mininet
+#    depends_on:
+#      - flowmanager
+#    tty: true
+#    privileged: true
+#    environment:
+#      HISTFILE: /root/.bash_history
+#    volumes:
+#      - /tmp/.X11-unix:/tmp/.X11-unix
+#      - /lib/modules:/lib/modules
+#      - ./examples:/root/topo
+#    network_mode: "host"
+#    working_dir: /root/topo          # Makes commands much shorter
+#    command: sleep infinity          # Keeps container alive for easy `exec`
+
   mininet:
     image: martimy/mininet
     depends_on:
       - flowmanager
-    tty: true # Allocates a pseudo-TTY (teletypewriter) for the container
-    privileged: true # required for mininet to run inside a container
+    tty: true
+    privileged: true
     environment:
       HISTFILE: /root/.bash_history
     volumes:
-     - /tmp/.X11-unix:/tmp/.X11-unix    # Mounts X11 socket for GUI access
-     - /lib/modules:/lib/modules        # Mounts kernel modules from the host to the container
-     - ./examples:/root/topo            # Mounts examples folder
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /lib/modules:/lib/modules
+      - ./examples:/root/topo
     network_mode: "host"
+    working_dir: /root/topo
+    # This suppresses the noisy modprobe error in Codespaces
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      modprobe openvswitch 2>/dev/null || true &&
+      sleep infinity
