@@ -159,26 +159,40 @@ python3 controller.py flowmanager.py examples/learning_switch_2.py
 sudo examples/mn_threeswitch_topo.py
 ```
 
-## Examples (Docker)
+## Examples (Docker compose)
+
+You can start FlowManager + Mininet using Docker compose:
 
 ```bash
-docker run -d -p 6653:6653 -p 8080:8080 \
--v <path/to/examples>:/home/auser/app \
-martimy/flowmanager app/<example>
+docker compose up -d
+docker compose exec mininet ./mn_threeswitch_topo.py
 ```
 
-## Easiest Way: Run the Full SDN Lab in the Cloud (No Installation)
+and to shutdown:
+
+```bash
+docker down
+```
+
+*Note: The SDN apps and Mininet topologies are expected to be in the `examples` folder.*
+
+
+## Run the Full SDN Lab in the Cloud (No Installation)
 
 1. Click the button above — GitHub opens a complete environment in your browser.
 2. Wait ~30–60 seconds (images are pulled the first time only).
-3. In the terminal run:
+3. In the terminal start controller + FlowManager:
    ```bash
-   docker compose up -d
+   docker run -d -p 6653:6653 -p 8080:8080 /
+         -v ${PWD}/examples:/home/auser/app --name flowmanager /
+         martimy/flowmanager app/learning_switch_2.py
    ```
-4. Then start the topology:
+4. Start topology (Mininet):
+   ```bash
+   ./examples/mn_threeswitch_topo.py
    ```
-   docker compose exec -it mininet /root/topo/mn_threeswitch.topo.py
-   ```
+5. Direct your browser to the link provided by the codespaces: `<link>/home/` 
+
 
 
 ## Documentation

@@ -1,13 +1,24 @@
 #!/bin/bash
 set -e
 
-echo "Pulling FlowManager and Mininet images (only once)..."
-docker compose pull
+echo "🔄 Installing Mininet natively (only once)..."
+apt-get update -qq
+apt-get install -y git net-tools curl
+git clone https://github.com/mininet/mininet.git ~/mininet
+cd ~/mininet
+util/install.sh -a   # installs Mininet + OVS natively
+cd ~
 
-echo "FlowManager + Mininet lab is ready in GitHub Codespaces!"
+echo "🔄 Pulling FlowManager image..."
+docker pull martimy/flowmanager:latest
+
+echo "✅ FlowManager + Mininet are ready!"
 echo ""
-echo "Start the lab with these two commands:"
-echo "   1. docker compose up -d          # starts controller + Mininet container"
-echo "   2. docker compose exec -it mininet /root/topo/mn_threeswitch.topo.py"
+echo "Start the lab:"
+echo "1. Start controller + FlowManager"
+echo "   docker run -d -p 6653:6653 -p 8080:8080 /"
+echo "          -v ${PWD}/examples:/home/auser/app --name flowmanager /"
+echo "          martimy/flowmanager app/learning_switch_2.py"
+echo "2. Start topology (Mininet)"
+echo "   ./examples/mn_threeswitch_topo.py"
 echo ""
-echo "FlowManager Web UI will automatically open in a new tab."

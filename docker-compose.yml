@@ -10,22 +10,6 @@ services:
     restart: unless-stopped
 
   # Mininet topology container
-#  mininet:
-#    image: martimy/mininet
-#    depends_on:
-#      - flowmanager
-#    tty: true
-#    privileged: true
-#    environment:
-#      HISTFILE: /root/.bash_history
-#    volumes:
-#      - /tmp/.X11-unix:/tmp/.X11-unix
-#      - /lib/modules:/lib/modules
-#      - ./examples:/root/topo
-#    network_mode: "host"
-#    working_dir: /root/topo          # Makes commands much shorter
-#    command: sleep infinity          # Keeps container alive for easy `exec`
-
   mininet:
     image: martimy/mininet
     depends_on:
@@ -40,8 +24,3 @@ services:
       - ./examples:/root/topo
     network_mode: "host"
     working_dir: /root/topo
-    # This suppresses the noisy modprobe error in Codespaces
-    entrypoint: ["/bin/sh", "-c"]
-    command: >
-      modprobe openvswitch 2>/dev/null || true &&
-      sleep infinity
