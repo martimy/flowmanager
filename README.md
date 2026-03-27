@@ -183,8 +183,8 @@ docker down
 2. Wait ~30–60 seconds (images are pulled the first time only).
 3. In the terminal start controller + FlowManager:
    ```bash
-   docker run -d -p 6653:6653 -p 8080:8080 /
-         -v ${PWD}/examples:/home/auser/app --name flowmanager /
+   docker run -d -p 6653:6653 -p 8080:8080 \
+         -v ${PWD}/examples:/home/auser/app --name flowmanager \
          martimy/flowmanager app/learning_switch_2.py
    ```
 4. Start topology (Mininet):
