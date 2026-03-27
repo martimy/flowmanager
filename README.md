@@ -1,5 +1,6 @@
 # FlowManager
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/martimy/flowmanager?quickstart=1)
 [![Docs](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
 FlowManager is a lightweight SDN application that provides direct, real-time control of OpenFlow switch tables. It is designed for teaching, experimentation, and rapid prototyping, allowing users to inspect, modify, and monitor flows in a controlled environment.
@@ -140,7 +141,7 @@ http://host:8080/home/legacy/index.html
 2. Launch a Mininet topology
 3. Open the web UI
 4. Inspect flows and topology
-5. Modify flows and observe behavior
+5. Modify flows and observe behaviour
 
 
 ## Mininet
@@ -165,6 +166,20 @@ docker run -d -p 6653:6653 -p 8080:8080 \
 -v <path/to/examples>:/home/auser/app \
 martimy/flowmanager app/<example>
 ```
+
+## Easiest Way: Run the Full SDN Lab in the Cloud (No Installation)
+
+1. Click the button above — GitHub opens a complete environment in your browser.
+2. Wait ~30–60 seconds (images are pulled the first time only).
+3. In the terminal run:
+   ```bash
+   docker compose up -d
+   ```
+4. Then start the topology:
+   ```
+   docker compose exec -it mininet /root/topo/mn_threeswitch.topo.py
+   ```
+
 
 ## Documentation
 

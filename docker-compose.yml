@@ -1,0 +1,25 @@
+# Docker Compose for SDN Lab
+services:
+  # Define a service named "flowmanager"
+  flowmanager:
+    image: martimy/flowmanager:latest
+    # Edit the command if another application is used
+    command: "app/learning_switch_2.py --observe-links"
+    volumes:
+     - ./examples:/home/auser/app       # Mounts examples folder
+    network_mode: "host"
+
+  # Define a service named "mininet"
+  mininet:
+    image: martimy/mininet
+    depends_on:
+      - flowmanager
+    tty: true # Allocates a pseudo-TTY (teletypewriter) for the container
+    privileged: true # required for mininet to run inside a container
+    environment:
+      HISTFILE: /root/.bash_history
+    volumes:
+     - /tmp/.X11-unix:/tmp/.X11-unix    # Mounts X11 socket for GUI access
+     - /lib/modules:/lib/modules        # Mounts kernel modules from the host to the container
+     - ./examples:/root/topo            # Mounts examples folder
+    network_mode: "host"
