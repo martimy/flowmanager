@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Topology</title>
+  <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon">
+  <script src="js/vue.min.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/fonts.css" />
+  <style>
+    :root {
+      --pcolor-0: #185FA5; --pcolor-1: #85B7EB; --pcolor-2: #378ADD;
+      --pcolor-3: #0C447C; --pcolor-4: #042C53;
+      --scolor-0: #7F77DD; --scolor-1: #EEEDFE; --scolor-2: #AFA9EC;
+      --scolor-3: #534AB7; --scolor-4: #3C3489;
+      --white: #ffffff;
+      --bg:         #f0f4fa;
+      --bg-card:    #ffffff;
+      --bg-sidebar: var(--pcolor-4);
+      --text-main:  var(--pcolor-4);
+      --text-muted: #6b7fa3;
+      --text-light: #a0aec0;
+      --border:     #dde3f0;
+      --radius:     10px;
+      --shadow:     0 2px 12px rgba(24,95,165,0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; }
+
+    #app { display: flex;  width: 100%; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+    .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 24px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .sidebar-brand-name { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.02em; line-height: 1.2; }
+    .sidebar-brand-sub  { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--pcolor-1); letter-spacing: 0.12em; text-transform: uppercase; }
+    .sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+    .nav-section-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pcolor-2); padding: 10px 20px 4px; }
+    .nav-link { display: flex; align-items: center; gap: 10px; padding: 9px 20px; color: rgba(255,255,255,0.65); text-decoration: none; font-size: 13.5px; font-weight: 400; transition: background 0.15s, color 0.15s; border-left: 3px solid transparent; }
+    .nav-link:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .nav-link.active { background: rgba(133,183,235,0.15); color: var(--white); border-left-color: var(--pcolor-1); font-weight: 500; }
+    .nav-link svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.7; }
+    .nav-link.active svg { opacity: 1; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-clock { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--pcolor-1); }
+
+    /* ── Main ── */
+    .main { margin-left: 200px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 32px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+    .topbar-right  { display: flex; align-items: center; gap: 12px; }
+    .last-updated  { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border: none; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s, transform 0.1s; }
+    .btn:active { transform: scale(0.97); }
+    .btn svg { width: 13px; height: 13px; }
+    .btn-primary { background: var(--pcolor-0); color: var(--white); }
+    .btn-primary:hover { background: var(--pcolor-3); }
+    .btn-primary.spinning svg { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Page body ── */
+    /* .page-body { padding: 20px 32px 40px; flex: 1; display: flex; flex-direction: column; } */
+
+    .page-body { padding: 20px 16px 40px; /* was 32px sides */ }
+    /* ── Tabs ── */
+    .tab-bar { display: flex; align-items: center; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid var(--border); }
+    .tab-btn { font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; padding: 8px 18px; border: none; border-radius: 6px 6px 0 0; background: transparent; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; letter-spacing: 0.04em; position: relative; bottom: -2px; border-bottom: 2px solid transparent; }
+    .tab-btn:hover  { background: var(--scolor-1); color: var(--scolor-3); }
+    .tab-btn.active { color: var(--pcolor-0); font-weight: 600; border-bottom: 2px solid var(--pcolor-0); background: transparent; }
+
+    /* ── Tab panels ── */
+    .tab-panel { display: none; flex: 1; }
+    .tab-panel.active { display: flex; flex-direction: column; }
+
+    /* ── Graph card ── */
+    .svg-card {
+      background: var(--bg-card);
+      border: 1px solid var(--scolor-2);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    /* Cytoscape container — explicit height required */
+    .tab-panel.active { display: flex; flex-direction: column; flex: 1; }
+    .svg-card         { flex: 1; display: flex; flex-direction: column; }
+    #cy               { flex: 1; min-height: 600px; }
+
+    /*#cy {
+      width: 100%;
+      height: 620px;
+      display: block;
+    }*/
+
+    /* ── Tooltip ── */
+    .cy-tooltip {
+      position: fixed;
+      padding: 6px 10px;
+      color: white;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: var(--pcolor-3);
+      border-radius: 6px;
+      pointer-events: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      z-index: 999;
+      transition: opacity 0.15s;
+    }
+
+    /* ── Tables tab ── */
+    .data-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px 24px;
+    }
+    .data-section-title {
+      font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+      color: var(--text-main); text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 8px; margin-top: 18px;
+    }
+    .data-section-title:first-child { margin-top: 0; }
+    .data-pre {
+      font-family: 'DM Mono', monospace; font-size: 11.5px;
+      line-height: 1.6; color: var(--text-muted);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; padding: 12px 14px;
+      white-space: pre-wrap; word-break: break-all;
+    }
+
+    /* ── Error state ── */
+    .state-banner { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border-radius: var(--radius); margin-bottom: 16px; font-size: 13.5px; font-weight: 500; }
+    .state-banner.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ── Sidebar ── -->
+  <app-sidebar :current-time="currentTime"></app-sidebar>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <app-topbar title="Topology" :last-updated="lastUpdated">
+      <button class="btn btn-primary" :class="{ spinning: loading }" @click="loadTopology">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M13.5 8a5.5 5.5 0 11-1.1-3.3"/><path d="M13.5 2v3h-3"/>
+        </svg>
+        Refresh
+      </button>
+    </app-topbar>
+
+    <main class="page-body">
+
+      <!-- Error -->
+      <div v-if="error" class="state-banner error">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4h1.5v4.5h-1.5V5zm0 5.5h1.5V12h-1.5v-1.5z"/></svg>
+        {{ error }}
+      </div>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn" :class="{ active: activeTab === 'graph' }"  @click="setTab('graph')">Graph</button>
+        <button class="tab-btn" :class="{ active: activeTab === 'tables' }" @click="setTab('tables')">Tables</button>
+      </div>
+
+      <!-- Graph tab -->
+      <div class="tab-panel" :class="{ active: activeTab === 'graph' }">
+        <div class="svg-card">
+          <div id="cy" ref="cyContainer"></div>
+        </div>
+      </div>
+
+      <!-- Tables tab -->
+      <div class="tab-panel" :class="{ active: activeTab === 'tables' }">
+        <div class="data-card">
+          <div class="data-section-title">Switches</div>
+          <pre class="data-pre">{{ network.switches ? JSON.stringify(network.switches, null, 2) : '—' }}</pre>
+          <div class="data-section-title">Links</div>
+          <pre class="data-pre">{{ network.links ? JSON.stringify(network.links, null, 2) : '—' }}</pre>
+          <div class="data-section-title">Hosts</div>
+          <pre class="data-pre">{{ network.hosts ? JSON.stringify(network.hosts, null, 2) : '—' }}</pre>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Tooltip rendered at app root so it is never clipped by overflow:hidden -->
+  <div
+    class="cy-tooltip"
+    v-if="tooltip.visible"
+    :style="{ left: tooltip.x + 'px', top: tooltip.y + 'px' }"
+  >{{ tooltip.text }}</div>
+
+</div><!-- /#app -->
+
+<script>
+// ── Helper ─────────────────────────────────────────────────────────────────
+function trimZeros(val) {
+  return String(val).replace(/^0+/, '');
+}
+
+// ── toGraph: converts raw /topology response into Cytoscape elements ───────
+// Logic is identical to the original D3 version; only the output shape differs.
+function toGraph(top) {
+  const nodes = [];
+  const edges = [];
+
+  // Switches
+  top.switches.forEach(function(sw) {
+    nodes.push({ data: { id: String(sw.dpid), label: String(sw.dpid), type: 'switch' } });
+  });
+
+  // Switch–switch links
+  if (top.links.length > 0) {
+    top.links.forEach(function(l) {
+      if (l.src.dpid < l.dst.dpid) {
+        edges.push({ data: {
+          id:      l.src.dpid + '-' + l.dst.dpid,
+          source:  String(l.src.dpid),
+          target:  String(l.dst.dpid),
+          weight:  4,
+          srcPort: trimZeros(l.src.port_no),
+          tgtPort: trimZeros(l.dst.port_no),
+        }});
+      }
+    });
+  } else if (top.switches.length > 1) {
+    // No link data — fan everything through a cloud node
+    nodes.push({ data: { id: '0', label: '0', type: 'cloud' } });
+    top.switches.forEach(function(sw) {
+      edges.push({ data: {
+        id:      'cloud-' + sw.dpid,
+        source:  '0',
+        target:  String(sw.dpid),
+        weight:  4,
+        srcPort: '',
+        tgtPort: '',
+      }});
+    });
+  }
+
+  // Hosts
+  top.hosts.forEach(function(h) {
+    nodes.push({ data: { id: String(h.mac), label: String(h.mac), type: 'host' } });
+    edges.push({ data: {
+      id:      h.port.dpid + '-' + h.mac,
+      source:  String(h.port.dpid),
+      target:  String(h.mac),
+      weight:  2,
+      srcPort: trimZeros(h.port.port_no),
+      tgtPort: '',
+    }});
+  });
+
+  return { nodes: nodes, edges: edges };
+}
+
+// ── Vue instance ───────────────────────────────────────────────────────────
+new Vue({
+  el: '#app',
+
+  data: {
+    loading:     false,
+    error:       null,
+    lastUpdated: null,
+    currentTime: '',
+    activeTab:   'graph',
+    network:     { switches: null, links: null, hosts: null },
+    tooltip:     { visible: false, text: '', x: 0, y: 0 },
+    clockTimer:  null,
+    // _cy is intentionally NOT in data — Cytoscape objects must not be
+    // made reactive by Vue, as that causes rendering glitches.
+  },
+
+  methods: {
+    // ── Clock ─────────────────────────────────────────────────────────────
+    updateClock() {
+      this.currentTime = new Date().toLocaleTimeString([], {
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+      });
+    },
+
+    // ── Tab ───────────────────────────────────────────────────────────────
+    setTab(name) {
+      this.activeTab = name;
+      sessionStorage.setItem('topologyTab', name);
+      // Cytoscape needs a resize nudge when its container becomes visible
+      if (name === 'graph' && this._cy) {
+        this.$nextTick(function() { this._cy.resize(); this._cy.fit(); }.bind(this));
+      }
+    },
+
+    // ── Data loading ──────────────────────────────────────────────────────
+    async loadTopology() {
+      this.loading = true;
+      this.error   = null;
+      try {
+        const res = await fetch('/topology');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+
+        this.network = { switches: data.switches, links: data.links, hosts: data.hosts };
+
+        // $nextTick ensures the graph tab panel is in the DOM before Cytoscape mounts
+        await this.$nextTick();
+        this.renderGraph(toGraph(data));
+
+        this.lastUpdated = new Date().toLocaleTimeString([], {
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+        });
+      } catch (err) {
+        this.error = 'Could not load topology from controller.';
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // ── Cytoscape render ──────────────────────────────────────────────────
+    renderGraph(graph) {
+      if (this._cy) {
+        this._cy.destroy();
+        this._cy = null;
+      }
+
+      const vm = this;
+
+      this._cy = cytoscape({
+        container: this.$refs.cyContainer,
+        elements:  graph.nodes.concat(graph.edges),
+
+        // cose is physics-based — equivalent to D3's forceSimulation
+        layout: {
+          name:              'cose',
+          animate:           true,
+          animationDuration: 600,
+          nodeRepulsion:     8000,
+          idealEdgeLength:   120,
+          edgeElasticity:    100,
+          gravity:           0.25,
+          fit:               true,
+          padding:           40,
+        },
+
+        style: [
+          {
+            selector: 'node',
+            style: {
+              'background-image': function(ele) {
+                var t = ele.data('type');
+                if (t === 'switch') return 'url(/home/img/switch.svg)';
+                if (t === 'cloud')  return 'url(/home/img/cloud.svg)';
+                return 'url(/home/img/pc.svg)';
+              },
+              'width':  54,
+              'height': 54,
+              // Remove the circle border and background
+              'border-width':       0,        // was 2
+              'background-color':  'transparent', // was #ffffff
+              'background-opacity': 0,        // fully transparent
+              // Keep the icon
+              'background-fit':     'contain',
+              'background-clip':    'none',
+              // Labels
+              'label':         'data(label)',
+              'font-family':   'DM Sans, sans-serif',
+              'font-size':     11,
+              'color':         '#3C3489',
+              'text-valign':   'bottom',
+              'text-halign':   'center',
+              'text-margin-y': 4,
+            },
+          },
+          {
+            selector: 'edge',
+            style: {
+              'width':                   'data(weight)',
+              'line-color':              '#534AB7',
+              'opacity':                 0.6,
+              'curve-style':             'bezier',
+              'source-label':            'data(srcPort)',
+              'source-text-offset':      28,
+              'source-text-margin-y':    -8,
+              'target-label':            'data(tgtPort)',
+              'target-text-offset':      28,
+              'target-text-margin-y':    -8,
+              'font-family':             'DM Mono, monospace',
+              'font-size':               10,
+              'color':                   '#534AB7',
+              'text-background-color':   '#ffffff',
+              'text-background-opacity': 0.85,
+              'text-background-padding': 2,
+            },
+          },
+          {
+            selector: 'node:active',
+            style: {
+              'border-width':   0,           // was 3
+              'overlay-color':  '#185FA5',
+              'overlay-opacity': 0.15,       // subtle highlight instead of border
+              'overlay-padding': 4,
+            }
+          }
+        ],
+      });
+
+      // Tooltip — updates Vue reactive data so it renders through the template
+      this._cy.on('mouseover', 'node', function(evt) {
+        var e = evt.originalEvent;
+        vm.tooltip = {
+          visible: true,
+          text:    evt.target.data('type') + ': ' + evt.target.data('id'),
+          x:       e.clientX + 12,
+          y:       e.clientY - 32,
+        };
+      });
+
+      this._cy.on('mouseout', 'node', function() {
+        vm.tooltip = { visible: false, text: '', x: 0, y: 0 };
+      });
+    },
+  },
+
+  mounted() {
+    var saved = sessionStorage.getItem('topologyTab');
+    if (saved) this.activeTab = saved;
+
+    this.updateClock();
+    this.clockTimer = setInterval(this.updateClock, 1000);
+    this.loadTopology();
+  },
+
+  beforeDestroy() {
+    clearInterval(this.clockTimer);
+    if (this._cy) this._cy.destroy();
+  },
+});
+</script>
+</body>
+</html>
