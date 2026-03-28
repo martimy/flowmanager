@@ -1,6 +1,5 @@
 # FlowManager
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/martimy/flowmanager?quickstart=1)
 [![Docs](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
 FlowManager is a lightweight SDN application that provides direct, real-time control of OpenFlow switch tables. It is designed for teaching, experimentation, and rapid prototyping, allowing users to inspect, modify, and monitor flows in a controlled environment.
@@ -175,25 +174,6 @@ docker down
 ```
 
 *Note: The SDN apps and Mininet topologies are expected to be in the `examples` folder.*
-
-
-## Run the Full SDN Lab in the Cloud (No Installation)
-
-1. Click the button above — GitHub opens a complete environment in your browser.
-2. Wait ~30–60 seconds (images are pulled the first time only).
-3. In the terminal start controller + FlowManager:
-   ```bash
-   docker run -d -p 6653:6653 -p 8080:8080 \
-         -v ${PWD}/examples:/home/auser/app --name flowmanager \
-         martimy/flowmanager app/learning_switch_2.py
-   ```
-4. Start topology (Mininet):
-   ```bash
-   ./examples/mn_threeswitch_topo.py
-   ```
-5. Direct your browser to the link provided by the codespaces: `<link>/home/` 
-
-
 
 ## Documentation
 
