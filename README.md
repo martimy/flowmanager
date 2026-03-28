@@ -158,7 +158,7 @@ python3 controller.py flowmanager.py examples/learning_switch_2.py
 sudo examples/mn_threeswitch_topo.py
 ```
 
-## Examples (Docker compose)
+## Docker compose
 
 You can start FlowManager + Mininet using Docker compose:
 
@@ -167,10 +167,10 @@ docker compose up -d
 docker compose exec mininet ./mn_threeswitch_topo.py
 ```
 
-and to shutdown:
+To shutdown:
 
 ```bash
-docker down
+docker compose down
 ```
 
 *Note: The SDN apps and Mininet topologies are expected to be in the `examples` folder.*
