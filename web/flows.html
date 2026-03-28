@@ -180,8 +180,10 @@
       background: var(--bg-card); border: 1px solid var(--border);
       border-radius: var(--radius); box-shadow: var(--shadow);
       margin-bottom: 20px;
+      position: relative; z-index: 1;
       animation: fadeUp 0.3s ease both;
     }
+    .flow-card.menu-open { z-index: 300; }
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -408,6 +410,7 @@
               v-for="(ft, ftIdx) in sw.flowTables"
               :key="ft.tableId"
               class="flow-card"
+              :class="{ 'menu-open': ft._menuOpen }"
               :style="{ animationDelay: (ftIdx * 0.05) + 's' }"
             >
               <!-- Card header -->
