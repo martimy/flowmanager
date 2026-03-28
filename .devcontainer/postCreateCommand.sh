@@ -2,8 +2,7 @@
 set -e
 
 echo "🔄 Installing Mininet natively (only once)..."
-sudo apt-get update -qq
-sudo apt-get install mininet -y
+sudo apt-get update -qq && sudo apt-get install -y mininet openvswitch-switch && sudo service openvswitch-switch start
 
 echo "🔄 Pulling FlowManager image..."
 docker pull martimy/flowmanager:latest

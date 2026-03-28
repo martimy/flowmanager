@@ -1,5 +1,6 @@
 {
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
+  "runArgs": ["--privileged", "--cap-add=NET_ADMIN", "--cap-add=SYS_MODULE"],
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
