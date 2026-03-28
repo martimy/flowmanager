@@ -1,5 +1,6 @@
 # FlowManager
 
+![Docker](https://img.shields.io/badge/docker-compose-ready-blue?logo=docker)
 [![Docs](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
 FlowManager is a lightweight SDN application that provides direct, real-time control of OpenFlow switch tables. It is designed for teaching, experimentation, and rapid prototyping, allowing users to inspect, modify, and monitor flows in a controlled environment.
@@ -96,10 +97,12 @@ pip install -r requirements.txt
 
 ## Docker
 
-Run without local setup:
+Run with an application:
 
 ```bash
-docker run -d -p 6653:6653 -p 8080:8080 martimy/flowmanager
+docker run -d -p 6653:6653 -p 8080:8080 \
+        -v ${PWD}/examples:/home/auser/app --name flowmanager \
+        martimy/flowmanager app/learning_switch_2.py
 ```
 
 Then open:
