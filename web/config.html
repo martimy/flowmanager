@@ -195,7 +195,6 @@
               :class="{ selected: selectedSwitches.includes(sw) }"
               @click="toggleSwitch(sw)"
             >
-              <input type="checkbox" :checked="selectedSwitches.includes(sw)">
               <div class="sw-checkmark">
                 <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
                   <path d="M1.5 5l2.5 2.5 4.5-4"/>
@@ -491,10 +490,11 @@ new Vue({
       this.restoring     = true;
       this.restoreResult = null;
       try {
+        payload = JSON.parse(this.restoreContent);
         const res  = await fetch('/upload', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(this.restoreContent),
+          body:    JSON.stringify(payload),
         });
         const data = await res.json();
         const msg  = data.message || (res.ok ? 'Configuration restored successfully.' : 'Controller returned an error.');

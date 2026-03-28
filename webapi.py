@@ -156,19 +156,19 @@ async def post_flow_form(entry: FlowEntry):
     """Connect with flow control form"""
     return ctrl_api.process_flow_message(entry.dict(exclude_unset=True))
 
-
 @app.post("/upload")
 async def post_config_upload(config: ConfigUpload):
-    """Connect with configuration upload form"""
     meters = config.meters
     groups = config.groups
-    flows = config.flows
+    flows  = config.flows
 
     response_meters = ctrl_api.process_meter_upload(meters) if meters else ""
     response_groups = ctrl_api.process_group_upload(groups) if groups else ""
-    response_flows = ctrl_api.process_flow_upload(flows) if flows else ""
-    return f"{response_meters}, {response_groups}, {response_flows}"
+    response_flows  = ctrl_api.process_flow_upload(flows)  if flows  else ""
 
+    return JSONResponse(content={
+        "message": f"{response_meters}, {response_groups}, {response_flows}".strip(", ")
+    })
 
 @app.post("/flowdel")
 async def post_flow_delete(entries: List[FlowEntry]):
