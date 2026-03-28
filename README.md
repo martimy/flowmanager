@@ -1,6 +1,5 @@
 # FlowManager
 
-![Docker](https://img.shields.io/badge/docker-compose-ready-blue?logo=docker)
 [![Docs](https://img.shields.io/badge/Docs-github.io-blue)](https://martimy.github.io/flowmanager)
 
 FlowManager is a lightweight SDN application that provides direct, real-time control of OpenFlow switch tables. It is designed for teaching, experimentation, and rapid prototyping, allowing users to inspect, modify, and monitor flows in a controlled environment.
