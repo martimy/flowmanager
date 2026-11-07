@@ -4,4 +4,4 @@ pydantic
 uvicorn
 websockets
 eventlet==0.40.4
-
+dnspython==2.8.0
