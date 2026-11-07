@@ -3,3 +3,5 @@ os-ken==3.1.1
 pydantic
 uvicorn
 websockets
+eventlet==0.40.4
+
